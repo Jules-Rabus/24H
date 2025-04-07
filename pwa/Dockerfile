@@ -10,6 +10,11 @@ FROM node_upstream AS base
 
 WORKDIR /srv/app
 
+COPY --chown=root:root ./ZscalerRootCertificate-2048-SHA256.crt /usr/local/share/ca-certificates/
+RUN update-ca-certificates
+
+ENV NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/ZscalerRootCertificate-2048-SHA256.crt
+
 RUN npm install -g corepack@latest && \
     corepack enable && \
 	corepack prepare --activate pnpm@latest && \

@@ -6,6 +6,8 @@
 # Versions
 FROM dunglas/frankenphp:1-php8.4 AS frankenphp_upstream
 
+COPY --chown=root:root ./ZscalerRootCertificate-2048-SHA256.crt /usr/local/share/ca-certificates/
+RUN update-ca-certificates
 
 # The different stages of this Dockerfile are meant to be built into separate images
 # https://docs.docker.com/develop/develop-images/multistage-build/#stop-at-a-specific-build-stage

@@ -15,7 +15,7 @@ import "@fontsource/poppins/700.css";
 const Welcome = () => (
   <div className="w-full overflow-x-hidden">
     <Head>
-      <title>Welcome to API Platform!</title>
+      <title>Course 24H</title>
     </Head>
     <section className="w-full bg-spider-cover relative">
       <a
