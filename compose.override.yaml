@@ -3,7 +3,7 @@ services:
   php:
     build:
       context: ./api
-      target: frankenphp_dev
+      target: frankenphp_prod
     volumes:
       - ./api:/app
       - /app/var
@@ -13,6 +13,8 @@ services:
       #  from the bind-mount for better performance by enabling the next line:
       #- /app/vendor
     environment:
+      TRUSTED_HOSTS: ^pi\.parking-du-moulin\.fr$
+      SERVER_NAME: ${SERVER_NAME:-:80}
       MERCURE_EXTRA_DIRECTIVES: demo
       # See https://xdebug.org/docs/all_settings#mode
       XDEBUG_MODE: "${XDEBUG_MODE:-off}"

@@ -35,7 +35,7 @@ services:
   pwa:
     image: ${IMAGES_PREFIX:-}app-pwa
     environment:
-      #NEXT_PUBLIC_ENTRYPOINT: http://php
+      NEXT_PUBLIC_ENTRYPOINT: http://php
 
 ###> doctrine/doctrine-bundle ###
   database:

@@ -44,7 +44,7 @@ const BibDocument = ({ user }: { user: any }) => {
         <View style={bibStyles.bib}>
           <Text style={bibStyles.number}>{user.originId}</Text>
           <Text style={bibStyles.name}>{displayName}</Text>
-          <Image style={bibStyles.qr} src={user.qrCodeBase64} alt="QR Code" />
+          <Image style={bibStyles.qr} src={user.qrCodeBase64} />
         </View>
       </Page>
     </Document>
