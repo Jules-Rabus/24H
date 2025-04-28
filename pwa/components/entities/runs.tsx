@@ -3,12 +3,12 @@ import {
   InputGuesser,
   ListGuesser,
   FieldGuesser,
-  ShowGuesser,
+  ShowGuesser, CreateGuesser,
 } from '@api-platform/admin';
 
 import {TextField, DateField, Datagrid, ReferenceManyField, ReferenceField } from 'react-admin';
 
-const RunsList = (props: any) => (
+export const RunsList = (props: any) => (
   <ListGuesser {...props}>
     <DateField source="startDate" showTime label="Date de début" />
     <DateField source="endDate" showTime label="Date de fin" />
@@ -17,7 +17,7 @@ const RunsList = (props: any) => (
   </ListGuesser>
 );
 
-const RunShow = (props: any) => (
+export const RunShow = (props: any) => (
   <ShowGuesser {...props}>
     <DateField source="startDate" showTime label="Date de début" />
     <DateField source="endDate" showTime label="Date de fin" />
@@ -39,11 +39,16 @@ const RunShow = (props: any) => (
   </ShowGuesser>
 );
 
-const RunEdit = (props: any) => (
+export const RunCreate = (props: any) => (
+  <CreateGuesser {...props}>
+    <InputGuesser source="startDate" />
+    <InputGuesser source="endDate" />
+  </CreateGuesser>
+);
+
+export const RunEdit = (props: any) => (
   <EditGuesser {...props}>
     <InputGuesser source="startDate" />
     <InputGuesser source="endDate" />
   </EditGuesser>
 );
-
-export { RunsList, RunShow, RunEdit };

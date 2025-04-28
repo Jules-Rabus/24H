@@ -14,6 +14,7 @@ import { Navigate } from "react-router-dom";
 export const getHeaders = (): Record<string, string> => {
   const token = localStorage.getItem("token");
   if (!token) {
+    console.error("Token not found in localStorage");
     return {};
   }
   return { Authorization: `Bearer ${token}` };
@@ -22,6 +23,7 @@ export const getHeaders = (): Record<string, string> => {
 // Vérifie la validité du token en le décodant
 export const getAccessToken = () => {
   const token = localStorage.getItem("token");
+  console.log("Token from localStorage:", token);
   if (!token) return null;
   try {
     const decoded: any = jwtDecode(token);
@@ -72,6 +74,7 @@ export const apiDocumentationParser = (setRedirectToLogin: (value: boolean) => v
   } catch (result: any) {
     const { api, response, status } = result;
     if (status !== 401 || !response) {
+      console.error("Error fetching API documentation", result);
       throw result;
     }
 
@@ -105,6 +108,7 @@ export const authProvider = {
     }
     const auth = await response.json();
     localStorage.setItem("token", auth.token);
+    console.log("Token saved in localStorage:", auth.token);
     return Promise.resolve();
   },
 

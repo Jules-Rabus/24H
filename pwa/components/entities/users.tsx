@@ -100,10 +100,14 @@ export const UserEdit = (props: any) => (
     <InputGuesser source="surname" label="Surnom" />
     <InputGuesser source="email" label="Email" />
     <InputGuesser source="organization" label="Organisation" />
-    <SelectInput source="roles" choices={[
-      { id: 'ROLE_USER', name: 'ROLE_USER' },
-      { id: 'ROLE_ADMIN', name: 'ROLE_ADMIN' },
-    ]} />
+    <InputGuesser source="plainPassword" label="Mot de passe" />
+    <SelectArrayInput
+      source="roles"
+      choices={[
+        { id: 'ROLE_USER', name: 'ROLE_USER' },
+        { id: 'ROLE_ADMIN', name: 'ROLE_ADMIN' },
+      ]}
+    />
     <ReferenceArrayInput source="participations" reference="participations" label="Participations">
       <SelectArrayInput optionText={(choice: any) =>
         choice.arrivalTime
@@ -166,6 +170,7 @@ export const UserShow = (props: any) => {
           <DeleteButton />
         </Datagrid>
       </ReferenceManyField>
+      <FieldGuesser source="roles" label="Rôles" />
       <DateField showTime source="createdAt" label="Créé le" />
       <DateField showTime source="updatedAt" label="Mis à jour le" />
       <PdfDownloadLinkButtonWrapper />

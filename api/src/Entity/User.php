@@ -35,8 +35,8 @@ use Symfony\Component\Validator\Constraints\PasswordStrength;
         ),
         new Get(security: self::ACCESS),
         new Post(security: self::ADMIN, validationContext: ['groups' => ['Default', self::WRITE]], processor: UserPasswordHasher::class),
-        new Patch(security: self::ACCESS, processor: UserPasswordHasher::class),
-        new Delete(security: self::ACCESS),
+        new Patch(security: self::ADMIN, processor: UserPasswordHasher::class),
+        new Delete(security: self::ADMIN),
     ],
     normalizationContext: ['groups' => [self::READ]],
     denormalizationContext: ['groups' => [self::WRITE]],
@@ -98,7 +98,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var list<string> The user roles
      */
     #[ORM\Column]
-    #[Groups([self::READ])]
+    #[Groups([self::READ, self::WRITE])]
     private array $roles = [];
 
     /**

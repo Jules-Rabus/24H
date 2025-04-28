@@ -5,11 +5,11 @@ services:
       context: ./api
       target: frankenphp_prod
     environment:
-      APP_SECRET: ${APP_SECRET:-superSECRETE2148AZAD}
+      APP_SECRET: ${APP_SECRET}
       #MERCURE_PUBLISHER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET}
       #MERCURE_SUBSCRIBER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET}
-      SERVER_NAME: ${SERVER_NAME:-:80}
-      TRUSTED_HOSTS: ^pi\.parking-du-moulin\.fr$
+      
+      
   pwa:
     build:
       context: ./pwa
