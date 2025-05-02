@@ -1,5 +1,5 @@
 import "../styles/globals.css"
-import Layout from "../components/common/Layout"
+import Layout from "./components/common/Layout"
 import type { AppProps } from "next/app"
 import type { DehydratedState } from "@tanstack/react-query"
 
