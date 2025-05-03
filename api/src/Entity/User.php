@@ -14,7 +14,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Entity\Traits\Timestampable;
 use App\Repository\UserRepository;
-use App\State\UserPasswordHasher;
+use App\State\UserProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -34,9 +34,9 @@ use Symfony\Component\Validator\Constraints\PasswordStrength;
             security: self::ADMIN
         ),
         new Get(security: self::ACCESS),
-        new Post(security: self::ADMIN, validationContext: ['groups' => ['Default', self::WRITE]], processor: UserPasswordHasher::class),
-        new Patch(security: self::ACCESS, processor: UserPasswordHasher::class),
-        new Delete(security: self::ACCESS),
+        new Post(security: self::ADMIN, validationContext: ['groups' => ['Default', self::WRITE]], processor: UserProcessor::class),
+        new Patch(security: self::ADMIN, processor: UserProcessor::class),
+        new Delete(security: self::ADMIN),
     ],
     normalizationContext: ['groups' => [self::READ]],
     denormalizationContext: ['groups' => [self::WRITE]],
@@ -64,7 +64,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
-    #[Groups([self::READ, self::WRITE, Run::READ])]
+    #[Groups([self::READ, self::WRITE, Run::READ, Participation::READ])]
     #[Assert\NotBlank]
     #[ApiFilter(SearchFilter::class, strategy: "istart")]
     #[ApiFilter(OrderFilter::class)]
@@ -72,7 +72,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private string $firstName;
 
     #[ORM\Column(length: 180)]
-    #[Groups([self::READ, self::WRITE, Run::READ])]
+    #[Groups([self::READ, self::WRITE, Run::READ, Participation::READ])]
     #[Assert\NotBlank]
     #[ApiFilter(SearchFilter::class, strategy: "istart")]
     #[ApiFilter(OrderFilter::class)]
@@ -80,7 +80,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private string $lastName;
 
     #[ORM\Column(length: 180, nullable: true)]
-    #[Groups([self::READ, self::WRITE, Run::READ])]
+    #[Groups([self::READ, self::WRITE, Run::READ, Participation::READ])]
     #[ApiFilter(SearchFilter::class, strategy: "istart")]
     #[ApiFilter(OrderFilter::class)]
     #[ApiProperty(iris: ["https://schema.org/familyName"])]
@@ -98,7 +98,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var list<string> The user roles
      */
     #[ORM\Column]
-    #[Groups([self::READ])]
+    #[Groups([self::READ, self::WRITE])]
     private array $roles = [];
 
     /**
@@ -289,14 +289,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * Returns participations where the user has arrived (arrivalDate not null)
-     * @return Collection<int, Participation>
-     */
-    public function getArrivedParticipations(): Collection
+    #[Groups([self::READ])]
+    public function getFinishedParticipations(): Collection
     {
         return $this->participations->filter(function(Participation $participation) {
-            return $participation->getArrivalDate() !== null;
+            return $participation->getArrivalTime() !== null;
         });
+    }
+
+    #[Groups([self::READ, Participation::READ])]
+    public function getFinishedParticipationsCount(): int
+    {
+        return $this->getFinishedParticipations()->count();
     }
 }

@@ -34,8 +34,9 @@ services:
 
   pwa:
     image: ${IMAGES_PREFIX:-}app-pwa
+    restart: unless-stopped
     environment:
-      #NEXT_PUBLIC_ENTRYPOINT: http://php
+      NEXT_PUBLIC_ENTRYPOINT: http://php
 
 ###> doctrine/doctrine-bundle ###
   database:
@@ -45,6 +46,7 @@ services:
       # You should definitely change the password in production
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-!ChangeMe!}
       - POSTGRES_USER=${POSTGRES_USER:-app}
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "pg_isready", "-d", "${POSTGRES_DB:-app}", "-U", "${POSTGRES_USER:-app}"]
       timeout: 5s
