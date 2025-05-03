@@ -196,7 +196,6 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
             <div className="stat-title">Temps restant</div>
             <div className="stat-value">
               <div className="flex gap-4 justify-center">
-                {/* Heures */}
                 <div className="flex flex-col items-center">
                   <span className="countdown font-mono text-4xl">
                     <span
@@ -207,7 +206,6 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
                   </span>
                   <span className="text-xs mt-1">h</span>
                 </div>
-                {/* Minutes */}
                 <div className="flex flex-col items-center">
                   <span className="countdown font-mono text-4xl">
                     <span
@@ -218,7 +216,6 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
                   </span>
                   <span className="text-xs mt-1">m</span>
                 </div>
-                {/* Secondes */}
                 <div className="flex flex-col items-center">
                   <span className="countdown font-mono text-4xl">
                     <span
@@ -264,8 +261,8 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
               style={{ left: `${leftPct}%` }}
             >
               <div className="h-3 w-3 bg-white rounded-full" />
-              <span className="font-semibold mt-1">
-                {run.finishedParticipantsCount}
+              <span className={`${isAbove ? "mb-2" : "mt-2"}`}>
+                {run.finishedParticipantsCount} / {run.participantsCount}
               </span>
               <span className="">{timeLabel}</span>
             </div>

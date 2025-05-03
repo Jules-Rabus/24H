@@ -4,6 +4,7 @@ import {
   EditGuesser,
   InputGuesser,
   FieldGuesser,
+  CreateGuesser,
 } from "@api-platform/admin";
 
 import {
@@ -169,33 +170,26 @@ export const UsersList = (props: any) => (
     <FieldGuesser source="surname" label="Surnom" />
     <FieldGuesser source="email" label="Email" />
     <FieldGuesser source="organization" label="Organisation" />
-    <FunctionField
-      label="Dossard PDF"
-      render={(record: any) => <PdfDownloadCell record={record} />}
-    />
   </ListGuesser>
 );
 
-const PdfDownloadCell = ({ record }: { record: any }) => {
-  const [qr, setQr] = useState<string>("");
-  useEffect(() => {
-    const canvas = document.createElement("canvas");
-    toCanvas(canvas, {
-      bcid: "qrcode",
-      text: record.originId.toString(),
-      scale: 3,
-    });
-  }, [record]);
-  if (!qr) return null;
-  return (
-    <PDFDownloadLink
-      document={<BibDocument user={{ ...record, qrCodeBase64: qr }} />}
-      fileName={`${record.originId}.pdf`}
-    >
-      {({ loading }) => (loading ? "..." : "PDF")}
-    </PDFDownloadLink>
-  );
-};
+export const UserCreate = (props: any) => (
+  <CreateGuesser {...props}>
+    <InputGuesser source="firstName" label="Prénom" />
+    <InputGuesser source="lastName" label="Nom" />
+    <InputGuesser source="surname" label="Surnom" />
+    <InputGuesser source="email" label="Email" />
+    <InputGuesser source="organization" label="Organisation" />
+    <InputGuesser source="plainPassword" label="Mot de passe" />
+    <SelectArrayInput
+      source="roles"
+      choices={[
+        { id: "ROLE_USER", name: "ROLE_USER" },
+        { id: "ROLE_ADMIN", name: "ROLE_ADMIN" },
+      ]}
+    />
+  </CreateGuesser>
+);
 
 export const UserShow = (props: any) => {
   const record = useRecordContext();
@@ -212,8 +206,12 @@ export const UserShow = (props: any) => {
         render={(record) => record.participations?.length || 0}
       />
       <FunctionField
+        label="Nombre de participations terminées"
+        render={(record) => record.finishedParticipationsCount}
+      />
+      <FunctionField
         label="Nombre de km"
-        render={(record) => (record.participations?.length || 0) * 4}
+        render={(record) => record.finishedParticipationsCount * 4}
       />
       <ReferenceManyField
         reference="participations"

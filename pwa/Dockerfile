@@ -39,9 +39,8 @@ CMD ["sh", "-c", "pnpm install; pnpm dev"]
 FROM base AS builder
 
 COPY --link . .
-RUN npm ci
-RUN npm run build
-
+RUN npm ci && \
+	npm run build
 
 # Production image, copy all the files and run next
 FROM node_upstream AS prod

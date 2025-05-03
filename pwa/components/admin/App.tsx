@@ -7,7 +7,7 @@ import {
   RedirectToLogin,
 } from "../utils/providers";
 import i18nProvider from "../utils/i18nProvider";
-import { UserEdit, UsersList, UserShow } from "../entities/users";
+import { UserEdit, UsersList, UserShow, UserCreate } from "../entities/users";
 import { RunsList, RunEdit, RunShow, RunCreate } from "../entities/runs";
 import {
   ParticipationsList,
@@ -55,6 +55,7 @@ const Admin = () => {
               list={UsersList}
               show={UserShow}
               edit={UserEdit}
+              create={UserCreate}
             />
           </>
         )}
