@@ -1,11 +1,20 @@
 import Head from "next/head";
 import React, { useState } from "react";
 import { HydraAdmin, ResourceGuesser } from "@api-platform/admin";
-import { dataProvider, authProvider, RedirectToLogin } from "../utils/providers";
+import {
+  dataProvider,
+  authProvider,
+  RedirectToLogin,
+} from "../utils/providers";
 import i18nProvider from "../utils/i18nProvider";
 import { UserEdit, UsersList, UserShow } from "../entities/users";
-import {RunsList, RunEdit, RunShow, RunCreate} from "../entities/runs";
-import { ParticipationsList, ParticipationsShow, ParticipationsCreate, ParticipationsEdit } from "../entities/participations";
+import { RunsList, RunEdit, RunShow, RunCreate } from "../entities/runs";
+import {
+  ParticipationsList,
+  ParticipationsShow,
+  ParticipationsCreate,
+  ParticipationsEdit,
+} from "../entities/participations";
 import { ENTRYPOINT } from "../../config/entrypoint";
 
 const Admin = () => {
@@ -13,7 +22,7 @@ const Admin = () => {
 
   return (
     <>
-    <Head>
+      <Head>
         <title>Course 24H</title>
       </Head>
 
@@ -27,9 +36,26 @@ const Admin = () => {
           <RedirectToLogin />
         ) : (
           <>
-            <ResourceGuesser name="runs" list={RunsList} show={RunShow} edit={RunEdit} create={RunCreate} />
-            <ResourceGuesser name="participations" list={ParticipationsList} show={ParticipationsShow} create={ParticipationsCreate} edit={ParticipationsEdit} />
-            <ResourceGuesser name="users" list={UsersList} show={UserShow} edit={UserEdit} />
+            <ResourceGuesser
+              name="runs"
+              list={RunsList}
+              show={RunShow}
+              edit={RunEdit}
+              create={RunCreate}
+            />
+            <ResourceGuesser
+              name="participations"
+              list={ParticipationsList}
+              show={ParticipationsShow}
+              create={ParticipationsCreate}
+              edit={ParticipationsEdit}
+            />
+            <ResourceGuesser
+              name="users"
+              list={UsersList}
+              show={UserShow}
+              edit={UserEdit}
+            />
           </>
         )}
       </HydraAdmin>

@@ -118,11 +118,7 @@ const Welcome = () => (
         url="https://twitter.com/ApiPlatform"
         title="API Platform on Twitter"
       >
-        <svg
-          viewBox="0 0 20 20"
-          aria-hidden="true"
-          fill="currentColor"
-        >
+        <svg viewBox="0 0 20 20" aria-hidden="true" fill="currentColor">
           <path d="M6.29 18.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0 0 20 3.92a8.19 8.19 0 0 1-2.357.646 4.118 4.118 0 0 0 1.804-2.27 8.224 8.224 0 0 1-2.605.996 4.107 4.107 0 0 0-6.993 3.743 11.65 11.65 0 0 1-8.457-4.287 4.106 4.106 0 0 0 1.27 5.477A4.073 4.073 0 0 1 .8 7.713v.052a4.105 4.105 0 0 0 3.292 4.022 4.095 4.095 0 0 1-1.853.07 4.108 4.108 0 0 0 3.834 2.85A8.233 8.233 0 0 1 0 16.407a11.615 11.615 0 0 0 6.29 1.84"></path>
         </svg>
       </HelpButton>
@@ -174,15 +170,15 @@ const Card = ({
   title: string;
 }) => (
   <div className="w-full max-w-xs p-2 | sm:w-1/2 | lg:w-full lg:p-0">
-  <a
-    href={url}
-    className="w-full flex items-center flex-col justify-center shadow-card p-3 min-h-24 transition-colors text-cyan-500 border-4 border-transparent hover:border-cyan-200 hover:text-cyan-700 | sm:flex-row sm:justify-start sm:px-5"
-  >
-    <Image src={image} width="50" height="50" alt="" />
-    <h3 className="text-center text-base uppercase font-semibold leading-tight pt-3 | sm:text-left sm:pt-0 sm:pl-5">
-      {title}
-    </h3>
-  </a>
+    <a
+      href={url}
+      className="w-full flex items-center flex-col justify-center shadow-card p-3 min-h-24 transition-colors text-cyan-500 border-4 border-transparent hover:border-cyan-200 hover:text-cyan-700 | sm:flex-row sm:justify-start sm:px-5"
+    >
+      <Image src={image} width="50" height="50" alt="" />
+      <h3 className="text-center text-base uppercase font-semibold leading-tight pt-3 | sm:text-left sm:pt-0 sm:pl-5">
+        {title}
+      </h3>
+    </a>
   </div>
 );
 
@@ -195,14 +191,13 @@ const HelpButton = ({
   title: string;
   children: React.ReactNode;
 }) => (
-  (<Link
+  <Link
     href={url}
     target="_blank"
     rel="noopener noreferrer"
     className="w-12 h-12 p-2.5 rounded-full border-2 border-gray-100 justify-center transition-colors hover:border-cyan-200 hover:bg-cyan-200/50 m-2 inline-flex items-center | md:p-1 md:w-9 md:h-9 md:flex md:mx-auto md:m-0"
-    title={title}>
-
+    title={title}
+  >
     {children}
-
-  </Link>)
+  </Link>
 );

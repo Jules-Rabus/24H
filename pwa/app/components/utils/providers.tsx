@@ -3,7 +3,7 @@ import {
   fetchHydra as baseFetchHydra,
   hydraDataProvider as baseHydraDataProvider,
   HydraHttpClientResponse,
-  useIntrospection
+  useIntrospection,
 } from "@api-platform/admin";
 import { parseHydraDocumentation } from "@api-platform/api-doc-parser";
 import { API_AUTH_PATH, ENTRYPOINT } from "../../config/entrypoint";
@@ -42,7 +42,7 @@ export const getAccessToken = () => {
 // Étend la fonction de fetch en y ajoutant nos headers personnalisés
 export const fetchHydra = (
   url: string | URL,
-  options: any = {}
+  options: any = {},
 ): Promise<HydraHttpClientResponse> => {
   return baseFetchHydra(new URL(url), {
     ...options,
@@ -67,22 +67,25 @@ export const RedirectToLogin = () => {
 };
 
 // Personnalise le parseur de documentation Hydra pour gérer le code 401 et effacer le token expiré
-export const apiDocumentationParser = (setRedirectToLogin: (value: boolean) => void) => async () => {
-  try {
-    setRedirectToLogin(false);
-    return await parseHydraDocumentation(ENTRYPOINT, { headers: getHeaders() });
-  } catch (result: any) {
-    const { api, response, status } = result;
-    if (status !== 401 || !response) {
-      console.error("Error fetching API documentation", result);
-      throw result;
-    }
+export const apiDocumentationParser =
+  (setRedirectToLogin: (value: boolean) => void) => async () => {
+    try {
+      setRedirectToLogin(false);
+      return await parseHydraDocumentation(ENTRYPOINT, {
+        headers: getHeaders(),
+      });
+    } catch (result: any) {
+      const { api, response, status } = result;
+      if (status !== 401 || !response) {
+        console.error("Error fetching API documentation", result);
+        throw result;
+      }
 
-    localStorage.removeItem("token");
-    setRedirectToLogin(true);
-    return { api, response, status };
-  }
-};
+      localStorage.removeItem("token");
+      setRedirectToLogin(true);
+      return { api, response, status };
+    }
+  };
 
 // Initialise le dataProvider Hydra en y intégrant le fetch personnalisé et le parser
 export const dataProvider = (setRedirectToLogin: (value: boolean) => void) =>
@@ -96,7 +99,13 @@ export const dataProvider = (setRedirectToLogin: (value: boolean) => void) =>
 // Implémente l’authentification par token pour HydraAdmin
 export const authProvider = {
   // Authentification : envoi de l’email (username) et du mot de passe vers l’API d’authentification
-  login: async ({ username, password }: { username: string; password: string }) => {
+  login: async ({
+    username,
+    password,
+  }: {
+    username: string;
+    password: string;
+  }) => {
     const request = new Request(API_AUTH_PATH, {
       method: "POST",
       body: JSON.stringify({ email: username, password }),
@@ -114,14 +123,12 @@ export const authProvider = {
 
   // Déconnexion : suppression du token
   logout: () => {
-
     localStorage.removeItem("token");
     return Promise.resolve();
   },
 
   // Vérifie que le token est encore disponible et valide
-  checkAuth: () =>
-    getAccessToken() ? Promise.resolve() : Promise.reject(),
+  checkAuth: () => (getAccessToken() ? Promise.resolve() : Promise.reject()),
 
   // Gestion des erreurs : en cas de 401 ou 403, supprime le token et rejette la promesse
   checkError: (error: { status: number }) => {
