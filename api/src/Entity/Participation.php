@@ -38,6 +38,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
     ],
     normalizationContext: ['groups' => [self::READ]],
     denormalizationContext: ['groups' => [self::WRITE]],
+    mercure: true,
     security: self::ACCESS
 )]
 class Participation
@@ -74,6 +75,7 @@ class Participation
     #[ApiFilter(DateFilter::class)]
     #[ApiFilter(OrderFilter::class)]
     #[Assert\LessThanOrEqual('now')]
+    #[Assert\GreaterThanOrEqual(propertyPath: 'run.startDate')]
     private ?\DateTimeInterface $arrivalTime = null;
 
     public function getId(): ?int

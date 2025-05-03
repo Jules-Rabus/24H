@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "format": "prettier --write .",
   },
   "dependencies": {
     "@api-platform/admin": "^4.0.6",
@@ -47,6 +48,8 @@
     "daisyui": "^5.0.35",
     "eslint": "^9.22.0",
     "eslint-config-next": "^15.2.1",
+    "eslint-config-prettier": "^10.1.2",
+    "prettier": "^3.5.3",
     "typescript": "^5.8.2"
   },
   "peerDependencies": {

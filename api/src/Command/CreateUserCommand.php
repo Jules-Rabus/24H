@@ -39,6 +39,7 @@ class CreateUserCommand extends \Symfony\Component\Console\Command\Command
             ->addArgument('lastName', InputArgument::REQUIRED, 'Last name')
             ->addArgument('password', InputArgument::REQUIRED, 'Plain password')
             ->addOption('admin', null, InputArgument::OPTIONAL, 'Grant ROLE_ADMIN', false)
+            ->addOption('update', null, InputArgument::OPTIONAL, 'Update existing user', false);
         ;
     }
 
@@ -51,16 +52,24 @@ class CreateUserCommand extends \Symfony\Component\Console\Command\Command
         $lastName = $input->getArgument('lastName');
         $plainPassword = $input->getArgument('password');
         $isAdmin = (bool) $input->getOption('admin');
+        $update = (bool)$input->getOption('update');
 
-        // Check if user already exists
-        $existing = $this->em->getRepository(User::class)->findOneBy(['email' => $email]);
-        if ($existing) {
-            $io->error(sprintf('A user with email "%s" already exists.', $email));
-            return Command::FAILURE;
+        $user = $this->em->getRepository(User::class)->findOneBy(['email' => $email]);
+
+        if ($user) {
+            if (!$update) {
+                $io->error(sprintf('User "%s" already exists. Use --update to modify.', $email));
+                return Command::FAILURE;
+            }
+        } else {
+            $user = new User();
+            $user->setEmail($email);
         }
 
-        // Create and populate User entity
-        $user = new User();
+        if ($isAdmin) {
+            $user->setRoles(['ROLE_ADMIN']);
+        }
+
         $user->setEmail($email);
         $user->setFirstName($firstName);
         $user->setLastName($lastName);
@@ -77,7 +86,12 @@ class CreateUserCommand extends \Symfony\Component\Console\Command\Command
         $this->em->persist($user);
         $this->em->flush();
 
-        $io->success(sprintf('User "%s" successfully created.', $email));
+        if ($update && $user->getId()) {
+            $io->success(sprintf('User "%s" successfully updated.', $email));
+        } else {
+            $io->success(sprintf('User "%s" successfully created.', $email));
+        }
+
         return Command::SUCCESS;
     }
 }
