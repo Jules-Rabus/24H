@@ -212,7 +212,7 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
           <div className="stat-desc">
             {currentRun ? (
               <span>
-                {currentRun.inProgressParticipantsCount * 4} km parcourus
+                {currentRun.finishedParticipantsCount * 4} km parcourus
               </span>
             ) : (
               "—"
