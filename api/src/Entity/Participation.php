@@ -25,12 +25,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 #[UniqueEntity(fields: ["user", "run"], message: "Un utilisateur ne peut participer qu'une seule fois au même run.")]
 #[ApiResource(
     operations: [
-        new GetCollection(
-            paginationEnabled: true,
-            paginationItemsPerPage: 50,
-            paginationMaximumItemsPerPage: 1000,
-            paginationClientItemsPerPage: true,
-        ),
+        new GetCollection(),
         new Get(),
         new Post(security: self::ADMIN),
         new Patch(security: self::ADMIN),

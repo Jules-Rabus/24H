@@ -4,7 +4,6 @@ import {
   CreateGuesser,
   EditGuesser,
   ShowGuesser,
-  InputGuesser,
   FieldGuesser,
 } from "@api-platform/admin";
 import {
@@ -15,11 +14,16 @@ import {
   TextField,
   DateTimeInput,
   TextInput,
-  DateInput,
+  Pagination,
 } from "react-admin";
+
+const PaginationList = () => (
+  <Pagination rowsPerPageOptions={[10, 25, 50, 100]} />
+);
 
 export const ParticipationsList = (props: any) => (
   <ListGuesser
+    pagination={<PaginationList />}
     filters={[
       <TextInput key="user.firstName" source="user.firstName" label="Prénom" />,
       <TextInput key="user.lastName" source="user.lastName" label="Nom" />,

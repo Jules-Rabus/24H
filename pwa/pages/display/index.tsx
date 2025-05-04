@@ -74,14 +74,16 @@ export async function getServerSideProps() {
     httpsAgent,
     params: {
       "order[arrivalTime]": "desc",
-      "pagination[limit]": 10,
+      itemsPerPage: 10,
     },
   });
 
   return {
     props: {
       runs: runsResp.data.member,
-      initialParticipations: partResp.data.member,
+      initialParticipations: partResp.data.member.filter(
+        (p) => p.status === "FINISHED",
+      ),
     },
   };
 }

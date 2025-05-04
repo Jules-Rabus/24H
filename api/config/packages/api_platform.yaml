@@ -7,6 +7,13 @@ api_platform:
         include_type: true
     # Good defaults for REST APIs
     defaults:
+        pagination_items_per_page: 50
+        pagination_client_items_per_page: true
+        pagination_client_enabled: true
+        pagination_enabled: true
+        collection:
+            pagination:
+                items_per_page_parameter_name: 50
         stateless: true
         cache_headers:
             vary: ['Content-Type', 'Authorization', 'Origin']

@@ -20,6 +20,7 @@ import {
   DeleteButton,
   ReferenceArrayInput,
   SelectArrayInput,
+  Pagination,
 } from "react-admin";
 
 import { useRecordContext } from "react-admin";
@@ -36,7 +37,7 @@ import {
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import { datamatrix, toCanvas } from "@bwip-js/browser";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const bibStyles = StyleSheet.create({
   page: {
@@ -104,27 +105,20 @@ const PdfDownloadLinkButtonWrapper = () => {
     </PDFDownloadLink>
   );
 };
+const PaginationList = () => (
+  <Pagination rowsPerPageOptions={[10, 25, 50, 100]} />
+);
 
-const exporterBibZip = async (records: any[]) => {
-  const zip = new JSZip();
-  await Promise.all(
-    records.map(async (record) => {
-      const canvas = document.createElement("canvas");
-      await toCanvas(canvas, {
-        bcid: "qrcode",
-        text: record.originId.toString(),
-        scale: 3,
-      });
-      const qr = canvas.toDataURL("image/png");
-      const blob = await pdf(
-        <BibDocument user={{ ...record, qrCodeBase64: qr }} />,
-      ).toBlob();
-      zip.file(`${record.originId}.pdf`, blob);
-    }),
-  );
-  const content = await zip.generateAsync({ type: "blob" });
-  saveAs(content, "dossards.zip");
-};
+export const UsersList = (props: any) => (
+  <ListGuesser {...props} pagination={<PaginationList />}>
+    <TextField source="originId" label="N° dossard" />
+    <FieldGuesser source="firstName" label="Prénom" />
+    <FieldGuesser source="lastName" label="Nom" />
+    <FieldGuesser source="surname" label="Surnom" />
+    <FieldGuesser source="email" label="Email" />
+    <FieldGuesser source="organization" label="Organisation" />
+  </ListGuesser>
+);
 
 export const UserEdit = (props: any) => (
   <EditGuesser {...props}>
@@ -160,17 +154,6 @@ export const UserEdit = (props: any) => (
       />
     </ReferenceArrayInput>
   </EditGuesser>
-);
-
-export const UsersList = (props: any) => (
-  <ListGuesser {...props} exporter={exporterBibZip}>
-    <TextField source="originId" label="N° dossard" />
-    <FieldGuesser source="firstName" label="Prénom" />
-    <FieldGuesser source="lastName" label="Nom" />
-    <FieldGuesser source="surname" label="Surnom" />
-    <FieldGuesser source="email" label="Email" />
-    <FieldGuesser source="organization" label="Organisation" />
-  </ListGuesser>
 );
 
 export const UserCreate = (props: any) => (

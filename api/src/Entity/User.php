@@ -26,13 +26,7 @@ use Symfony\Component\Validator\Constraints\PasswordStrength;
 
 #[ApiResource(
     operations: [
-        new GetCollection(
-            paginationEnabled: true,
-            paginationItemsPerPage: 25,
-            paginationMaximumItemsPerPage: 1000,
-            paginationClientItemsPerPage: true,
-            security: self::ADMIN
-        ),
+        new GetCollection(security: self::ADMIN),
         new Get(security: self::ACCESS),
         new Post(security: self::ADMIN, validationContext: ['groups' => ['Default', self::WRITE]], processor: UserProcessor::class),
         new Patch(security: self::ADMIN, processor: UserProcessor::class),

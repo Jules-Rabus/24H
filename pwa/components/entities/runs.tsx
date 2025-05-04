@@ -13,10 +13,16 @@ import {
   Datagrid,
   ReferenceManyField,
   ReferenceField,
+  Pagination,
 } from "react-admin";
+import React from "react";
+
+const PaginationList = () => (
+  <Pagination rowsPerPageOptions={[10, 25, 50, 100]} />
+);
 
 export const RunsList = (props: any) => (
-  <ListGuesser {...props}>
+  <ListGuesser pagination={<PaginationList />} {...props}>
     <DateField source="startDate" showTime label="Date de début" />
     <DateField source="endDate" showTime label="Date de fin" />
     <FieldGuesser

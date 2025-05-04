@@ -24,12 +24,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiFilter(DateFilter::class, properties: ['startDate', 'endDate'])]
 #[ApiResource(
     operations: [
-        new GetCollection(
-            paginationEnabled: true,
-            paginationItemsPerPage: 50,
-            paginationMaximumItemsPerPage: 1000,
-            paginationClientItemsPerPage: true,
-        ),
+        new GetCollection(),
         new Get(),
         new Post(
             denormalizationContext: ['groups' => ['Default', self::WRITE]],
