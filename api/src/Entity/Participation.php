@@ -114,6 +114,16 @@ class Participation
     }
 
     #[Groups([self::READ])]
+    public function getTotalTime(): ?int
+    {
+        if($this->arrivalTime) {
+            return $this->arrivalTime->getTimestamp() - $this->run->getStartDate()->getTimestamp();
+        }
+
+        return null;
+    }
+
+    #[Groups([self::READ])]
     public function getStatus(): string
     {
         if($this->arrivalTime) {

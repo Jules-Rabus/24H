@@ -16,7 +16,8 @@ interface Run {
 
 interface Participation {
   id: number;
-  arrivalTime: string;
+  arrivalTime?: string;
+  totalTime?: number;
   user: User;
   run: string;
   status: string;
@@ -116,7 +117,7 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
     };
 
     return () => eventSource.close();
-  }, []);
+  }, [hubUrl]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -182,6 +183,8 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
 
   const progressPct = ((completedRuns + fracCurrent) / (totalRuns - 1)) * 100;
 
+  // @ts-ignore
+  // @ts-ignore
   return (
     <div className="p-8">
       <div className="stats w-full shadow mb-8 text-center text-lg">
@@ -259,7 +262,7 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
           </div>
         </div>
       </div>
-      <div className="relative h-4 bg-base-300 rounded-full mt-10 mb-16">
+      <div className="relative h-4 bg-base-300 rounded-full mt-10 mb-18">
         <div
           className="absolute top-0 left-0 h-4 bg-primary rounded-full transition-all ease-linear duration-1000"
           style={{ width: `${progressPct}%` }}
@@ -319,6 +322,7 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
               <th>Prénom</th>
               <th>Nom</th>
               <th>Surnom</th>
+              <th>Temps du run</th>
               <th>Total Km</th>
             </tr>
           </thead>
@@ -328,7 +332,7 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
               .map((p) => (
                 <tr key={p.id}>
                   <td>
-                    {new Date(p.arrivalTime).toLocaleString("fr-FR", {
+                    {new Date(p.arrivalTime!).toLocaleString("fr-FR", {
                       month: "2-digit",
                       day: "2-digit",
                       hour: "2-digit",
@@ -338,6 +342,10 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
                   <td>{p.user.firstName}</td>
                   <td>{p.user.lastName}</td>
                   <td>{p.user.surname}</td>
+                  <td>
+                    <span>{Math.floor(p.totalTime! / 3600)}h</span>
+                    <span>{Math.floor(p.totalTime! / 60) % 60}</span>
+                  </td>
                   <td>{p.user.finishedParticipationsCount * 4}</td>
                 </tr>
               ))}
