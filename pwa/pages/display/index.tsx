@@ -182,9 +182,6 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
   ).length;
 
   const progressPct = ((completedRuns + fracCurrent) / (totalRuns - 1)) * 100;
-
-  // @ts-ignore
-  // @ts-ignore
   return (
     <div className="p-8">
       <div className="stats w-full shadow mb-8 text-center text-lg">
@@ -287,7 +284,8 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
                 isAbove
                   ? "bottom-full -mb-3.5 flex flex-col-reverse items-center"
                   : "top-full -mt-3.5 flex flex-col items-center"
-              }`}
+              }
+              `}
               style={{ left: `${leftPct}%` }}
             >
               <div className="h-3 w-3 bg-white rounded-full" />
@@ -328,7 +326,7 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
           </thead>
           <tbody>
             {participations
-              .filter((p) => p.status === "FINISHED")
+              .filter((p) => p.status !== "FINISHED")
               .map((p) => (
                 <tr key={p.id}>
                   <td>
@@ -349,11 +347,19 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
                   <td>{p.user.finishedParticipationsCount * 4}</td>
                 </tr>
               ))}
+            {participations.filter((p) => p.status === "FINISHED").length ===
+              0 && (
+              <tr>
+                <td colSpan={6} className="text-center">
+                  Aucun coureur n'est arrivé
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
 
-      <div className="mx-auto pt-6">
+      <div className="absolute bottom-0 left-0 right-0">
         <div className="stats w-full shadow mb-8 text-center text-xl">
           <div className="stat">
             <div className="stat-title">Heure actuelle</div>
