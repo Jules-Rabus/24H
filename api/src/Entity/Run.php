@@ -57,7 +57,7 @@ class Run
     #[ApiFilter(SearchFilter::class, strategy: "exact")]
     private ?int $id = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, unique: true)]
     #[Assert\NotNull]
     #[Assert\LessThan(propertyPath: 'endDate')]
     #[Assert\GreaterThanOrEqual('now')]
@@ -66,7 +66,7 @@ class Run
     #[Groups([self::READ, self::WRITE])]
     private \DateTimeInterface $startDate;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, unique: true)]
     #[Assert\NotNull]
     #[Assert\GreaterThan(propertyPath: 'startDate')]
     #[Assert\GreaterThanOrEqual('now')]

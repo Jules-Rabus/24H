@@ -89,33 +89,13 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
   const [participations, setParticipations] = useState<Participation[]>(
     initialParticipations,
   );
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [newFinishedCount, setNewFinishedCount] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
-
-  const hours = currentTime.getHours();
-  const minutes = currentTime.getMinutes();
-  const seconds = currentTime.getSeconds();
-
-  const lastRun = runs.reduce((prev, curr) =>
-    new Date(prev.endDate) > new Date(curr.endDate) ? prev : curr,
-  );
-
-  const targetTime = new Date(lastRun.endDate).getTime();
-  const diffMs = Math.max(targetTime - currentTime.getTime(), 0);
-
-  const remHours = Math.floor(diffMs / (1000 * 3600)) % 24;
-  const remMinutes = Math.floor((diffMs % (1000 * 3600)) / (1000 * 60));
-  const remSeconds = Math.floor((diffMs % (1000 * 60)) / 1000);
-
   const hubUrl = process.env.NEXT_PUBLIC_MERCURE_HUB_URL!;
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [now, setNow] = useState(0);
+  const [newFinishedCount, setNewFinishedCount] = useState(0);
+  const [currentRun, setCurrentRun] = useState<Run | null>(null);
+  const [nextRun, setNextRun] = useState<Run | null>(null);
+  const [fracCurrent, setFracCurrent] = useState(0);
 
   useEffect(() => {
     const url = new URL(hubUrl);
@@ -136,106 +116,153 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
     };
 
     return () => eventSource.close();
-  }, [hubUrl]);
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const now = new Date();
+      setCurrentTime(new Date());
+      setNow(now.getTime());
+    }, 1000);
+
+    const currentRun = runs.find(
+      (r) =>
+        new Date(r.startDate).getTime() <= now &&
+        now < new Date(r.endDate).getTime(),
+    );
+
+    const nextRun =
+      runs.find((r) => new Date(r.startDate).getTime() > now) || null;
+
+    setFracCurrent(0);
+    setNextRun(nextRun);
+    setCurrentRun(nextRun);
+
+    if (currentRun) {
+      setCurrentRun(currentRun);
+      const start = new Date(currentRun.startDate).getTime();
+      const end = new Date(currentRun.endDate).getTime();
+      const fracCurrent = (now - start) / (end - start);
+      setFracCurrent(fracCurrent);
+    }
+
+    return () => clearInterval(timer);
+  }, []);
 
   const totalKm =
     runs.reduce((sum, r) => sum + r.finishedParticipantsCount * 4, 0) +
     newFinishedCount * 4;
 
   const totalRuns = runs.length;
+
+  const hours = currentTime.getHours();
+  const minutes = currentTime.getMinutes();
+  const seconds = currentTime.getSeconds();
+
+  const lastRun = runs.reduce((prev, curr) =>
+    new Date(prev.endDate) > new Date(curr.endDate) ? prev : curr,
+  );
+
+  const targetTime = new Date(lastRun.endDate).getTime();
+  const diffMs = Math.max(targetTime - currentTime.getTime(), 0);
+  const remHours = Math.floor(diffMs / (1000 * 3600)) % 24;
+  const remMinutes = Math.floor((diffMs % (1000 * 3600)) / (1000 * 60));
+  const remSeconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+
+  const nextDiffMs = nextRun
+    ? Math.max(new Date(nextRun.startDate).getTime() - now, 0)
+    : 0;
+  const nextHours = Math.floor(nextDiffMs / (1000 * 3600)) % 24;
+  const nextMinutes = Math.floor((nextDiffMs % (1000 * 3600)) / (1000 * 60));
+  const nextSeconds = Math.floor((nextDiffMs % (1000 * 60)) / 1000);
+
   const completedRuns = runs.filter(
-    (r) => new Date(r.endDate) < new Date(),
+    (r) => new Date(r.endDate).getTime() <= now,
   ).length;
+
+  const progressPct = ((completedRuns + fracCurrent) / (totalRuns - 1)) * 100;
 
   return (
     <div className="p-8">
-      <div className="mx-auto p-6">
-        <div className="stats w-full shadow mb-8 text-center text-xl">
-          <div className="stat">
-            <div className="stat-title">Heure actuelle</div>
-            <div className="stat-value">
+      <div className="stats w-full shadow mb-8 text-center text-lg">
+        <div className="stat">
+          <div className="stat-title">Run en cours</div>
+          <div className="stat-value">
+            {currentRun
+              ? `${new Date(currentRun.startDate).toLocaleTimeString("fr-FR", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })} – ${new Date(currentRun.endDate).toLocaleTimeString(
+                  "fr-FR",
+                  { hour: "2-digit", minute: "2-digit" },
+                )}`
+              : "Pas de run actif"}
+          </div>
+        </div>
+
+        <div className="stat">
+          <div className="stat-title">Finishers / Total</div>
+          <div className="stat-value">
+            {currentRun
+              ? `${currentRun.finishedParticipantsCount} / ${currentRun.participantsCount}`
+              : "—"}
+          </div>
+          <div className="stat-desc">
+            {currentRun ? (
+              <span>
+                {currentRun.inProgressParticipantsCount * 4} km parcourus
+              </span>
+            ) : (
+              "—"
+            )}
+          </div>
+        </div>
+        <div className="stat">
+          <div className="stat-title">Prochain départ dans</div>
+          <div className="stat-value">
+            {nextRun ? (
               <div className="flex gap-4 justify-center">
                 <div className="flex flex-col items-center">
                   <span className="countdown font-mono text-4xl">
                     <span
-                      style={{ "--value": hours } as React.CSSProperties}
+                      style={{ "--value": nextHours } as React.CSSProperties}
                       aria-live="polite"
-                      aria-label={`${hours} heures`}
+                      aria-label={`${nextHours} heures`}
                     />
                   </span>
-                  <span className="text-sm mt-1">h</span>
+                  <span className="text-sm">h</span>
                 </div>
                 <div className="flex flex-col items-center">
                   <span className="countdown font-mono text-4xl">
                     <span
-                      style={{ "--value": minutes } as React.CSSProperties}
+                      style={{ "--value": nextMinutes } as React.CSSProperties}
                       aria-live="polite"
-                      aria-label={`${minutes} minutes`}
+                      aria-label={`${nextMinutes} minutes`}
                     />
                   </span>
-                  <span className="text-sm mt-1">m</span>
+                  <span className="text-sm">m</span>
                 </div>
                 <div className="flex flex-col items-center">
                   <span className="countdown font-mono text-4xl">
                     <span
-                      style={{ "--value": seconds } as React.CSSProperties}
+                      style={{ "--value": nextSeconds } as React.CSSProperties}
                       aria-live="polite"
-                      aria-label={`${seconds} secondes`}
+                      aria-label={`${nextSeconds} secondes`}
                     />
                   </span>
-                  <span className="text-sm mt-1">s</span>
+                  <span className="text-sm">s</span>
                 </div>
               </div>
-            </div>
-          </div>
-          <div className="stat">
-            <div className="stat-title">Total kilomètres</div>
-            <div className="stat-value">{totalKm} km</div>
-          </div>
-          <div className="stat">
-            <div className="stat-title">Temps restant</div>
-            <div className="stat-value">
-              <div className="flex gap-4 justify-center">
-                <div className="flex flex-col items-center">
-                  <span className="countdown font-mono text-4xl">
-                    <span
-                      style={{ "--value": remHours } as React.CSSProperties}
-                      aria-live="polite"
-                      aria-label={`${remHours} heures restantes`}
-                    />
-                  </span>
-                  <span className="text-xs mt-1">h</span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <span className="countdown font-mono text-4xl">
-                    <span
-                      style={{ "--value": remMinutes } as React.CSSProperties}
-                      aria-live="polite"
-                      aria-label={`${remMinutes} minutes restantes`}
-                    />
-                  </span>
-                  <span className="text-xs mt-1">m</span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <span className="countdown font-mono text-4xl">
-                    <span
-                      style={{ "--value": remSeconds } as React.CSSProperties}
-                      aria-live="polite"
-                      aria-label={`${remSeconds} secondes restantes`}
-                    />
-                  </span>
-                  <span className="text-xs mt-1">s</span>
-                </div>
-              </div>
-            </div>
+            ) : (
+              "—"
+            )}
           </div>
         </div>
       </div>
-
       <div className="relative h-4 bg-base-300 rounded-full mt-10 mb-16">
         <div
-          className="absolute top-0 left-0 h-4 bg-primary rounded-full"
-          style={{ width: `${(completedRuns / (totalRuns - 1)) * 100}%` }}
+          className="absolute top-0 left-0 h-4 bg-primary rounded-full transition-all ease-linear duration-1000"
+          style={{ width: `${progressPct}%` }}
         />
 
         {runs.map((run, idx) => {
@@ -261,7 +288,7 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
               style={{ left: `${leftPct}%` }}
             >
               <div className="h-3 w-3 bg-white rounded-full" />
-              <span className={`${isAbove ? "mb-2" : "mt-2"}`}>
+              <span className={`${isAbove ? "mb-4" : "mt-4"}`}>
                 {run.finishedParticipantsCount} / {run.participantsCount}
               </span>
               <span className="">{timeLabel}</span>
@@ -316,6 +343,89 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
               ))}
           </tbody>
         </table>
+      </div>
+
+      <div className="mx-auto pt-6">
+        <div className="stats w-full shadow mb-8 text-center text-xl">
+          <div className="stat">
+            <div className="stat-title">Heure actuelle</div>
+            <div className="stat-value">
+              <div className="flex gap-4 justify-center">
+                <div className="flex flex-col items-center">
+                  <span className="countdown font-mono text-4xl">
+                    <span
+                      style={{ "--value": hours } as React.CSSProperties}
+                      aria-live="polite"
+                      aria-label={`${hours} heures`}
+                    />
+                  </span>
+                  <span className="text-sm mt-1">h</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="countdown font-mono text-4xl">
+                    <span
+                      style={{ "--value": minutes } as React.CSSProperties}
+                      aria-live="polite"
+                      aria-label={`${minutes} minutes`}
+                    />
+                  </span>
+                  <span className="text-sm mt-1">m</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="countdown font-mono text-4xl">
+                    <span
+                      style={{ "--value": seconds } as React.CSSProperties}
+                      aria-live="polite"
+                      aria-label={`${seconds} secondes`}
+                    />
+                  </span>
+                  <span className="text-sm mt-1">s</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="stat">
+            <div className="stat-title">Total kilomètres</div>
+            <div className="stat-value">{totalKm} km</div>
+          </div>
+          <div className="stat">
+            <div className="stat-title">Temps restant</div>
+            <div className="stat-value">
+              <div className="flex gap-4 justify-center">
+                <div className="flex flex-col items-center">
+                  <span className="countdown font-mono text-4xl">
+                    <span
+                      style={{ "--value": remHours } as React.CSSProperties}
+                      aria-live="polite"
+                      aria-label={`${remHours} heures restantes`}
+                    />
+                  </span>
+                  <span className="text-sm mt-1">h</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="countdown font-mono text-4xl">
+                    <span
+                      style={{ "--value": remMinutes } as React.CSSProperties}
+                      aria-live="polite"
+                      aria-label={`${remMinutes} minutes restantes`}
+                    />
+                  </span>
+                  <span className="text-sm mt-1">m</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="countdown font-mono text-4xl">
+                    <span
+                      style={{ "--value": remSeconds } as React.CSSProperties}
+                      aria-live="polite"
+                      aria-label={`${remSeconds} secondes restantes`}
+                    />
+                  </span>
+                  <span className="text-sm mt-1">s</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

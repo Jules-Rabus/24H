@@ -116,13 +116,8 @@ class Participation
     #[Groups([self::READ])]
     public function getStatus(): string
     {
-        $now = new \DateTime();
-        if($this->arrivalTime && $this->arrivalTime <= $now) {
+        if($this->arrivalTime) {
             return 'FINISHED';
-        }
-
-        if($this->arrivalTime && $this->arrivalTime > $now) {
-            return 'LATE';
         }
 
         return 'IN_PROGRESS';
