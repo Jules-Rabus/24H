@@ -123,7 +123,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var Collection<int, Participation>
      */
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Participation::class)]
+    #[ORM\OneToMany(targetEntity: Participation::class, mappedBy: 'user', orphanRemoval: true)]
     #[Groups([self::READ, self::WRITE])]
     private Collection $participations;
 
