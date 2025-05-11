@@ -98,7 +98,6 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
   const [newFinishedCount, setNewFinishedCount] = useState(0);
   const [currentRun, setCurrentRun] = useState<Run | null>(null);
   const [nextRun, setNextRun] = useState<Run | null>(null);
-  const [fracCurrent, setFracCurrent] = useState(0);
 
   useEffect(() => {
     const url = new URL(hubUrl);
@@ -137,34 +136,18 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
     const nextRun =
       runs.find((r) => new Date(r.startDate).getTime() > now) || null;
 
-    setFracCurrent(0);
     setNextRun(nextRun);
-    setCurrentRun(nextRun);
 
     if (currentRun) {
       setCurrentRun(currentRun);
-      const start = new Date(currentRun.startDate).getTime();
-      const end = new Date(currentRun.endDate).getTime();
-      const fracCurrent = (now - start) / (end - start);
-      setFracCurrent(fracCurrent);
     }
 
     return () => clearInterval(timer);
   }, []);
 
-  const totalKm =
-    runs.reduce((sum, r) => sum + r.finishedParticipantsCount * 4, 0) +
-    newFinishedCount * 4;
-
-  const totalRuns = runs.length;
-
   const hours = currentTime.getHours();
   const minutes = currentTime.getMinutes();
   const seconds = currentTime.getSeconds();
-
-  const lastRun = runs.reduce((prev, curr) =>
-    new Date(prev.endDate) > new Date(curr.endDate) ? prev : curr,
-  );
 
   const nextDiffMs = nextRun
     ? Math.max(new Date(nextRun.startDate).getTime() - now, 0)
@@ -172,10 +155,6 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
   const nextHours = Math.floor(nextDiffMs / (1000 * 3600)) % 24;
   const nextMinutes = Math.floor((nextDiffMs % (1000 * 3600)) / (1000 * 60));
   const nextSeconds = Math.floor((nextDiffMs % (1000 * 60)) / 1000);
-
-  const completedRuns = runs.filter(
-    (r) => new Date(r.endDate).getTime() <= now,
-  ).length;
 
   return (
     <>
@@ -241,7 +220,11 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
                 : "Pas de run actif"}
             </div>
             <div className="stat-desc">
-              {currentRun ? `Tour ${currentRun.id} / ${runs.length}` : null}
+              {currentRun &&
+                (() => {
+                  const idx = runs.findIndex((r) => r.id === currentRun.id);
+                  return `Tour ${idx + 1} / ${runs.length}`;
+                })()}
             </div>
           </div>
 
