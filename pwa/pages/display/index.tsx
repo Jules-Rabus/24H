@@ -95,7 +95,6 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
   const hubUrl = process.env.NEXT_PUBLIC_MERCURE_HUB_URL!;
   const [currentTime, setCurrentTime] = useState(new Date());
   const [now, setNow] = useState(0);
-  const [newFinishedCount, setNewFinishedCount] = useState(0);
   const [currentRun, setCurrentRun] = useState<Run | null>(null);
   const [nextRun, setNextRun] = useState<Run | null>(null);
 
@@ -112,7 +111,6 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
 
       const status = (data as any).status;
       if (status === "FINISHED") {
-        setNewFinishedCount((prev) => prev + 1);
         setParticipations((prev) => [data, ...prev].slice(0, 10));
       }
     };
@@ -143,7 +141,7 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
     }
 
     return () => clearInterval(timer);
-  }, []);
+  }, [runs, now]);
 
   const hours = currentTime.getHours();
   const minutes = currentTime.getMinutes();
