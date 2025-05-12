@@ -12,7 +12,9 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\GetCollection;
+use App\Dto\DataMatrixInput;
 use App\Repository\ParticipationRepository;
+use App\State\ParticipationFinishedProcessor;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -28,6 +30,13 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
         new GetCollection(),
         new Get(),
         new Post(security: self::ADMIN),
+        new Post(
+            uriTemplate: '/participations/finished',
+            inputFormats: ['json' => ['application/json']],
+            security: self::ACCESS,
+            input: DataMatrixInput::class,
+            processor: ParticipationFinishedProcessor::class,
+        ),
         new Patch(security: self::ADMIN),
         new Delete(security: self::ADMIN),
     ],

@@ -63,7 +63,7 @@ const BibDocument = ({ user }: { user: any }) => {
   const displayName = user.surname || `${user.firstName} ${user.lastName}`;
   return (
     <Document>
-      <Page size="A4" style={bibStyles.page}>
+      <Page size="A5" orientation={"landscape"} style={bibStyles.page}>
         <View style={bibStyles.bib}>
           <Text style={bibStyles.number}>{user.originId}</Text>
           <Text style={bibStyles.name}>{displayName}</Text>
@@ -99,9 +99,9 @@ const PdfDownloadLinkButtonWrapper = () => {
   return (
     <PDFDownloadLink
       document={<BibDocument user={{ ...record, qrCodeBase64: qr }} />}
-      fileName={`${record.originId}.pdf`}
+      fileName={`${record.originId}-${record.firstName}-${record.lastName}.pdf`}
     >
-      {({ loading }) => (loading ? "Chargement..." : "Télécharger Dossard")}
+      {({ loading }) => (loading ? "Chargement..." : "Télécharger le dossard")}
     </PDFDownloadLink>
   );
 };
