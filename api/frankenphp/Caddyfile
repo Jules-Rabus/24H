@@ -1,4 +1,6 @@
 {
+	local_certs
+
 	{$CADDY_GLOBAL_OPTIONS}
 
 	frankenphp {
@@ -8,7 +10,10 @@
 
 {$CADDY_EXTRA_CONFIG}
 
-{$SERVER_NAME:localhost} {
+{$SERVER_NAME} {
+
+	tls internal
+
 	log {
 		# Redact the authorization query parameter that can be set by Mercure
 		format filter {
@@ -48,6 +53,7 @@
 	@pwa expression `(
 			header({'Accept': '*text/html*'})
 			&& !path(
+			'*',
 				'/docs*', '/graphql*', '/bundles*', '/contexts*', '/_profiler*', '/_wdt*',
 				'*.json*', '*.html', '*.csv', '*.yml', '*.yaml', '*.xml'
 			)
