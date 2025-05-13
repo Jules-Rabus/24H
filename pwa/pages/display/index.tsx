@@ -305,7 +305,7 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
             </thead>
             <tbody>
               {participations
-                .filter((p) => p.status !== "FINISHED")
+                .filter((p) => p.status === "FINISHED")
                 .map((p) => (
                   <tr key={p.id}>
                     <td>
