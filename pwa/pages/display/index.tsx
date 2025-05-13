@@ -99,27 +99,6 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
   const [nextRun, setNextRun] = useState<Run | null>(null);
 
   useEffect(() => {
-    const url = new URL(hubUrl);
-    url.searchParams.append(
-      "topic",
-      `${process.env.NEXT_PUBLIC_ENTRYPOINT}/participations/{id}`,
-    );
-
-    const eventSource = new EventSource(url.toString());
-    eventSource.onmessage = async (e) => {
-      const data: Participation = JSON.parse(e.data);
-
-      const status = (data as any).status;
-      if (status === "FINISHED") {
-        currentRun!.finishedParticipantsCount++;
-        setParticipations((prev) => [data, ...prev].slice(0, 10));
-      }
-    };
-
-    return () => eventSource.close();
-  }, []);
-
-  useEffect(() => {
     const timer = setInterval(() => {
       const now = new Date();
       setCurrentTime(new Date());
@@ -143,6 +122,27 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
 
     return () => clearInterval(timer);
   }, [runs, now]);
+
+  useEffect(() => {
+    const url = new URL(hubUrl);
+    url.searchParams.append(
+      "topic",
+      `${process.env.NEXT_PUBLIC_ENTRYPOINT}/participations/{id}`,
+    );
+
+    const eventSource = new EventSource(url.toString());
+    eventSource.onmessage = async (e) => {
+      const data: Participation = JSON.parse(e.data);
+
+      const status = (data as any).status;
+      if (status === "FINISHED") {
+        currentRun!.finishedParticipantsCount++;
+        setParticipations((prev) => [data, ...prev].slice(0, 10));
+      }
+    };
+
+    return () => eventSource.close();
+  }, []);
 
   const hours = currentTime.getHours();
   const minutes = currentTime.getMinutes();
