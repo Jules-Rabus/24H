@@ -74,7 +74,7 @@ export async function getServerSideProps() {
     httpsAgent,
     params: {
       "order[arrivalTime]": "desc",
-      itemsPerPage: 10,
+      itemsPerPage: 1000,
     },
   });
 
@@ -92,7 +92,6 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
   const [participations, setParticipations] = useState<Participation[]>(
     initialParticipations,
   );
-  console.log("initialParticipations", initialParticipations);
   const hubUrl = process.env.NEXT_PUBLIC_MERCURE_HUB_URL!;
   const [currentTime, setCurrentTime] = useState(new Date());
   const [now, setNow] = useState(0);
@@ -112,6 +111,7 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
 
       const status = (data as any).status;
       if (status === "FINISHED") {
+        currentRun!.finishedParticipantsCount++;
         setParticipations((prev) => [data, ...prev].slice(0, 10));
       }
     };
