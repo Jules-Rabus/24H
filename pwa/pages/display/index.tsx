@@ -92,6 +92,7 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
   const [participations, setParticipations] = useState<Participation[]>(
     initialParticipations,
   );
+  console.log("initialParticipations", initialParticipations);
   const hubUrl = process.env.NEXT_PUBLIC_MERCURE_HUB_URL!;
   const [currentTime, setCurrentTime] = useState(new Date());
   const [now, setNow] = useState(0);
@@ -320,8 +321,11 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
                     <td>{p.user.lastName}</td>
                     <td>{p.user.surname}</td>
                     <td>
-                      <span>{Math.floor(p.totalTime! / 3600)}h</span>
-                      <span>{Math.floor(p.totalTime! / 60) % 60}</span>
+                      {`${Math.floor(p.totalTime! / 3600)}h` +
+                        String(Math.floor((p.totalTime! % 3600) / 60)).padStart(
+                          2,
+                          "0",
+                        )}
                     </td>
                     <td>{p.user.finishedParticipationsCount * 4}</td>
                   </tr>
