@@ -1,5 +1,3 @@
-// pages/display/index.tsx
-
 import axios from "axios";
 import https from "https";
 import React, { useState, useEffect } from "react";
@@ -89,6 +87,7 @@ export async function getServerSideProps() {
 }
 
 export default function Display({ runs, initialParticipations }: DisplayProps) {
+  const [runsState, setRunsState] = useState<Run[]>(runs);
   const [participations, setParticipations] = useState<Participation[]>(
     initialParticipations,
   );
@@ -105,14 +104,14 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
       setNow(now.getTime());
     }, 1000);
 
-    const currentRun = runs.find(
-      (r) =>
+    const currentRun = runsState.find(
+      (r: any) =>
         new Date(r.startDate).getTime() <= now &&
         now < new Date(r.endDate).getTime(),
     );
 
     const nextRun =
-      runs.find((r) => new Date(r.startDate).getTime() > now) || null;
+      runsState.find((r: any) => new Date(r.startDate).getTime() > now) || null;
 
     setNextRun(nextRun);
 
@@ -121,23 +120,43 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
     }
 
     return () => clearInterval(timer);
-  }, [runs, now]);
+  }, [runsState, now]);
 
   useEffect(() => {
     const url = new URL(hubUrl);
-    url.searchParams.append(
-      "topic",
-      `${process.env.NEXT_PUBLIC_ENTRYPOINT}/participations/{id}`,
-    );
+    url.searchParams.append("topic", `https://localhost/participations/{id}`);
 
     const eventSource = new EventSource(url.toString());
     eventSource.onmessage = async (e) => {
       const data: Participation = JSON.parse(e.data);
 
       const status = (data as any).status;
-      if (status === "FINISHED") {
-        currentRun!.finishedParticipantsCount++;
-        setParticipations((prev) => [data, ...prev].slice(0, 10));
+      if (data.status === "FINISHED") {
+        const runId = parseInt(data.run.split("/").pop()!, 10);
+
+        setRunsState((prev: any) =>
+          prev.map((r: any) =>
+            r.id === runId
+              ? {
+                  ...r,
+                  finishedParticipantsCount: r.finishedParticipantsCount + 1,
+                }
+              : r,
+          ),
+        );
+
+        setParticipations((prev: any) => [data, ...prev].slice(0, 10));
+
+        if (currentRun?.id === runId) {
+          setCurrentRun((r: any) =>
+            r
+              ? {
+                  ...r,
+                  finishedParticipantsCount: r.finishedParticipantsCount + 1,
+                }
+              : r,
+          );
+        }
       }
     };
 
