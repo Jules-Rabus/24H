@@ -124,7 +124,10 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
 
   useEffect(() => {
     const url = new URL(hubUrl);
-    url.searchParams.append("topic", `https://localhost/participations/{id}`);
+    url.searchParams.append(
+      "topic",
+      `${process.env.NEXT_PUBLIC_ENTRYPOINT}/participations/{id}`,
+    );
 
     const eventSource = new EventSource(url.toString());
     eventSource.onmessage = async (e) => {
