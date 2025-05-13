@@ -21,7 +21,6 @@ export const getHeaders = (): Record<string, string> => {
 
 export const getAccessToken = () => {
   const token = localStorage.getItem("token");
-  console.log("Token from localStorage:", token);
   if (!token) return null;
   try {
     const decoded: any = jwtDecode(token);
@@ -107,7 +106,6 @@ export const authProvider = {
     }
     const auth = await response.json();
     localStorage.setItem("token", auth.token);
-    console.log("Token saved in localStorage:", auth.token);
     return Promise.resolve();
   },
 
