@@ -93,17 +93,16 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
   );
   const hubUrl = process.env.NEXT_PUBLIC_MERCURE_HUB_URL!;
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [now, setNow] = useState(0);
   const [currentRun, setCurrentRun] = useState<Run | null>(null);
   const [nextRun, setNextRun] = useState<Run | null>(null);
+  const now = currentTime.getTime();
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      const now = new Date();
-      setCurrentTime(new Date());
-      setNow(now.getTime());
-    }, 1000);
+    const id = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
 
+  useEffect(() => {
     const currentRun = runsState.find(
       (r: any) =>
         new Date(r.startDate).getTime() <= now &&
@@ -118,9 +117,7 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
     if (currentRun) {
       setCurrentRun(currentRun);
     }
-
-    return () => clearInterval(timer);
-  }, [runsState, now]);
+  }, [runsState]);
 
   useEffect(() => {
     const url = new URL(hubUrl);
@@ -168,14 +165,16 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
 
   const hours = currentTime.getHours();
   const minutes = currentTime.getMinutes();
-  const seconds = currentTime.getSeconds();
+  const seconds = String(currentTime.getSeconds()).padStart(2, "0");
 
   const nextDiffMs = nextRun
     ? Math.max(new Date(nextRun.startDate).getTime() - now, 0)
     : 0;
   const nextHours = Math.floor(nextDiffMs / (1000 * 3600)) % 24;
   const nextMinutes = Math.floor((nextDiffMs % (1000 * 3600)) / (1000 * 60));
-  const nextSeconds = Math.floor((nextDiffMs % (1000 * 60)) / 1000);
+  const nextSeconds = String(
+    Math.floor((nextDiffMs % (1000 * 60)) / 1000),
+  ).padStart(2, "0");
 
   return (
     <>
@@ -187,17 +186,18 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
             <div className="stat-value">
               <div className="flex gap-6 justify-center">
                 <div className="flex flex-col items-center">
-                  <span className="countdown font-mono text-4xl">
+                  <span className="countdown text-4xl">
                     <span
                       style={{ "--value": hours } as React.CSSProperties}
                       aria-live="polite"
                       aria-label={`${hours} heures`}
                     />
+                    <span className="hidden"> {hours}</span>
                   </span>
                   <span className="text-lg mt-1">h</span>
                 </div>
                 <div className="flex flex-col items-center">
-                  <span className="countdown font-mono text-4xl">
+                  <span className="countdown text-4xl">
                     <span
                       style={{ "--value": minutes } as React.CSSProperties}
                       aria-live="polite"
@@ -207,13 +207,7 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
                   <span className="text-lg mt-1">m</span>
                 </div>
                 <div className="flex flex-col items-center">
-                  <span className="countdown font-mono text-4xl">
-                    <span
-                      style={{ "--value": seconds } as React.CSSProperties}
-                      aria-live="polite"
-                      aria-label={`${seconds} secondes`}
-                    />
-                  </span>
+                  <span className="countdown text-4xl">{seconds}</span>
                   <span className="text-lg mt-1">s</span>
                 </div>
               </div>
@@ -272,7 +266,7 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
               {nextRun ? (
                 <div className="flex gap-6 justify-center">
                   <div className="flex flex-col items-center">
-                    <span className="countdown font-mono text-4xl">
+                    <span className="countdown text-4xl">
                       <span
                         style={{ "--value": nextHours } as React.CSSProperties}
                         aria-live="polite"
@@ -282,7 +276,7 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
                     <span className="text-lg">h</span>
                   </div>
                   <div className="flex flex-col items-center">
-                    <span className="countdown font-mono text-4xl">
+                    <span className="countdown text-4xl">
                       <span
                         style={
                           { "--value": nextMinutes } as React.CSSProperties
@@ -294,15 +288,7 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
                     <span className="text-lg">m</span>
                   </div>
                   <div className="flex flex-col items-center">
-                    <span className="countdown font-mono text-4xl">
-                      <span
-                        style={
-                          { "--value": nextSeconds } as React.CSSProperties
-                        }
-                        aria-live="polite"
-                        aria-label={`${nextSeconds} secondes`}
-                      />
-                    </span>
+                    <span className="countdown text-4xl">{nextSeconds}</span>
                     <span className="text-lg">s</span>
                   </div>
                 </div>

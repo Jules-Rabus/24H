@@ -65,6 +65,7 @@ class Participation
     #[ORM\JoinColumn(nullable: false)]
     #[Groups([self::READ, self::WRITE])]
     #[ApiFilter(SearchFilter::class, properties: ["run" => "exact", "run.id" => "exact"])]
+    #[ApiFilter(OrderFilter::class, properties: ["run.id"])]
     #[ApiFilter(DateFilter::class, properties: ["run.startDate", "run.endDate"])]
     private ?Run $run = null;
 

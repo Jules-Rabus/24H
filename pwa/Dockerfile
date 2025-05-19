@@ -33,7 +33,7 @@ EXPOSE 3000
 ENV PORT 3000
 ENV HOSTNAME localhost
 
-CMD ["sh", "-c", "pnpm install; pnpm dev"]
+CMD ["sh", "-c", "npm install; npm run dev"]
 
 
 FROM base AS builder
