@@ -165,7 +165,6 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
 
   const hours = currentTime.getHours();
   const minutes = currentTime.getMinutes();
-  const seconds = String(currentTime.getSeconds()).padStart(2, "0");
 
   const nextDiffMs = nextRun
     ? Math.max(new Date(nextRun.startDate).getTime() - now, 0)
@@ -205,10 +204,6 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
                     />
                   </span>
                   <span className="text-lg mt-1">m</span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <span className="countdown text-4xl">{seconds}</span>
-                  <span className="text-lg mt-1">s</span>
                 </div>
               </div>
             </div>
