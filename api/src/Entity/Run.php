@@ -48,7 +48,7 @@ class Run
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups([self::READ])]
+    #[Groups([self::READ, User::PUBLIC_READ])]
     #[ApiFilter(SearchFilter::class, strategy: "exact")]
     private ?int $id = null;
 
@@ -58,7 +58,7 @@ class Run
     #[Assert\GreaterThanOrEqual('now')]
     #[ApiFilter(DateFilter::class)]
     #[ApiFilter(OrderFilter::class)]
-    #[Groups([self::READ, self::WRITE])]
+    #[Groups([self::READ, self::WRITE, User::PUBLIC_READ])]
     private \DateTimeInterface $startDate;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, unique: true)]
@@ -67,7 +67,7 @@ class Run
     #[Assert\GreaterThanOrEqual('now')]
     #[ApiFilter(DateFilter::class)]
     #[ApiFilter(OrderFilter::class)]
-    #[Groups([self::READ, self::WRITE])]
+    #[Groups([self::READ, self::WRITE, User::PUBLIC_READ])]
     private \DateTimeInterface $endDate;
 
     /**

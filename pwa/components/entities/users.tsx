@@ -8,8 +8,9 @@ import {
 } from "@api-platform/admin";
 
 import {
+  FileField,
+  FileInput,
   DateField,
-  SelectInput,
   TextField,
   ReferenceManyField,
   Datagrid,
@@ -21,11 +22,11 @@ import {
   ReferenceArrayInput,
   SelectArrayInput,
   Pagination,
+  ImageField,
 } from "react-admin";
 
 import { useRecordContext } from "react-admin";
 import {
-  pdf,
   Document,
   Page,
   Text,
@@ -34,10 +35,8 @@ import {
   PDFDownloadLink,
   Image,
 } from "@react-pdf/renderer";
-import JSZip from "jszip";
-import { saveAs } from "file-saver";
-import { datamatrix, toCanvas } from "@bwip-js/browser";
-import React, { useEffect, useState } from "react";
+
+import { datamatrix } from "@bwip-js/browser";
 
 const bibStyles = StyleSheet.create({
   page: {
@@ -106,7 +105,7 @@ const PdfDownloadLinkButtonWrapper = () => {
   );
 };
 const PaginationList = () => (
-  <Pagination rowsPerPageOptions={[10, 25, 50, 100]} />
+  <Pagination rowsPerPageOptions={[25, 50, 100, 200]} />
 );
 
 export const UsersList = (props: any) => (
@@ -164,6 +163,15 @@ export const UserCreate = (props: any) => (
     <InputGuesser source="email" label="Email" />
     <InputGuesser source="organization" label="Organisation" />
     <InputGuesser source="plainPassword" label="Mot de passe" />
+    <FileInput
+      source="file"
+      label="Image"
+      accept={{ "image/*": [] }}
+      maxSize={1000000}
+    >
+      <FileField source="src" title="file" />
+    </FileInput>
+
     <SelectArrayInput
       source="roles"
       choices={[
@@ -175,7 +183,6 @@ export const UserCreate = (props: any) => (
 );
 
 export const UserShow = (props: any) => {
-  const record = useRecordContext();
   return (
     <ShowGuesser {...props}>
       <TextField source="originId" label="N° dossard" />
@@ -188,9 +195,9 @@ export const UserShow = (props: any) => {
         label="Nombre de participations"
         render={(record) => record.participations?.length || 0}
       />
-      <FunctionField
+      <FieldGuesser
+        source="finishedParticipationsCount"
         label="Nombre de participations terminées"
-        render={(record) => record.finishedParticipationsCount}
       />
       <FunctionField
         label="Nombre de km"
@@ -212,6 +219,9 @@ export const UserShow = (props: any) => {
           <DeleteButton />
         </Datagrid>
       </ReferenceManyField>
+      <ReferenceField source="image" reference="medias">
+        <ImageField source="filePath" label="Image" />
+      </ReferenceField>
       <FieldGuesser source="roles" label="Rôles" />
       <DateField showTime source="createdAt" label="Créé le" />
       <DateField showTime source="updatedAt" label="Mis à jour le" />

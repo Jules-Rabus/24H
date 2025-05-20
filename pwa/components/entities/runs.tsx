@@ -18,7 +18,7 @@ import {
 import React from "react";
 
 const PaginationList = () => (
-  <Pagination rowsPerPageOptions={[10, 25, 50, 100]} />
+  <Pagination rowsPerPageOptions={[25, 50, 100, 200]} />
 );
 
 export const RunsList = (props: any) => (

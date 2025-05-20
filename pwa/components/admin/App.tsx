@@ -16,6 +16,7 @@ import {
   ParticipationsEdit,
 } from "../entities/participations";
 import { ENTRYPOINT } from "../../config/entrypoint";
+import { MediasCreate, MediasList, MediasShow } from "../entities/medias";
 
 const Admin = () => {
   const [redirectToLogin, setRedirectToLogin] = useState<boolean>(false);
@@ -56,6 +57,12 @@ const Admin = () => {
               show={UserShow}
               edit={UserEdit}
               create={UserCreate}
+            />
+            <ResourceGuesser
+              name="medias"
+              create={MediasCreate}
+              list={MediasList}
+              show={MediasShow}
             />
           </>
         )}

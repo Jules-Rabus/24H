@@ -6,6 +6,9 @@ api_platform:
     mercure:
         include_type: true
     # Good defaults for REST APIs
+    formats:
+        jsonld: [ 'application/ld+json' ]
+        multipart: [ 'multipart/form-data' ]
     defaults:
         pagination_items_per_page: 50
         pagination_client_items_per_page: true

@@ -56,14 +56,14 @@ class Participation
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups([self::READ])]
+    #[Groups([self::READ, User::PUBLIC_READ])]
     #[ApiFilter(SearchFilter::class, strategy: "exact")]
     #[ApiFilter(OrderFilter::class)]
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: Run::class, inversedBy: 'participations')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups([self::READ, self::WRITE])]
+    #[Groups([self::READ, self::WRITE, User::PUBLIC_READ])]
     #[ApiFilter(SearchFilter::class, properties: ["run" => "exact", "run.id" => "exact"])]
     #[ApiFilter(OrderFilter::class, properties: ["run.id"])]
     #[ApiFilter(DateFilter::class, properties: ["run.startDate", "run.endDate"])]
@@ -76,7 +76,7 @@ class Participation
     private ?User $user = null;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
-    #[Groups([self::READ, self::WRITE])]
+    #[Groups([self::READ, self::WRITE, User::PUBLIC_READ])]
     #[ApiFilter(DateFilter::class)]
     #[ApiFilter(OrderFilter::class)]
     #[Assert\LessThanOrEqual('now')]

@@ -27,7 +27,15 @@ use Symfony\Component\Validator\Constraints\PasswordStrength;
 #[ApiResource(
     operations: [
         new GetCollection(security: self::ADMIN),
+        new GetCollection(
+            uriTemplate: 'users/public',
+            normalizationContext: ['groups' => [self::PUBLIC_READ]],
+        ),
         new Get(security: self::ACCESS),
+        new Get(
+            uriTemplate: 'users/public/{id}',
+            normalizationContext: ['groups' => [self::PUBLIC_READ]],
+        ),
         new Post(security: self::ADMIN, validationContext: ['groups' => ['Default', self::WRITE]], processor: UserProcessor::class),
         new Patch(security: self::ADMIN, processor: UserProcessor::class),
         new Delete(security: self::ADMIN),
@@ -44,6 +52,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     use Timestampable;
 
     public const string READ = 'user:read';
+    public const string PUBLIC_READ = 'user:public:read';
     public const string WRITE = 'user:write';
     private const string ACCESS = 'is_granted("ROLE_ADMIN") or object == user';
     private const string ADMIN = 'is_granted("ROLE_ADMIN")';
@@ -51,14 +60,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups([self::READ])]
+    #[Groups([self::READ, self::PUBLIC_READ])]
     #[ApiFilter(SearchFilter::class, strategy: "exact")]
     #[ApiFilter(OrderFilter::class)]
     #[ApiProperty(iris: ["https://schema.org/identifier"])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
-    #[Groups([self::READ, self::WRITE, Run::READ, Participation::READ])]
+    #[Groups([self::READ, self::PUBLIC_READ, self::WRITE, Run::READ, Participation::READ, Medias::READ])]
     #[Assert\NotBlank]
     #[ApiFilter(SearchFilter::class, strategy: "istart")]
     #[ApiFilter(OrderFilter::class)]
@@ -66,7 +75,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private string $firstName;
 
     #[ORM\Column(length: 180)]
-    #[Groups([self::READ, self::WRITE, Run::READ, Participation::READ])]
+    #[Groups([self::READ, self::PUBLIC_READ, self::WRITE, Run::READ, Participation::READ, Medias::READ])]
     #[Assert\NotBlank]
     #[ApiFilter(SearchFilter::class, strategy: "istart")]
     #[ApiFilter(OrderFilter::class)]
@@ -74,7 +83,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private string $lastName;
 
     #[ORM\Column(length: 180, nullable: true)]
-    #[Groups([self::READ, self::WRITE, Run::READ, Participation::READ])]
+    #[Groups([self::READ, self::PUBLIC_READ, self::WRITE, Run::READ, Participation::READ, Medias::READ])]
     #[ApiFilter(SearchFilter::class, strategy: "istart")]
     #[ApiFilter(OrderFilter::class)]
     #[ApiProperty(iris: ["https://schema.org/familyName"])]
@@ -108,7 +117,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $plainPassword = null;
 
     #[ORM\Column(length: 180, nullable: true)]
-    #[Groups([self::READ, self::WRITE])]
+    #[Groups([self::READ, self::PUBLIC_READ, self::WRITE])]
     #[ApiFilter(SearchFilter::class, strategy: "istart")]
     #[ApiFilter(OrderFilter::class)]
     #[ApiProperty(iris: ["https://schema.org/Organization"])]
@@ -118,8 +127,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var Collection<int, Participation>
      */
     #[ORM\OneToMany(targetEntity: Participation::class, mappedBy: 'user', orphanRemoval: true)]
-    #[Groups([self::READ, self::WRITE])]
+    #[Groups([self::READ, self::PUBLIC_READ, self::WRITE])]
     private Collection $participations;
+
+    #[ORM\OneToOne(inversedBy: 'runner', cascade: ['persist', 'remove'])]
+    #[Groups([self::READ, self::PUBLIC_READ])]
+    private ?Medias $image = null;
 
     public function __construct()
     {
@@ -295,5 +308,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getFinishedParticipationsCount(): int
     {
         return $this->getFinishedParticipations()->count();
+    }
+
+    public function getImage(): ?Medias
+    {
+        return $this->image;
+    }
+
+    public function setImage(?Medias $image): static
+    {
+        $this->image = $image;
+
+        return $this;
     }
 }
