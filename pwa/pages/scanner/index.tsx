@@ -5,7 +5,7 @@ import {
   IDetectedBarcode,
 } from "@yudiel/react-qr-scanner";
 import axios from "axios";
-import { tr } from "date-fns/locale";
+import Link from "next/link";
 
 interface Participation {
   id: number;
@@ -69,9 +69,9 @@ export default function Scan() {
           <div>
             <span>
               Vous devez vous connecter sur{" "}
-              <a href="/admin#/login" className="link link-primary">
+              <Link href="/admin#/login" className="link link-primary">
                 /login
-              </a>
+              </Link>
             </span>
           </div>
         </div>

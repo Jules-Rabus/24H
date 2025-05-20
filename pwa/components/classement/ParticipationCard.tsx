@@ -1,4 +1,4 @@
-import { Participation } from "../index";
+import { Participation } from "../../pages/classement";
 
 type Props = { participation: Participation; index: number };
 

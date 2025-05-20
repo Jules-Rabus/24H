@@ -42,6 +42,7 @@
     "@babel/core": "^7.27.1",
     "@popperjs/core": "^2.11.8",
     "@types/file-saver": "^2.0.7",
+    "@types/lodash.isplainobject": "^4.0.9",
     "@types/node": "^22.15.3",
     "@types/qrcode.react": "^3.0.0",
     "@types/react": "^19.1.2",

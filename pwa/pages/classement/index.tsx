@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import axios from "axios";
-import SearchForm from "./components/SearchForm";
-import ParticipationCard from "./components/ParticipationCard";
-import BibDownloadButton from "./components/BibDownloadButton";
+import SearchForm from "../../components/classement/SearchForm";
+import ParticipationCard from "../../components/classement/ParticipationCard";
+import BibDownloadButton from "../../components/classement/BibDownloadButton";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_ENTRYPOINT,

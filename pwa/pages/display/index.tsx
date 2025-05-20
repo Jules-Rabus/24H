@@ -1,6 +1,7 @@
 import axios from "axios";
 import https from "https";
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 
 interface Run {
   id: number;
@@ -117,6 +118,7 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
     if (currentRun) {
       setCurrentRun(currentRun);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [runsState]);
 
   useEffect(() => {
@@ -161,6 +163,7 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
     };
 
     return () => eventSource.close();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const hours = currentTime.getHours();
@@ -179,7 +182,7 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
     <>
       <header>
         <div className="flex justify-between mb-8">
-          <img src="/logo.png" alt="Logo 24H" className="h-64" />
+          <Image src="/logo.png" alt="Logo 24H" className="h-64" />
           <div className="flex flex-col items-center justify-center">
             <h1 className="text-4xl mb-8">Défi 24h</h1>
             <div className="stat-value">
@@ -208,7 +211,7 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
               </div>
             </div>
           </div>
-          <img src="/ASPO.jpeg" alt="Logo ASPO" className="h-64" />
+          <Image src="/ASPO.jpeg" alt="Logo ASPO" className="h-64" />
         </div>
       </header>
       <div className="p-8">
@@ -337,7 +340,7 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
                 0 && (
                 <tr>
                   <td colSpan={6} className="text-center">
-                    Aucun coureur n'est arrivé
+                    Aucun coureur n&#39;est arrivé
                   </td>
                 </tr>
               )}
