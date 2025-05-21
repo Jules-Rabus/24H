@@ -30,11 +30,13 @@ use Symfony\Component\Validator\Constraints\PasswordStrength;
         new GetCollection(
             uriTemplate: 'users/public',
             normalizationContext: ['groups' => [self::PUBLIC_READ]],
+            cacheHeaders: ['max_age' => 60, 'shared_max_age' => 60, 'public' => true ],
         ),
         new Get(security: self::ACCESS),
         new Get(
             uriTemplate: 'users/public/{id}',
             normalizationContext: ['groups' => [self::PUBLIC_READ]],
+            cacheHeaders: ['max_age' => 60 , 'shared_max_age' => 60, 'public' => true ],
         ),
         new Post(security: self::ADMIN, validationContext: ['groups' => ['Default', self::WRITE]], processor: UserProcessor::class),
         new Patch(security: self::ADMIN, processor: UserProcessor::class),

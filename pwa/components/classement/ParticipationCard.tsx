@@ -1,4 +1,4 @@
-import { Participation } from "../../pages/classement";
+import { Participation } from "../../pages/resultats";
 
 type Props = { participation: Participation; index: number };
 
@@ -14,35 +14,35 @@ export default function ParticipationCard({ participation, index }: Props) {
       : "⏱️ En cours";
 
   return (
-    <div className="bg-gradient-to-b from-blue-500 to-red-200 text-white rounded-box">
-      <div className="text-xl font-bold">
+    <div className="border rounded-lg shadow p-2 bg-gradient-to-r from-indigo-500 to-pink-500">
+      <div className="text-xl font-semibold mb-2">
         Tour {index + 1} à{" "}
         {start.toLocaleString("fr-FR", {
           hour: "2-digit",
           minute: "2-digit",
         })}
       </div>
-      <div className="text-neutral">
-        <p className="font-semibold">
-          • Temps total : <span className="font-normal">{humanDuration}</span>
-        </p>
+      <ul className="list-disc list-inside space-y-1">
+        <li>
+          Temps total : <span className="font-medium">{humanDuration}</span>
+        </li>
         {end && (
           <>
-            <p className="font-semibold">
-              • Vitesse moyenne :{" "}
-              <span className="font-normal">
+            <li>
+              Vitesse moyenne :{" "}
+              <span className="font-medium">
                 {(3600 / totalSec!).toFixed(2)} km/h
               </span>
-            </p>
-            <p className="font-semibold">
-              • Allure :{" "}
-              <span className="font-normal">
+            </li>
+            <li>
+              Allure :{" "}
+              <span className="font-medium">
                 {(totalSec! / 60).toFixed(2)} min/km
               </span>
-            </p>
+            </li>
           </>
         )}
-      </div>
+      </ul>
     </div>
   );
 }

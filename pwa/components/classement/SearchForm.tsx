@@ -15,8 +15,6 @@ const FIELDS: [Field, string][] = [
 export default function SearchForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-
-  // @ts-ignore
   const getParam = (k: Field) => searchParams.get(k) ?? "";
 
   const [values, setValues] = useState<Record<Field, string>>({
@@ -45,8 +43,9 @@ export default function SearchForm() {
   useEffect(() => {
     const id = setTimeout(() => {
       const qs = buildQS(values);
-      // @ts-ignore
-      if (qs !== searchParams.toString()) router.replace(`/classement?${qs}`);
+      if (qs !== searchParams.toString()) {
+        router.replace(`/resultats?${qs}`);
+      }
     }, 500);
     return () => clearTimeout(id);
   }, [values, router, searchParams]);
@@ -66,24 +65,34 @@ export default function SearchForm() {
   }, [searchParams]);
 
   return (
-    <form
-      onSubmit={(e) => e.preventDefault()}
-      className="flex flex-col sm:flex-row flex-wrap gap-3 w-full"
-    >
-      {FIELDS.map(([name, label]) => (
-        <div key={name} className="form-control grow sm:max-w-xs">
-          <label className="label">
-            <span className="label-text">{label}</span>
-          </label>
-          <input
-            className="input input-bordered w-full"
-            name={name}
-            value={values[name]}
-            onChange={handleChange(name)}
-            autoComplete="off"
-          />
+    <div className="w-full mb-4">
+      <div className="collapse collapse-arrow border border-base-300 bg-base-100 rounded-box">
+        <input type="checkbox" />
+        <div className="collapse-title text-lg font-medium">
+          Filtres de recherche
         </div>
-      ))}
-    </form>
+        <div className="collapse-content">
+          <form
+            onSubmit={(e) => e.preventDefault()}
+            className="flex flex-col sm:flex-row flex-wrap gap-3 w-full"
+          >
+            {FIELDS.map(([name, label]) => (
+              <div key={name} className="form-control grow sm:max-w-xs">
+                <label className="label">
+                  <span className="label-text">{label}</span>
+                </label>
+                <input
+                  className="input input-bordered w-full"
+                  name={name}
+                  value={values[name]}
+                  onChange={handleChange(name)}
+                  autoComplete="off"
+                />
+              </div>
+            ))}
+          </form>
+        </div>
+      </div>
+    </div>
   );
 }
