@@ -118,7 +118,7 @@ class Participation
         $this->arrivalTime = $arrivalTime;
     }
 
-    #[Groups([self::READ])]
+    #[Groups([self::READ, USER::PUBLIC_READ])]
     public function getTotalTime(): ?int
     {
         if($this->arrivalTime) {
@@ -128,7 +128,7 @@ class Participation
         return null;
     }
 
-    #[Groups([self::READ])]
+    #[Groups([self::READ, USER::PUBLIC_READ])]
     public function getStatus(): string
     {
         if($this->arrivalTime) {

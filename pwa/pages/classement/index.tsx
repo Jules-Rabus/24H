@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import axios from "axios";
@@ -22,6 +20,7 @@ export interface Participation {
   id: number;
   arrivalTime: string | null;
   run: Run;
+  status: string;
 }
 
 export interface User {
@@ -36,7 +35,6 @@ export interface User {
 export default function Page() {
   const searchParams = useSearchParams();
   const [users, setUsers] = useState<User[]>([]);
-  // @ts-ignore
   const qs = searchParams.toString();
 
   useEffect(() => {
@@ -55,43 +53,51 @@ export default function Page() {
         Classement des coureurs
       </h1>
       <SearchForm />
+
       {users.length > 0 ? (
         <section className="space-y-6">
-          {users.map((user) => (
-            <article key={user.id} className="card bg-base-200 shadow-xl">
-              <div className="card-body space-y-4">
-                <h2 className="card-title">
-                  {user.firstName} {user.lastName}
-                  {user.surname ? (
-                    <span className="italic ml-2">({user.surname})</span>
-                  ) : null}
-                  <BibDownloadButton user={user} />
-                </h2>
-                {user.organization && (
-                  <p className="text-sm opacity-70">{user.organization}</p>
-                )}
-                <div className="space-y-3">
-                  {user.participations.length === 0 ? (
-                    <p>Aucune participation enregistrée.</p>
-                  ) : (
-                    user.participations
-                      .sort(
-                        (a, b) =>
-                          new Date(a.run.startDate).getTime() -
-                          new Date(b.run.startDate).getTime(),
-                      )
-                      .map((participation, index) => (
-                        <ParticipationCard
-                          key={participation.id}
-                          participation={participation}
-                          index={index}
-                        />
-                      ))
+          {users.map((user) => {
+            const finished = user.participations.filter(
+              (p) => p.status === "FINISHED",
+            );
+
+            return (
+              <article key={user.id} className="card bg-base-200 shadow-xl">
+                <div className="card-body space-y-4">
+                  <h2 className="card-title">
+                    {user.firstName} {user.lastName}
+                    {user.surname && (
+                      <span className="italic ml-2">({user.surname})</span>
+                    )}
+                    <BibDownloadButton user={user} />
+                  </h2>
+                  {user.organization && (
+                    <p className="text-sm opacity-70">{user.organization}</p>
                   )}
+
+                  <div className="space-y-3">
+                    {finished.length === 0 ? (
+                      <p>Aucune participation terminée.</p>
+                    ) : (
+                      finished
+                        .sort(
+                          (a, b) =>
+                            new Date(a.run.startDate).getTime() -
+                            new Date(b.run.startDate).getTime(),
+                        )
+                        .map((participation, index) => (
+                          <ParticipationCard
+                            key={participation.id}
+                            participation={participation}
+                            index={index}
+                          />
+                        ))
+                    )}
+                  </div>
                 </div>
-              </div>
-            </article>
-          ))}
+              </article>
+            );
+          })}
         </section>
       ) : (
         <p className="text-center">Aucun résultat…</p>
