@@ -43,7 +43,7 @@ const generateQr = (data: any) => {
 
 export default function BibDownloadButton({ user }: { user: User }) {
   const qr = generateQr({
-    id: user.id,
+    originId: user.id,
     firstName: user.firstName,
     lastName: user.lastName,
     surname: user.surname,
