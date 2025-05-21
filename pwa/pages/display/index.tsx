@@ -118,8 +118,7 @@ export default function Display({ runs, initialParticipations }: DisplayProps) {
     if (currentRun) {
       setCurrentRun(currentRun);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [runsState]);
+  }, [now, runsState]);
 
   useEffect(() => {
     const url = new URL(hubUrl);
