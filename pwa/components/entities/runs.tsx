@@ -18,7 +18,7 @@ import {
 import React from "react";
 
 const PaginationList = () => (
-  <Pagination rowsPerPageOptions={[25, 50, 100, 200]} />
+  <Pagination rowsPerPageOptions={[10, 25, 50, 100, 200]} />
 );
 
 export const RunsList = (props: any) => (
@@ -52,6 +52,7 @@ export const RunShow = (props: any) => (
       reference="participations"
       target="run"
       label="Participants"
+      perPage={50}
     >
       <Datagrid bulkActionButtons={false}>
         <ReferenceField source="user" reference="users">

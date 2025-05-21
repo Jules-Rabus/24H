@@ -18,7 +18,7 @@ import {
 } from "react-admin";
 
 const PaginationList = () => (
-  <Pagination rowsPerPageOptions={[25, 50, 100, 200]} />
+  <Pagination rowsPerPageOptions={[10, 25, 50, 100, 200]} />
 );
 
 export const ParticipationsList = (props: any) => (
@@ -112,7 +112,7 @@ export const ParticipationsShow = (props: any) => (
 
 export const ParticipationsCreate = (props: any) => (
   <CreateGuesser {...props}>
-    <ReferenceInput source="user" reference="users">
+    <ReferenceInput source="user" reference="users" perPage={100}>
       <SelectInput
         optionText={(choice: any) =>
           choice.surname
@@ -121,7 +121,7 @@ export const ParticipationsCreate = (props: any) => (
         }
       />
     </ReferenceInput>
-    <ReferenceInput source="run" reference="runs">
+    <ReferenceInput source="run" reference="runs" perPage={50}>
       <SelectInput
         optionText={(choice: any) =>
           new Date(choice.startDate).toLocaleString(undefined, {
@@ -138,7 +138,7 @@ export const ParticipationsCreate = (props: any) => (
 
 export const ParticipationsEdit = (props: any) => (
   <EditGuesser {...props}>
-    <ReferenceInput source="user" reference="users">
+    <ReferenceInput source="user" reference="users" perPage={100}>
       <SelectInput
         optionText={(choice: any) =>
           choice.surname
@@ -147,7 +147,7 @@ export const ParticipationsEdit = (props: any) => (
         }
       />
     </ReferenceInput>
-    <ReferenceInput source="run" reference="runs">
+    <ReferenceInput source="run" reference="runs" perPage={50}>
       <SelectInput
         optionText={(choice: any) =>
           new Date(choice.startDate).toLocaleString(undefined, {

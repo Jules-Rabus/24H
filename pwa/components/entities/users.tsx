@@ -105,7 +105,7 @@ const PdfDownloadLinkButtonWrapper = () => {
   );
 };
 const PaginationList = () => (
-  <Pagination rowsPerPageOptions={[25, 50, 100, 200]} />
+  <Pagination rowsPerPageOptions={[10, 25, 50, 100, 200]} />
 );
 
 export const UsersList = (props: any) => (
@@ -138,6 +138,7 @@ export const UserEdit = (props: any) => (
       source="participations"
       reference="participations"
       label="Participations"
+      perPage={50}
     >
       <SelectArrayInput
         optionText={(choice: any) =>
