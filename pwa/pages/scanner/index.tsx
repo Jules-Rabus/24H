@@ -60,7 +60,7 @@ export default function Scan() {
 
   const components = {
     audio: false,
-    torch: false,
+    torch: true,
     zoom: false,
     finder: true,
     onOff: true,

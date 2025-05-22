@@ -31,13 +31,19 @@ export default function ParticipationCard({ participation, index }: Props) {
             <li>
               Vitesse moyenne :{" "}
               <span className="font-medium">
-                {(4 * 3600 / totalSec!).toFixed(2)} km/h
+                {((4 * 3600) / totalSec!).toFixed(2)} km/h
               </span>
             </li>
             <li>
               Allure :{" "}
               <span className="font-medium">
-                {(totalSec! / 4 / 60).toFixed(2)} min/km
+                {(() => {
+                  const paceSec = Math.round(totalSec! / 4);
+                  const paceMin = Math.floor(paceSec / 60);
+                  const paceSecRem = paceSec % 60;
+                  const secStr = String(paceSecRem).padStart(2, "0");
+                  return `${paceMin}:${secStr} min/km`;
+                })()}
               </span>
             </li>
           </>
