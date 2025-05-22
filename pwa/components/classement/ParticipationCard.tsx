@@ -31,7 +31,7 @@ export default function ParticipationCard({ participation, index }: Props) {
             <li>
               Vitesse moyenne :{" "}
               <span className="font-medium">
-                {(900 / totalSec!).toFixed(2)} km/h
+                {(4 * 3600 / 900).toFixed(2)} km/h
               </span>
             </li>
             <li>
