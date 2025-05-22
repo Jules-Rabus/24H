@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Common\Filter\OrderFilterInterface;
 use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
@@ -78,7 +79,12 @@ class Participation
     #[ORM\Column(type: 'datetime', nullable: true)]
     #[Groups([self::READ, self::WRITE, User::PUBLIC_READ])]
     #[ApiFilter(DateFilter::class)]
-    #[ApiFilter(OrderFilter::class)]
+    #[ApiFilter(OrderFilter::class,
+        properties: [
+        'arrivalTime' => [
+            'nulls_comparison' => OrderFilterInterface::NULLS_ALWAYS_LAST
+        ]
+    ])]
     #[Assert\LessThanOrEqual('now')]
     #[Assert\GreaterThanOrEqual(propertyPath: 'run.startDate')]
     private ?\DateTimeInterface $arrivalTime = null;
