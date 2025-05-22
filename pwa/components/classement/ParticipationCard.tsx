@@ -31,13 +31,13 @@ export default function ParticipationCard({ participation, index }: Props) {
             <li>
               Vitesse moyenne :{" "}
               <span className="font-medium">
-                {(3600 / totalSec!).toFixed(2)} km/h
+                {(900 / totalSec!).toFixed(2)} km/h
               </span>
             </li>
             <li>
               Allure :{" "}
               <span className="font-medium">
-                {(totalSec! / 60).toFixed(2)} min/km
+                {(totalSec! / 4 / 60).toFixed(2)} min/km
               </span>
             </li>
           </>
