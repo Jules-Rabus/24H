@@ -1,7 +1,6 @@
 <?php
 namespace App\State;
 
-use App\Repository\ParticipationRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use ApiPlatform\Metadata\Operation;
@@ -14,7 +13,6 @@ final class ParticipationFinishedProcessor implements ProcessorInterface
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly UserRepository $userRepo,
-        private readonly ParticipationRepository $partRepo,
     ) {}
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
@@ -31,19 +29,23 @@ final class ParticipationFinishedProcessor implements ProcessorInterface
             throw new NotFoundHttpException("Utilisateur #$userId introuvable");
         }
 
-        $participation = $this->partRepo->findOneBy(
-            ['user' => $user, 'arrivalTime' => null],
-            ['run' => 'DESC']
-        );
-        if (null === $participation) {
-            throw new BadRequestHttpException('Aucune participation en cours pour cet utilisateur');
-        }
-        $run   = $participation->getRun();
-        $start = $run->getStartDate();
-        $now   = new \DateTime();
+        $now = new \DateTime();
 
-        if ($start > $now) {
-            throw new BadRequestHttpException('Le run n\'a pas encore commencé.');
+        $currentParticipation = null;
+        foreach ($user->getParticipations() as $participation) {
+            $run = $participation->getRun();
+            if (
+                $run->getStartDate() <= $now &&
+                $run->getEndDate() >  $now &&
+                $participation->getArrivalTime() === null
+            ) {
+                $currentParticipation = $participation;
+                break;
+            }
+        }
+
+        if (null === $currentParticipation) {
+            throw new BadRequestHttpException("Aucune participation en cours pour l'utilisateur : " . $user->getFirstName() . " " . $user->getLastName());
         }
 
         $participation->setArrivalTime($now);

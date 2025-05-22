@@ -36,7 +36,7 @@ const generateQr = (data: any) => {
   datamatrix(canvas, {
     bcid: "datamatrix",
     text: JSON.stringify(data),
-    scale: 7,
+    scale: 5,
   });
   return canvas.toDataURL("image/png");
 };
@@ -46,7 +46,6 @@ export default function BibDownloadButton({ user }: { user: User }) {
     originId: user.id,
     firstName: user.firstName,
     lastName: user.lastName,
-    surname: user.surname,
   });
 
   const displayName = user.surname || `${user.firstName} ${user.lastName}`;

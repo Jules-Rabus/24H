@@ -22,6 +22,27 @@ interface Participation {
 const SCAN_FORMATS: IScannerProps["formats"] = ["data_matrix"];
 type Toast = { message: string; type: "success" | "error" };
 
+export function getDatamatrixOutline(
+  detectedCodes: IDetectedBarcode[],
+  ctx: CanvasRenderingContext2D,
+) {
+  for (const detectedCode of detectedCodes) {
+    const [firstPoint, ...otherPoints] = detectedCode.cornerPoints;
+
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "yellow";
+
+    ctx.beginPath();
+    ctx.moveTo(firstPoint.x, firstPoint.y);
+    for (const { x, y } of otherPoints) {
+      ctx.lineTo(x, y);
+    }
+    ctx.lineTo(firstPoint.x, firstPoint.y);
+    ctx.closePath();
+    ctx.stroke();
+  }
+}
+
 export default function Scan() {
   const [token, setToken] = useState<string | null>(null);
   useEffect(() => {
@@ -37,6 +58,15 @@ export default function Scan() {
   const showToast = (message: string, type: Toast["type"] = "success") =>
     setToast({ message, type });
 
+  const components = {
+    audio: false,
+    torch: false,
+    zoom: false,
+    finder: true,
+    onOff: true,
+    tracker: getDatamatrixOutline,
+  };
+
   const handleScan = async (result: IDetectedBarcode[]) => {
     if (!result?.length) return;
     if (!token) {
@@ -51,8 +81,19 @@ export default function Scan() {
         { rawValue },
         { headers: { Authorization: `Bearer ${token}` } },
       );
+
+      const arrivalTime = new Date(
+        data.arrivalTime ? data.arrivalTime : Date.now(),
+      );
       showToast(
-        `✅ Arrivée de ${data.user.firstName} ${data.user.lastName} enregistrée : ${data.arrivalTime}`,
+        `✅ Arrivée de ${data.user.firstName} ${data.user.lastName} enregistrée : ${arrivalTime.toLocaleString(
+          "fr-FR",
+          {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+          },
+        )}`,
         "success",
       );
     } catch (err: any) {
@@ -89,6 +130,8 @@ export default function Scan() {
               scanDelay={4000}
               onScan={handleScan}
               allowMultiple={true}
+              sound={true}
+              components={components}
             />
           </div>
         </div>
