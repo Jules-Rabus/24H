@@ -30,7 +30,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             denormalizationContext: ['groups' => ['Default', self::WRITE]],
         ),
         new Patch(),
-        new Delete()
+        new Delete(),
     ],
     normalizationContext: ['groups' => [self::READ]],
     denormalizationContext: ['groups' => [self::WRITE]],
@@ -49,7 +49,7 @@ class Run
     #[ORM\GeneratedValue]
     #[ORM\Column]
     #[Groups([self::READ, User::PUBLIC_READ])]
-    #[ApiFilter(SearchFilter::class, strategy: "exact")]
+    #[ApiFilter(SearchFilter::class, strategy: 'exact')]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, unique: true)]
@@ -121,12 +121,14 @@ class Run
             $this->participations->add($participation);
             $participation->setRun($this);
         }
+
         return $this;
     }
 
     public function removeParticipation(Participation $participation): static
     {
         $this->participations->removeElement($participation);
+
         return $this;
     }
 
@@ -139,13 +141,13 @@ class Run
     #[Groups([self::READ])]
     public function getInProgressParticipantsCount(): int
     {
-        return $this->participations->filter(fn($p) => $p->getStatus() === 'IN_PROGRESS')->count();
+        return $this->participations->filter(fn ($p) => 'IN_PROGRESS' === $p->getStatus())->count();
     }
 
     #[Groups([self::READ])]
     public function getFinishedParticipantsCount(): int
     {
-        return $this->participations->filter(fn($p) => $p->getStatus() === 'FINISHED')->count();
+        return $this->participations->filter(fn ($p) => 'FINISHED' === $p->getStatus())->count();
     }
 
     public function isFinished(): bool

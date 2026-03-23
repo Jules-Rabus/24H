@@ -13,6 +13,7 @@ final class MultipartDecoder implements DecoderInterface
     {
     }
 
+    /** @return array<mixed>|null */
     public function decode(string $data, string $format, array $context = []): ?array
     {
         $request = $this->requestStack->getCurrentRequest();
@@ -22,8 +23,8 @@ final class MultipartDecoder implements DecoderInterface
         }
 
         return array_map(static function (string $element) {
-                return $element;
-            }, $request->request->all()) + $request->files->all();
+            return $element;
+        }, $request->request->all()) + $request->files->all();
     }
 
     public function supportsDecoding(string $format): bool

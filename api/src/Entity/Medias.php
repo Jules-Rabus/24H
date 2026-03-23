@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
@@ -38,15 +37,15 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
                                 'properties' => [
                                     'file' => [
                                         'type' => 'string',
-                                        'format' => 'binary'
+                                        'format' => 'binary',
                                     ],
                                     'runner' => [
                                         'type' => 'string',
-                                        'format' => 'iri-reference'
-                                    ]
-                                ]
-                            ]
-                        ]
+                                        'format' => 'iri-reference',
+                                    ],
+                                ],
+                            ],
+                        ],
                     ])
                 )
             ),
@@ -61,14 +60,13 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
 )]
 class Medias
 {
-
     public const string READ = 'medias:read';
     public const string WRITE = 'medias:write';
 
     private const string ADMIN = 'is_granted("ROLE_ADMIN")';
 
     #[ORM\Id, ORM\Column, ORM\GeneratedValue]
-    #[ApiFilter(SearchFilter::class, strategy: "exact")]
+    #[ApiFilter(SearchFilter::class, strategy: 'exact')]
     #[ApiFilter(OrderFilter::class)]
     private ?int $id = null;
 
@@ -84,8 +82,8 @@ class Medias
     #[ORM\OneToOne(mappedBy: 'image', cascade: ['persist', 'remove'])]
     #[Assert\NotNull]
     #[Groups([self::READ, self::WRITE])]
-    #[ApiFilter(SearchFilter::class, properties: ["user" => "exact", "user.id" => "exact", "user.firstName" => "istart", "user.lastName" => "istart", "user.surname" => "istart"])]
-    private User $runner;
+    #[ApiFilter(SearchFilter::class, properties: ['user' => 'exact', 'user.id' => 'exact', 'user.firstName' => 'istart', 'user.lastName' => 'istart', 'user.surname' => 'istart'])]
+    private ?User $runner = null;
 
     public function getId(): ?int
     {
@@ -104,7 +102,7 @@ class Medias
 
     public function getFilePath(): ?string
     {
-        return 'https://localhost/images/users/' . $this->filePath;
+        return 'https://localhost/images/users/'.$this->filePath;
     }
 
     public function setFilePath(?string $filePath): void
@@ -112,20 +110,20 @@ class Medias
         $this->filePath = $filePath;
     }
 
-    public function getRunner(): User
+    public function getRunner(): ?User
     {
         return $this->runner;
     }
 
-    public function setRunner(User $runner): static
+    public function setRunner(?User $runner): static
     {
         // unset the owning side of the relation if necessary
-        if ($runner === null && $this->runner !== null) {
+        if (null === $runner && null !== $this->runner) {
             $this->runner->setImage(null);
         }
 
         // set the owning side of the relation if necessary
-        if ($runner !== null && $runner->getImage() !== $this) {
+        if (null !== $runner && $runner->getImage() !== $this) {
             $runner->setImage($this);
         }
 

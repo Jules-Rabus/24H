@@ -14,27 +14,71 @@ abstract class AbstractTestCase extends ApiTestCase
     use ResetDatabase;
     use Factories;
 
+    private const string DEFAULT_PASSWORD = '$3cr3t';
     private ?string $token = null;
+
+    protected static ?bool $alwaysBootKernel = true;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->token = $this->getToken();
+        $this->_beforeHook();
+        UserFactory::createOne([
+            'email' => 'admin@example.com',
+            'password' => self::DEFAULT_PASSWORD,
+            'roles' => ['ROLE_ADMIN'],
+        ]);
     }
 
-    protected function getToken(?User $user = null): string
+    protected function tearDown(): void
     {
-        $user = $user ?? UserFactory::new()->create(['password' => 'password']);
-
-        $jwtManager = static::getContainer()->get('lexik_jwt_authentication.jwt_manager');
-
-        return $jwtManager->create($user);
+        self::_afterHook();
+        parent::tearDown();
     }
 
-    protected function createClientWithCredentials(?User $user = null): Client
+    protected function createClientWithCredentials(string|User|null $token = null): Client
     {
-        $token = $user ? $this->getToken($user) : $this->token;
+        if ($token instanceof User) {
+            $token = $this->getToken([
+                'email' => $token->getEmail(),
+                'password' => self::DEFAULT_PASSWORD,
+            ]);
+        }
 
-        return static::createClient([], ['headers' => ['authorization' => 'Bearer '.$token]]);
+        $token ??= $this->getToken();
+
+        return static::createClient([], ['headers' => ['Authorization' => 'Bearer '.$token]]);
+    }
+
+    /**
+     * @param array<string, string> $body
+     */
+    protected function getToken(array $body = []): string
+    {
+        if ([] === $body && null !== $this->token) {
+            return $this->token;
+        }
+
+        $response = static::createClient()->request('POST', '/login', [
+            'headers' => [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
+            ],
+            'json' => $body ?: [
+                'email' => 'admin@example.com',
+                'password' => self::DEFAULT_PASSWORD,
+            ],
+        ]);
+
+        $this->assertResponseIsSuccessful();
+
+        $data = $response->toArray(false);
+        $token = $data['token'] ?? throw new \RuntimeException('JWT token missing from /login response.');
+
+        if ([] === $body) {
+            $this->token = $token;
+        }
+
+        return $token;
     }
 }

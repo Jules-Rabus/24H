@@ -16,14 +16,14 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
     name: 'app:create-user',
     description: 'Creates a new user with hashed password'
 )]
-class CreateUserCommand extends \Symfony\Component\Console\Command\Command
+class CreateUserCommand extends Command
 {
     private EntityManagerInterface $em;
     private UserPasswordHasherInterface $passwordHasher;
 
     public function __construct(
         EntityManagerInterface $em,
-        UserPasswordHasherInterface $passwordHasher
+        UserPasswordHasherInterface $passwordHasher,
     ) {
         parent::__construct();
 
@@ -40,7 +40,6 @@ class CreateUserCommand extends \Symfony\Component\Console\Command\Command
             ->addArgument('password', InputArgument::REQUIRED, 'Plain password')
             ->addOption('admin', null, InputArgument::OPTIONAL, 'Grant ROLE_ADMIN', false)
             ->addOption('update', null, InputArgument::OPTIONAL, 'Update existing user', false);
-        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -52,13 +51,14 @@ class CreateUserCommand extends \Symfony\Component\Console\Command\Command
         $lastName = $input->getArgument('lastName');
         $plainPassword = $input->getArgument('password');
         $isAdmin = (bool) $input->getOption('admin');
-        $update = (bool)$input->getOption('update');
+        $update = (bool) $input->getOption('update');
 
         $user = $this->em->getRepository(User::class)->findOneBy(['email' => $email]);
 
         if ($user) {
             if (!$update) {
                 $io->error(sprintf('User "%s" already exists. Use --update to modify.', $email));
+
                 return Command::FAILURE;
             }
         } else {

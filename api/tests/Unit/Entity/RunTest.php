@@ -3,7 +3,6 @@
 namespace Unit\Entity;
 
 use App\Entity\Run;
-use Doctrine\Common\Collections\ArrayCollection;
 use PHPUnit\Framework\TestCase;
 
 class RunTest extends TestCase
