@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__query-docs",
+      "Bash(curl -sSL https://raw.githubusercontent.com/coopTilleuls/template-sync/main/template-sync.sh)",
+      "Bash(sh -s -- https://github.com/dunglas/symfony-docker)",
+      "Bash(curl -s https://api.github.com/repos/dunglas/symfony-docker/commits?per_page=10)",
+      "Bash(curl:*)",
+      "Bash(docker compose:*)",
+      "Bash(npm audit:*)",
+      "Bash(ls:*)"
+    ]
+  }
+}

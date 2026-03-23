@@ -12,6 +12,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use App\Controller\SecurityController;
 use App\Entity\Traits\Timestampable;
 use App\Repository\UserRepository;
 use App\State\UserProcessor;
@@ -30,13 +31,21 @@ use Symfony\Component\Validator\Constraints\PasswordStrength;
         new GetCollection(
             uriTemplate: 'users/public',
             normalizationContext: ['groups' => [self::PUBLIC_READ]],
-            cacheHeaders: ['max_age' => 60, 'shared_max_age' => 60, 'public' => true ],
+            cacheHeaders: ['max_age' => 60, 'shared_max_age' => 60, 'public' => true],
         ),
         new Get(security: self::ACCESS),
         new Get(
             uriTemplate: 'users/public/{id}',
             normalizationContext: ['groups' => [self::PUBLIC_READ]],
-            cacheHeaders: ['max_age' => 60 , 'shared_max_age' => 60, 'public' => true ],
+            cacheHeaders: ['max_age' => 60, 'shared_max_age' => 60, 'public' => true],
+        ),
+        new Post(
+            uriTemplate: '/logout',
+            controller: SecurityController::class.'::logout',
+            read: false,
+            deserialize: false,
+            write: false,
+            name: 'logout',
         ),
         new Post(security: self::ADMIN, validationContext: ['groups' => ['Default', self::WRITE]], processor: UserProcessor::class),
         new Patch(security: self::ADMIN, processor: UserProcessor::class),
@@ -50,53 +59,52 @@ use Symfony\Component\Validator\Constraints\PasswordStrength;
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
-
     use Timestampable;
 
     public const string READ = 'user:read';
     public const string PUBLIC_READ = 'user:public:read';
     public const string WRITE = 'user:write';
-    private const string ACCESS = 'is_granted("ROLE_ADMIN") or object == user';
+    private const string ACCESS = 'is_granted("ROLE_ADMIN") or (user and object.getUserIdentifier() == user.getUserIdentifier())';
     private const string ADMIN = 'is_granted("ROLE_ADMIN")';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     #[Groups([self::READ, self::PUBLIC_READ])]
-    #[ApiFilter(SearchFilter::class, strategy: "exact")]
+    #[ApiFilter(SearchFilter::class, strategy: 'exact')]
     #[ApiFilter(OrderFilter::class)]
-    #[ApiProperty(iris: ["https://schema.org/identifier"])]
+    #[ApiProperty(iris: ['https://schema.org/identifier'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
     #[Groups([self::READ, self::PUBLIC_READ, self::WRITE, Run::READ, Participation::READ, Medias::READ])]
     #[Assert\NotBlank]
-    #[ApiFilter(SearchFilter::class, strategy: "istart")]
+    #[ApiFilter(SearchFilter::class, strategy: 'istart')]
     #[ApiFilter(OrderFilter::class)]
-    #[ApiProperty(iris: ["https://schema.org/givenName"])]
+    #[ApiProperty(iris: ['https://schema.org/givenName'])]
     private string $firstName;
 
     #[ORM\Column(length: 180)]
     #[Groups([self::READ, self::PUBLIC_READ, self::WRITE, Run::READ, Participation::READ, Medias::READ])]
     #[Assert\NotBlank]
-    #[ApiFilter(SearchFilter::class, strategy: "istart")]
+    #[ApiFilter(SearchFilter::class, strategy: 'istart')]
     #[ApiFilter(OrderFilter::class)]
-    #[ApiProperty(iris: ["https://schema.org/familyName"])]
+    #[ApiProperty(iris: ['https://schema.org/familyName'])]
     private string $lastName;
 
     #[ORM\Column(length: 180, nullable: true)]
     #[Groups([self::READ, self::PUBLIC_READ, self::WRITE, Run::READ, Participation::READ, Medias::READ])]
-    #[ApiFilter(SearchFilter::class, strategy: "istart")]
+    #[ApiFilter(SearchFilter::class, strategy: 'istart')]
     #[ApiFilter(OrderFilter::class)]
-    #[ApiProperty(iris: ["https://schema.org/familyName"])]
+    #[ApiProperty(iris: ['https://schema.org/familyName'])]
     private ?string $surname;
 
     #[ORM\Column(length: 180, unique: true, nullable: true)]
     #[Groups([self::READ, self::WRITE])]
     #[Assert\Email]
-    #[ApiFilter(SearchFilter::class, strategy: "istart")]
+    #[ApiFilter(SearchFilter::class, strategy: 'istart')]
     #[ApiFilter(OrderFilter::class)]
-    #[ApiProperty(iris: ["https://schema.org/email"])]
+    #[ApiProperty(iris: ['https://schema.org/email'])]
     private ?string $email = null;
 
     /**
@@ -113,16 +121,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[Groups([self::WRITE])]
-    #[PasswordStrength([
-        'minScore' => PasswordStrength::STRENGTH_WEAK,
-    ])]
+    #[PasswordStrength(minScore: PasswordStrength::STRENGTH_WEAK)]
     private ?string $plainPassword = null;
 
     #[ORM\Column(length: 180, nullable: true)]
     #[Groups([self::READ, self::PUBLIC_READ, self::WRITE])]
-    #[ApiFilter(SearchFilter::class, strategy: "istart")]
+    #[ApiFilter(SearchFilter::class, strategy: 'istart')]
     #[ApiFilter(OrderFilter::class)]
-    #[ApiProperty(iris: ["https://schema.org/Organization"])]
+    #[ApiProperty(iris: ['https://schema.org/Organization'])]
     private ?string $organization = null;
 
     /**
@@ -298,18 +304,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    /** @return list<Participation> */
     #[Groups([self::READ])]
-    public function getFinishedParticipations(): Collection
+    public function getFinishedParticipations(): array
     {
-        return $this->participations->filter(function(Participation $participation) {
-            return $participation->getArrivalTime() !== null;
-        });
+        return $this->participations
+            ->filter(static fn (Participation $participation) => null !== $participation->getArrivalTime())
+            ->getValues();
     }
 
     #[Groups([self::READ, Participation::READ])]
     public function getFinishedParticipationsCount(): int
     {
-        return $this->getFinishedParticipations()->count();
+        return \count($this->getFinishedParticipations());
     }
 
     public function getImage(): ?Medias

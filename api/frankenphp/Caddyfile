@@ -1,8 +1,15 @@
 {
+	skip_install_trust
+
 	{$CADDY_GLOBAL_OPTIONS}
 
 	frankenphp {
 		{$FRANKENPHP_CONFIG}
+
+		worker {
+			file ./public/index.php
+			{$FRANKENPHP_WORKER_CONFIG}
+		}
 	}
 }
 
@@ -10,6 +17,7 @@
 
 {$SERVER_NAME:localhost} {
 	log {
+		{$CADDY_SERVER_LOG_OPTIONS}
 		# Redact the authorization query parameter that can be set by Mercure
 		format filter {
 			request>uri query {
@@ -18,12 +26,12 @@
 		}
 	}
 
-	root * /app/public
+	root /app/public
 	encode zstd br gzip
 
 	mercure {
 		# Transport to use (default to Bolt)
-		transport_url {$MERCURE_TRANSPORT_URL:bolt:///data/mercure.db}
+		transport bolt {$MERCURE_TRANSPORT_URL:///data/mercure.db}
 		# Publisher JWT key
 		publisher_jwt {env.MERCURE_PUBLISHER_JWT_KEY} {env.MERCURE_PUBLISHER_JWT_ALG}
 		# Subscriber JWT key
@@ -38,10 +46,13 @@
 
 	vulcain
 
-	# Add links to the API docs and to the Mercure Hub if not set explicitly (e.g. the PWA)
-	header ?Link `</docs.jsonld>; rel="http://www.w3.org/ns/hydra/core#apiDocumentation", </.well-known/mercure>; rel="mercure"`
+	{$CADDY_SERVER_EXTRA_DIRECTIVES}
+
 	# Disable Topics tracking if not enabled explicitly: https://github.com/jkarlin/topics
 	header ?Permissions-Policy "browsing-topics=()"
+
+	# Add links to the API docs and to the Mercure Hub if not set explicitly (e.g. the PWA)
+	header ?Link `</docs.jsonld>; rel="http://www.w3.org/ns/hydra/core#apiDocumentation", </.well-known/mercure>; rel="mercure"`
 
 	# Matches requests for HTML documents, for static files and for Next.js files,
 	# except for known API paths and paths with extensions handled by API Platform

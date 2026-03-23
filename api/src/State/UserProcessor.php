@@ -33,10 +33,9 @@ final readonly class UserProcessor implements ProcessorInterface
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): User
     {
-
         $userParticipations = $data->getParticipations();
-        if($userParticipations->isEmpty()) {
-           $this->addParticipation($data);
+        if ($userParticipations->isEmpty()) {
+            $this->addParticipation($data);
         }
 
         if (!$data->getPlainPassword()) {

@@ -3,12 +3,12 @@
 namespace App\Factory;
 
 use App\Entity\Run;
-use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<Run>
+ * @extends PersistentObjectFactory<Run>
  */
-final class RunFactory extends PersistentProxyObjectFactory
+final class RunFactory extends PersistentObjectFactory
 {
     public static function class(): string
     {
@@ -28,9 +28,8 @@ final class RunFactory extends PersistentProxyObjectFactory
     protected function defaults(): array
     {
         return [
-            'startDate' => self::faker()->dateTimeBetween('-30 minutes', '+30 minutes'),
-            'endDate' => self::faker()->dateTimeBetween('+30 minutes', '+1 hour'),
-            'runner' => UserFactory::new(),
+            'startDate' => self::faker()->dateTimeBetween('+1 day', '+7 days'),
+            'endDate' => self::faker()->dateTimeBetween('+8 days', '+14 days'),
         ];
     }
 }
