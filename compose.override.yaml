@@ -38,8 +38,6 @@ services:
       API_PLATFORM_CREATE_CLIENT_OUTPUT: .
       # On Linux, you may want to comment the following line for improved performance
       WATCHPACK_POLLING: "true"
-      DISPLAY_EMAIL: ${DISPLAY_EMAIL:-jules200204@gmail.com}
-      DISPLAY_PASSWORD: ${DISPLAY_PASSWORD:-Pommetoto2104!}
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:3000/ || exit 1"]
       interval: 5s
