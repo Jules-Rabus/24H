@@ -102,9 +102,8 @@ class Medias
 
     public function getFilePath(): ?string
     {
-        return 'https://localhost/images/users/'.$this->filePath;
+        return $this->filePath;
     }
-
     public function setFilePath(?string $filePath): void
     {
         $this->filePath = $filePath;

@@ -11,6 +11,8 @@
         "doctrine/doctrine-migrations-bundle": "^3.2",
         "doctrine/orm": "^3.0",
         "gedmo/doctrine-extensions": "*",
+        "league/flysystem-aws-s3-v3": "*",
+        "league/flysystem-bundle": "*",
         "lexik/jwt-authentication-bundle": "*",
         "nelmio/cors-bundle": "^2.2",
         "phpstan/phpdoc-parser": "^2.0",
@@ -85,11 +87,11 @@
         "symfony/polyfill-intl-grapheme": "*",
         "symfony/polyfill-intl-normalizer": "*",
         "symfony/polyfill-mbstring": "*",
-        "symfony/polyfill-php84": "*",
         "symfony/polyfill-php83": "*",
         "symfony/polyfill-php82": "*",
         "symfony/polyfill-php81": "*",
-        "symfony/polyfill-php80": "*"
+        "symfony/polyfill-php80": "*",
+        "symfony/polyfill-php84": "*"
     },
     "scripts": {
         "auto-scripts": {

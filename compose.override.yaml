@@ -1,5 +1,5 @@
-# Development environment override
 services:
+# Development environment override
   php:
     image: ${IMAGES_PREFIX:-}app-php-dev
     build:
@@ -19,6 +19,12 @@ services:
       # See https://xdebug.org/docs/all_settings#mode
       XDEBUG_MODE: "${XDEBUG_MODE:-off}"
       APP_ENV: "${APP_ENV:-dev}"
+      S3_KEY: ${S3_KEY:-!ChangeMe!}
+      S3_SECRET: ${S3_SECRET:-!ChangeMe!}
+      S3_ENDPOINT: ${S3_ENDPOINT:-http://rustfs:9000}
+      S3_BUCKET: ${S3_BUCKET:-runner-profiles}
+      S3_REGION: ${S3_REGION:-us-east-1}
+      S3_URL_PREFIX: ${S3_URL_PREFIX:-http://localhost:9000/runner-profiles}
     extra_hosts:
       # Ensure that host.docker.internal is correctly defined on Linux
       - host.docker.internal:host-gateway

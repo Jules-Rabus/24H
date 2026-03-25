@@ -1,0 +1,20 @@
+flysystem:
+    storages:
+        s3_storage:
+            adapter: 'aws'
+            options:
+                client: 'Aws\S3\S3Client'
+                bucket: '%env(S3_BUCKET)%'
+                prefix: ''
+
+services:
+    Aws\S3\S3Client:
+        arguments:
+            -
+                endpoint: '%env(S3_ENDPOINT)%'
+                region: '%env(S3_REGION)%'
+                version: 'latest'
+                use_path_style_endpoint: true
+                credentials:
+                    key: '%env(S3_KEY)%'
+                    secret: '%env(S3_SECRET)%'

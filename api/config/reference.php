@@ -1078,7 +1078,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             user?: scalar|Param|null, // Defaults to "root" at runtime.
  *             password?: scalar|Param|null, // Defaults to null at runtime.
  *             override_url?: bool|Param, // Deprecated: The "doctrine.dbal.override_url" configuration key is deprecated.
- *             dbname_suffix?: scalar|Param|null,
+ *             dbname_suffix?: scalar|Param|null, // Adds the given suffix to the configured database name, this option has no effects for the SQLite platform
  *             application_name?: scalar|Param|null,
  *             charset?: scalar|Param|null,
  *             path?: scalar|Param|null,
@@ -1129,7 +1129,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *                 user?: scalar|Param|null, // Defaults to "root" at runtime.
  *                 password?: scalar|Param|null, // Defaults to null at runtime.
  *                 override_url?: bool|Param, // Deprecated: The "doctrine.dbal.override_url" configuration key is deprecated.
- *                 dbname_suffix?: scalar|Param|null,
+ *                 dbname_suffix?: scalar|Param|null, // Adds the given suffix to the configured database name, this option has no effects for the SQLite platform
  *                 application_name?: scalar|Param|null,
  *                 charset?: scalar|Param|null,
  *                 path?: scalar|Param|null,
@@ -1161,7 +1161,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *                 user?: scalar|Param|null, // Defaults to "root" at runtime.
  *                 password?: scalar|Param|null, // Defaults to null at runtime.
  *                 override_url?: bool|Param, // Deprecated: The "doctrine.dbal.override_url" configuration key is deprecated.
- *                 dbname_suffix?: scalar|Param|null,
+ *                 dbname_suffix?: scalar|Param|null, // Adds the given suffix to the configured database name, this option has no effects for the SQLite platform
  *                 application_name?: scalar|Param|null,
  *                 charset?: scalar|Param|null,
  *                 path?: scalar|Param|null,
@@ -1189,10 +1189,11 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     },
  *     orm?: array{
  *         default_entity_manager?: scalar|Param|null,
- *         auto_generate_proxy_classes?: scalar|Param|null, // Auto generate mode possible values are: "NEVER", "ALWAYS", "FILE_NOT_EXISTS", "EVAL", "FILE_NOT_EXISTS_OR_CHANGED" // Default: false
+ *         auto_generate_proxy_classes?: scalar|Param|null, // Auto generate mode possible values are: "NEVER", "ALWAYS", "FILE_NOT_EXISTS", "EVAL", "FILE_NOT_EXISTS_OR_CHANGED", this option is ignored when the "enable_native_lazy_objects" option is true // Default: false
  *         enable_lazy_ghost_objects?: bool|Param, // Enables the new implementation of proxies based on lazy ghosts instead of using the legacy implementation // Default: true
- *         proxy_dir?: scalar|Param|null, // Default: "%kernel.cache_dir%/doctrine/orm/Proxies"
- *         proxy_namespace?: scalar|Param|null, // Default: "Proxies"
+ *         enable_native_lazy_objects?: bool|Param, // Enables the new native implementation of PHP lazy objects instead of generated proxies // Default: false
+ *         proxy_dir?: scalar|Param|null, // Configures the path where generated proxy classes are saved when using non-native lazy objects, this option is ignored when the "enable_native_lazy_objects" option is true // Default: "%kernel.build_dir%/doctrine/orm/Proxies"
+ *         proxy_namespace?: scalar|Param|null, // Defines the root namespace for generated proxy classes when using non-native lazy objects, this option is ignored when the "enable_native_lazy_objects" option is true // Default: "Proxies"
  *         controller_resolver?: bool|array{
  *             enabled?: bool|Param, // Default: true
  *             auto_mapping?: bool|Param|null, // Set to false to disable using route placeholders as lookup criteria when the primary key doesn't match the argument name // Default: null
@@ -1232,10 +1233,11 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             quote_strategy?: scalar|Param|null, // Default: "doctrine.orm.quote_strategy.default"
  *             typed_field_mapper?: scalar|Param|null, // Default: "doctrine.orm.typed_field_mapper.default"
  *             entity_listener_resolver?: scalar|Param|null, // Default: null
+ *             fetch_mode_subselect_batch_size?: scalar|Param|null,
  *             repository_factory?: scalar|Param|null, // Default: "doctrine.orm.container_repository_factory"
  *             schema_ignore_classes?: list<scalar|Param|null>,
  *             report_fields_where_declared?: bool|Param, // Set to "true" to opt-in to the new mapping driver mode that was added in Doctrine ORM 2.16 and will be mandatory in ORM 3.0. See https://github.com/doctrine/orm/pull/10455. // Default: true
- *             validate_xml_mapping?: bool|Param, // Set to "true" to opt-in to the new mapping driver mode that was added in Doctrine ORM 2.14 and will be mandatory in ORM 3.0. See https://github.com/doctrine/orm/pull/6728. // Default: false
+ *             validate_xml_mapping?: bool|Param, // Set to "true" to opt-in to the new mapping driver mode that was added in Doctrine ORM 2.14. See https://github.com/doctrine/orm/pull/6728. // Default: false
  *             second_level_cache?: array{
  *                 region_cache_driver?: string|array{
  *                     type?: scalar|Param|null, // Default: null
@@ -1604,7 +1606,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         allow_origin?: list<scalar|Param|null>,
  *         allow_headers?: list<scalar|Param|null>,
  *         allow_methods?: list<scalar|Param|null>,
- *         allow_private_network?: bool|Param, // Default: false
+ *         allow_private_network?: bool|Param,
  *         expose_headers?: list<scalar|Param|null>,
  *         max_age?: scalar|Param|null, // Default: 0
  *         hosts?: list<scalar|Param|null>,
@@ -1627,6 +1629,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     generate_final_entities?: bool|Param, // Default: false
  * }
  * @psalm-type DoctrineMigrationsConfig = array{
+ *     enable_service_migrations?: bool|Param, // Whether to enable fetching migrations from the service container. // Default: false
  *     migrations_paths?: array<string, scalar|Param|null>,
  *     services?: array<string, scalar|Param|null>,
  *     factories?: array<string, scalar|Param|null>,
@@ -1948,6 +1951,9 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         uploadable?: scalar|Param|null, // Default: "Gedmo\\Uploadable\\UploadableListener"
  *         reference_integrity?: scalar|Param|null, // Default: "Gedmo\\ReferenceIntegrity\\ReferenceIntegrityListener"
  *     },
+ *     softdeleteable?: array{
+ *         handle_post_flush_event?: bool|Param, // Default: false
+ *     },
  *     uploadable?: array{
  *         default_file_path?: scalar|Param|null, // Default: null
  *         mime_type_guesser_class?: scalar|Param|null, // Default: "Stof\\DoctrineExtensionsBundle\\Uploadable\\MimeTypeGuesserAdapter"
@@ -1981,7 +1987,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     },
  *     mappings?: array<string, array{ // Default: []
  *         uri_prefix?: scalar|Param|null, // Default: "/uploads"
- *         upload_destination?: scalar|Param|null,
+ *         upload_destination?: scalar|Param|null, // Default: null
  *         namer?: string|array{
  *             service?: scalar|Param|null, // Default: null
  *             options?: mixed, // Default: null
@@ -1991,8 +1997,10 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             options?: mixed, // Default: null
  *         },
  *         delete_on_remove?: scalar|Param|null, // Default: true
+ *         erase_fields?: scalar|Param|null, // Default: true
  *         delete_on_update?: scalar|Param|null, // Default: true
  *         inject_on_load?: scalar|Param|null, // Default: false
+ *         namer_keep_extension?: scalar|Param|null, // Default: false
  *         db_driver?: scalar|Param|null, // Default: null
  *     }>,
  * }
@@ -2046,6 +2054,22 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     enable_static_query_cache?: bool|Param, // Default: true
  *     connection_keys?: list<mixed>,
  * }
+ * @psalm-type FlysystemConfig = array{
+ *     storages?: array<string, array{ // Default: []
+ *         adapter: scalar|Param|null,
+ *         options?: list<mixed>,
+ *         visibility?: scalar|Param|null, // Default: null
+ *         directory_visibility?: scalar|Param|null, // Default: null
+ *         retain_visibility?: bool|Param|null, // Default: null
+ *         case_sensitive?: bool|Param, // Default: true
+ *         disable_asserts?: bool|Param, // Default: false
+ *         public_url?: list<scalar|Param|null>,
+ *         path_normalizer?: scalar|Param|null, // Default: null
+ *         public_url_generator?: scalar|Param|null, // Default: null
+ *         temporary_url_generator?: scalar|Param|null, // Default: null
+ *         read_only?: bool|Param, // Default: false
+ *     }>,
+ * }
  * @psalm-type ConfigType = array{
  *     imports?: ImportsConfig,
  *     parameters?: ParametersConfig,
@@ -2062,6 +2086,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     lexik_jwt_authentication?: LexikJwtAuthenticationConfig,
  *     stof_doctrine_extensions?: StofDoctrineExtensionsConfig,
  *     vich_uploader?: VichUploaderConfig,
+ *     flysystem?: FlysystemConfig,
  *     "when@dev"?: array{
  *         imports?: ImportsConfig,
  *         parameters?: ParametersConfig,
@@ -2082,6 +2107,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         stof_doctrine_extensions?: StofDoctrineExtensionsConfig,
  *         vich_uploader?: VichUploaderConfig,
  *         zenstruck_foundry?: ZenstruckFoundryConfig,
+ *         flysystem?: FlysystemConfig,
  *     },
  *     "when@prod"?: array{
  *         imports?: ImportsConfig,
@@ -2099,6 +2125,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         lexik_jwt_authentication?: LexikJwtAuthenticationConfig,
  *         stof_doctrine_extensions?: StofDoctrineExtensionsConfig,
  *         vich_uploader?: VichUploaderConfig,
+ *         flysystem?: FlysystemConfig,
  *     },
  *     "when@test"?: array{
  *         imports?: ImportsConfig,
@@ -2120,6 +2147,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         vich_uploader?: VichUploaderConfig,
  *         zenstruck_foundry?: ZenstruckFoundryConfig,
  *         dama_doctrine_test?: DamaDoctrineTestConfig,
+ *         flysystem?: FlysystemConfig,
  *     },
  *     ...<string, ExtensionType|array{ // extra keys must follow the when@%env% pattern or match an extension alias
  *         imports?: ImportsConfig,
