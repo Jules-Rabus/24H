@@ -2,29 +2,21 @@
 
 namespace App\Tests\Functional\Api\Medias;
 
-use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Factory\UserFactory;
+use App\Tests\Functional\Api\AbstractTestCase;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
-class MediasUploadTest extends ApiTestCase
+class MediasUploadTest extends AbstractTestCase
 {
-    use ResetDatabase;
-    use Factories;
-
     public function testUploadMedia(): void
     {
-        $client = static::createClient();
-
-        $admin = UserFactory::createOne(['roles' => ['ROLE_ADMIN'], 'password' => 'password']);
-        $client->loginUser($admin);
+        $admin = UserFactory::createOne(['roles' => ['ROLE_ADMIN']]);
 
         // Ensure a dummy file exists for the test
         $filePath = __DIR__.'/fixtures/profile.jpg';
         if (!file_exists($filePath)) {
-            if (!is_dir(dirname($filePath))) {
-                mkdir(dirname($filePath), 0777, true);
+            if (!is_dir(\dirname($filePath))) {
+                mkdir(\dirname($filePath), 0777, true);
             }
             file_put_contents($filePath, 'dummy image content');
         }
@@ -37,7 +29,7 @@ class MediasUploadTest extends ApiTestCase
             true
         );
 
-        $response = $client->request('POST', '/medias', [
+        $response = $this->createClientWithCredentials($admin)->request('POST', '/medias', [
             'headers' => [
                 'Content-Type' => 'multipart/form-data',
                 'Accept' => 'application/ld+json',
