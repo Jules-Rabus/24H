@@ -18,7 +18,7 @@ class MediasUploadTest extends ApiTestCase
         $client = static::createClient();
 
         $admin = UserFactory::createOne(['roles' => ['ROLE_ADMIN'], 'password' => 'password']);
-        $client->loginUser($admin->object());
+        $client->loginUser($admin);
 
         // Ensure a dummy file exists for the test
         $filePath = __DIR__.'/fixtures/profile.jpg';
