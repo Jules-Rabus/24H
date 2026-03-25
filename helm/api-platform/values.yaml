@@ -27,6 +27,19 @@ pwa:
     # Overrides the image tag whose default is the chart appVersion.
     tag: ""
 
+s3:
+  endpoint: ""
+  region: "us-east-1"
+  bucket: "runner-images"
+  publicUrl: ""
+  accessKey: ""
+  secretKey: ""
+
+mailer:
+  dsn: ""
+  sender: "noreply@defi24h.org"
+  frontendBaseUrl: "https://defi24h.org"
+
 # You may prefer using the managed version in production: https://mercure.rocks
 mercure:
   publicUrl: https://chart-example.local/.well-known/mercure

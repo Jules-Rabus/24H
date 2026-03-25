@@ -1,0 +1,16 @@
+flysystem:
+    storages:
+        users.storage:
+            adapter: 'aws'
+            options:
+                client: 'aws_s3.client'
+                bucket: '%env(S3_BUCKET)%'
+                prefix: 'images/users'
+
+when@test:
+    flysystem:
+        storages:
+            users.storage:
+                adapter: 'local'
+                options:
+                    directory: '%kernel.project_dir%/var/test-uploads/images/users'

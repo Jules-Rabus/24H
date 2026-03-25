@@ -576,7 +576,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         }>,
  *     },
  *     mailer?: bool|array{ // Mailer configuration
- *         enabled?: bool|Param, // Default: false
+ *         enabled?: bool|Param, // Default: true
  *         message_bus?: scalar|Param|null, // The message bus to use. Defaults to the default bus if the Messenger component is installed. // Default: null
  *         dsn?: scalar|Param|null, // Default: null
  *         transports?: array<string, scalar|Param|null>,
@@ -2046,6 +2046,42 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     enable_static_query_cache?: bool|Param, // Default: true
  *     connection_keys?: list<mixed>,
  * }
+ * @psalm-type FlysystemConfig = array{
+ *     storages?: array<string, array{ // Default: []
+ *         adapter: scalar|Param|null,
+ *         options?: list<mixed>,
+ *         visibility?: scalar|Param|null, // Default: null
+ *         directory_visibility?: scalar|Param|null, // Default: null
+ *         retain_visibility?: bool|Param|null, // Default: null
+ *         case_sensitive?: bool|Param, // Default: true
+ *         disable_asserts?: bool|Param, // Default: false
+ *         public_url?: list<scalar|Param|null>,
+ *         path_normalizer?: scalar|Param|null, // Default: null
+ *         public_url_generator?: scalar|Param|null, // Default: null
+ *         temporary_url_generator?: scalar|Param|null, // Default: null
+ *         read_only?: bool|Param, // Default: false
+ *     }>,
+ * }
+ * @psalm-type CoopTilleulsForgotPasswordConfig = array{
+ *     providers?: array<string, array{ // Default: []
+ *         manager?: scalar|Param|null, // Persistence manager service to handle the token storage. // Default: "coop_tilleuls_forgot_password.manager.doctrine"
+ *         default?: bool|Param, // Default: false
+ *         password_token?: array{
+ *             class?: scalar|Param|null, // PasswordToken class.
+ *             expires_in?: scalar|Param|null, // Expiration time using Datetime format. see : https://www.php.net/manual/en/datetime.format.php. // Default: "1 day"
+ *             user_field?: scalar|Param|null, // User field name on PasswordToken entity. // Default: "user"
+ *             serialization_groups?: array<string, scalar|Param|null>,
+ *         },
+ *         user?: array{
+ *             class?: scalar|Param|null, // User class.
+ *             email_field?: scalar|Param|null, // User email field name to retrieve it (email, username...). // Default: "email"
+ *             password_field?: scalar|Param|null, // User password field name. // Default: "password"
+ *             authorized_fields?: list<scalar|Param|null>,
+ *         },
+ *     }>,
+ *     use_jms_serializer?: bool|Param, // Default: false
+ *     token_generator?: scalar|Param|null, // Persistence manager service to handle the token storage. // Default: "coop_tilleuls_forgot_password.token_generator.bin2hex"
+ * }
  * @psalm-type ConfigType = array{
  *     imports?: ImportsConfig,
  *     parameters?: ParametersConfig,
@@ -2062,6 +2098,8 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     lexik_jwt_authentication?: LexikJwtAuthenticationConfig,
  *     stof_doctrine_extensions?: StofDoctrineExtensionsConfig,
  *     vich_uploader?: VichUploaderConfig,
+ *     flysystem?: FlysystemConfig,
+ *     coop_tilleuls_forgot_password?: CoopTilleulsForgotPasswordConfig,
  *     "when@dev"?: array{
  *         imports?: ImportsConfig,
  *         parameters?: ParametersConfig,
@@ -2082,6 +2120,8 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         stof_doctrine_extensions?: StofDoctrineExtensionsConfig,
  *         vich_uploader?: VichUploaderConfig,
  *         zenstruck_foundry?: ZenstruckFoundryConfig,
+ *         flysystem?: FlysystemConfig,
+ *         coop_tilleuls_forgot_password?: CoopTilleulsForgotPasswordConfig,
  *     },
  *     "when@prod"?: array{
  *         imports?: ImportsConfig,
@@ -2099,6 +2139,8 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         lexik_jwt_authentication?: LexikJwtAuthenticationConfig,
  *         stof_doctrine_extensions?: StofDoctrineExtensionsConfig,
  *         vich_uploader?: VichUploaderConfig,
+ *         flysystem?: FlysystemConfig,
+ *         coop_tilleuls_forgot_password?: CoopTilleulsForgotPasswordConfig,
  *     },
  *     "when@test"?: array{
  *         imports?: ImportsConfig,
@@ -2120,6 +2162,8 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         vich_uploader?: VichUploaderConfig,
  *         zenstruck_foundry?: ZenstruckFoundryConfig,
  *         dama_doctrine_test?: DamaDoctrineTestConfig,
+ *         flysystem?: FlysystemConfig,
+ *         coop_tilleuls_forgot_password?: CoopTilleulsForgotPasswordConfig,
  *     },
  *     ...<string, ExtensionType|array{ // extra keys must follow the when@%env% pattern or match an extension alias
  *         imports?: ImportsConfig,

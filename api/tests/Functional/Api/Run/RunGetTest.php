@@ -2,7 +2,7 @@
 
 namespace App\Tests\Functional\Api\Run;
 
-use App\Entity\Run;
+use App\Api\Run\Resource\Run;
 use App\Factory\RunFactory;
 use App\Factory\UserFactory;
 use App\Tests\Functional\Api\AbstractTestCase;

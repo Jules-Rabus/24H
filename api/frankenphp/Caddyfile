@@ -48,6 +48,11 @@
 
 	{$CADDY_SERVER_EXTRA_DIRECTIVES}
 
+	handle /s3/* {
+		uri strip_prefix /s3
+		reverse_proxy rustfs:9000
+	}
+
 	# Disable Topics tracking if not enabled explicitly: https://github.com/jkarlin/topics
 	header ?Permissions-Policy "browsing-topics=()"
 

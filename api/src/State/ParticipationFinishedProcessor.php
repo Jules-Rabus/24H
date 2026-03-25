@@ -4,10 +4,12 @@ namespace App\State;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
+use App\Api\Participation\Resource\Participation as ParticipationResource;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\ObjectMapper\ObjectMapperInterface;
 
 /** @implements ProcessorInterface<object, mixed> */
 final class ParticipationFinishedProcessor implements ProcessorInterface
@@ -15,10 +17,11 @@ final class ParticipationFinishedProcessor implements ProcessorInterface
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly UserRepository $userRepo,
+        private readonly ObjectMapperInterface $objectMapper,
     ) {
     }
 
-    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): ParticipationResource
     {
         $payload = json_decode($data->rawValue, true, 512, JSON_THROW_ON_ERROR);
         if (!isset($payload['originId'])) {
@@ -55,6 +58,6 @@ final class ParticipationFinishedProcessor implements ProcessorInterface
         $this->em->persist($currentParticipation);
         $this->em->flush();
 
-        return $currentParticipation;
+        return $this->objectMapper->map($currentParticipation, ParticipationResource::class);
     }
 }
