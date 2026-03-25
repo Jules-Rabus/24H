@@ -12,6 +12,20 @@ parameters:
         -
             identifier: doctrine.associationType
             path: src/Entity/Participation.php
+        # DTO/Resource properties and methods are used by the Symfony Serializer/Security at runtime
+        -
+            identifier: shipmonk.deadProperty.neverRead
+            path: src/Api/*
+        -
+            identifier: shipmonk.deadProperty.neverWritten
+            path: src/Api/*
+        -
+            identifier: shipmonk.deadMethod
+            path: src/Api/*
+        # instanceof check on PHPDoc union type — false positive
+        -
+            identifier: instanceof.alwaysFalse
+            path: src/State/UserProcessor.php
     symfony:
         containerXmlPath: var/cache/dev/App_KernelDevDebugContainer.xml
     shipmonkDeadCode:

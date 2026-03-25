@@ -15,18 +15,19 @@ class PasswordToken extends AbstractPasswordToken
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $user = null;
+    private User $user;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getUser(): ?User
+    public function getUser(): User
     {
         return $this->user;
     }
 
+    /** @param User $user */
     public function setUser($user): static
     {
         $this->user = $user;
