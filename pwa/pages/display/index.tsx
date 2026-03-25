@@ -36,10 +36,12 @@ interface DisplayProps {
 }
 
 export async function getServerSideProps() {
-  const { DISPLAY_EMAIL, DISPLAY_PASSWORD, NEXT_PUBLIC_ENTRYPOINT } =
+  const { DISPLAY_EMAIL, DISPLAY_PASSWORD, NEXT_PUBLIC_ENTRYPOINT, API_ENTRYPOINT } =
     process.env;
 
-  if (!DISPLAY_EMAIL || !DISPLAY_PASSWORD || !NEXT_PUBLIC_ENTRYPOINT) {
+  const entrypoint = API_ENTRYPOINT || NEXT_PUBLIC_ENTRYPOINT;
+
+  if (!DISPLAY_EMAIL || !DISPLAY_PASSWORD || !entrypoint) {
     throw new Error("Env variables are not set");
   }
 
@@ -48,7 +50,7 @@ export async function getServerSideProps() {
   });
 
   const loginResp = await axios.post<{ token: string }>(
-    `${NEXT_PUBLIC_ENTRYPOINT}/login`,
+    `${entrypoint}/login`,
     {
       email: DISPLAY_EMAIL,
       password: DISPLAY_PASSWORD,
@@ -62,13 +64,13 @@ export async function getServerSideProps() {
   };
 
   const runsResp = await axios.get<{ member: Run[] }>(
-    `${NEXT_PUBLIC_ENTRYPOINT}/runs?order[startDate]=asc`,
+    `${entrypoint}/runs?order[startDate]=asc`,
     { headers, httpsAgent },
   );
 
   const partResp = await axios.get<{
     member: Participation[];
-  }>(`${NEXT_PUBLIC_ENTRYPOINT}/participations`, {
+  }>(`${entrypoint}/participations`, {
     headers,
     httpsAgent,
     params: {

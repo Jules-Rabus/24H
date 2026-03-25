@@ -2,7 +2,7 @@
 
 namespace App\Tests\Functional\Api\User;
 
-use App\Entity\User;
+use App\Api\User\Resource\User;
 use App\Factory\UserFactory;
 use App\Tests\Functional\Api\AbstractTestCase;
 
