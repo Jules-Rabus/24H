@@ -104,6 +104,7 @@ class Medias
     {
         return $this->filePath;
     }
+
     public function setFilePath(?string $filePath): void
     {
         $this->filePath = $filePath;
