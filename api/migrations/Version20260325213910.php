@@ -24,7 +24,6 @@ final class Version20260325213910 extends AbstractMigration
         $this->addSql('CREATE UNIQUE INDEX UNIQ_BEAB6C245F37A13B ON password_token (token)');
         $this->addSql('CREATE INDEX IDX_BEAB6C24A76ED395 ON password_token (user_id)');
         $this->addSql('ALTER TABLE password_token ADD CONSTRAINT FK_BEAB6C24A76ED395 FOREIGN KEY (user_id) REFERENCES "user" (id) NOT DEFERRABLE');
-        $this->addSql('CREATE UNIQUE INDEX uq_user_run ON participation (user_id, run_id)');
         $this->addSql('ALTER TABLE run ALTER created_at DROP NOT NULL');
         $this->addSql('ALTER TABLE run ALTER updated_at DROP NOT NULL');
         $this->addSql('ALTER TABLE "user" ALTER created_at DROP NOT NULL');
@@ -36,7 +35,6 @@ final class Version20260325213910 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->addSql('ALTER TABLE password_token DROP CONSTRAINT FK_BEAB6C24A76ED395');
         $this->addSql('DROP TABLE password_token');
-        $this->addSql('DROP INDEX uq_user_run');
         $this->addSql('ALTER TABLE run ALTER created_at SET NOT NULL');
         $this->addSql('ALTER TABLE run ALTER updated_at SET NOT NULL');
         $this->addSql('ALTER TABLE "user" ALTER created_at SET NOT NULL');
