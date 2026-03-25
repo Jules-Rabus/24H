@@ -5,7 +5,7 @@ vich_uploader:
     mappings:
         users:
             uri_prefix: '%env(S3_URL_PREFIX)%'
-            upload_destination: flysystem.storage.s3_storage
+            upload_destination: s3_storage
             namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
             delete_on_update: true
             delete_on_remove: true
