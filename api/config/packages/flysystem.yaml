@@ -6,6 +6,12 @@ flysystem:
                 client: 'aws_s3.client'
                 bucket: '%env(S3_BUCKET)%'
                 prefix: 'images/users'
+        race_media.storage:
+            adapter: 'aws'
+            options:
+                client: 'aws_s3.client'
+                bucket: '%env(S3_BUCKET)%'
+                prefix: 'images/race_media'
 
 when@test:
     flysystem:
@@ -14,3 +20,7 @@ when@test:
                 adapter: 'local'
                 options:
                     directory: '%kernel.project_dir%/var/test-uploads/images/users'
+            race_media.storage:
+                adapter: 'local'
+                options:
+                    directory: '%kernel.project_dir%/var/test-uploads/images/race_media'

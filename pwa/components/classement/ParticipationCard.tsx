@@ -1,4 +1,4 @@
-import { Participation } from "../../pages/resultats";
+import { Participation } from "../../app/legacy/resultats";
 
 type Props = { participation: Participation; index: number };
 

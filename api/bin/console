@@ -4,12 +4,21 @@
 use App\Kernel;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 
-if (!is_dir(dirname(__DIR__).'/vendor')) {
+if (!is_file(dirname(__DIR__).'/vendor/autoload_runtime.php')) {
     throw new LogicException('Dependencies are missing. Try running "composer install".');
 }
 
-if (!is_file(dirname(__DIR__).'/vendor/autoload_runtime.php')) {
-    throw new LogicException('Symfony Runtime is missing. Try running "composer require symfony/runtime".');
+require_once dirname(__DIR__).'/vendor/autoload.php';
+
+if (!function_exists('array_any')) {
+    function array_any(array $array, callable $callback): bool {
+        foreach ($array as $key => $value) {
+            if ($callback($value, $key)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
 
 require_once dirname(__DIR__).'/vendor/autoload_runtime.php';
