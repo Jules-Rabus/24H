@@ -67,5 +67,4 @@ final class ParticipationApi
 
     #[Map(source: 'status')]
     public string $status = 'IN_PROGRESS';
-
 }
