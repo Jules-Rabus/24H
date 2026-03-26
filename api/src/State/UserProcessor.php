@@ -4,9 +4,9 @@ namespace App\State;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
+use App\ApiResource\User\UserApi;
 use App\Dto\User\CreateUser;
 use App\Dto\User\UpdateUser;
-use App\ApiResource\User\UserApi;
 use App\Entity\Participation;
 use App\Entity\Run;
 use App\Entity\User;

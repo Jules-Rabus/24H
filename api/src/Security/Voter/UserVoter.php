@@ -14,7 +14,7 @@ final class UserVoter extends Voter
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return $attribute === self::VIEW && $subject instanceof UserApi;
+        return self::VIEW === $attribute && $subject instanceof UserApi;
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
