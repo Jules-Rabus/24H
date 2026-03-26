@@ -12,7 +12,7 @@ final class RunUpdateTest extends AbstractTestCase
 
     public function testUpdateRunAsAdmin(): void
     {
-        $startDate = new \DateTime('+1 day');
+        $startDate = new \DateTimeImmutable('+1 day');
         $run = RunFactory::createOne([
             'startDate' => $startDate,
             'endDate' => $startDate->modify('+1 day'),

@@ -2,7 +2,7 @@
 
 namespace App\Tests\Functional\Api\User;
 
-use App\Api\User\Resource\User;
+use App\ApiResource\User\UserApi;
 use App\Factory\UserFactory;
 use App\Tests\Functional\Api\AbstractTestCase;
 
@@ -28,7 +28,7 @@ final class UserGetTest extends AbstractTestCase
             'totalItems' => 30,
         ]);
         $this->assertCount(30, $response->toArray()['member']);
-        $this->assertMatchesResourceCollectionJsonSchema(User::class);
+        $this->assertMatchesResourceCollectionJsonSchema(UserApi::class);
     }
 
     public function testGetCollectionForbiddenForUser(): void
@@ -58,7 +58,7 @@ final class UserGetTest extends AbstractTestCase
             '@type' => 'User',
             'email' => $user->getEmail(),
         ]);
-        $this->assertMatchesResourceItemJsonSchema(User::class);
+        $this->assertMatchesResourceItemJsonSchema(UserApi::class);
     }
 
     public function testGetUserAsOwner(): void
@@ -77,7 +77,7 @@ final class UserGetTest extends AbstractTestCase
             '@type' => 'User',
             'email' => $user->getEmail(),
         ]);
-        $this->assertMatchesResourceItemJsonSchema(User::class);
+        $this->assertMatchesResourceItemJsonSchema(UserApi::class);
     }
 
     public function testGetUserForbiddenForWrongUser(): void

@@ -22,10 +22,6 @@ class RaceMedia
     #[ORM\Column(nullable: true)]
     public ?string $filePath = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(nullable: false)]
-    private User $runner;
-
     public function getId(): ?int
     {
         return $this->id;
@@ -49,17 +45,5 @@ class RaceMedia
     public function setFilePath(?string $filePath): void
     {
         $this->filePath = $filePath;
-    }
-
-    public function getRunner(): User
-    {
-        return $this->runner;
-    }
-
-    public function setRunner(User $runner): self
-    {
-        $this->runner = $runner;
-
-        return $this;
     }
 }

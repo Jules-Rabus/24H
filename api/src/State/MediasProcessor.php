@@ -5,7 +5,7 @@ namespace App\State;
 use ApiPlatform\Metadata\IriConverterInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
-use App\Api\Medias\Resource\Medias as MediasResource;
+use App\ApiResource\Medias\MediasApi;
 use App\Entity\Medias;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
@@ -17,7 +17,7 @@ use Symfony\Component\ObjectMapper\ObjectMapperInterface;
 use Vich\UploaderBundle\Storage\StorageInterface;
 
 /**
- * @implements ProcessorInterface<null, MediasResource>
+ * @implements ProcessorInterface<null, MediasApi>
  */
 final readonly class MediasProcessor implements ProcessorInterface
 {
@@ -39,7 +39,7 @@ final readonly class MediasProcessor implements ProcessorInterface
      * @param array<string, mixed> $uriVariables
      * @param array<string, mixed> $context
      */
-    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): MediasResource
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): MediasApi
     {
         $userId = $uriVariables['userId'] ?? null;
         if (null === $userId) {
@@ -64,7 +64,7 @@ final readonly class MediasProcessor implements ProcessorInterface
 
         $entity = $this->processor->process($entity, $operation, $uriVariables, $context);
 
-        $resource = $this->objectMapper->map($entity, MediasResource::class);
+        $resource = $this->objectMapper->map($entity, MediasApi::class);
         // ObjectMapper cannot convert User → IRI string, so we set it manually
         $resource->runner = $entity->getRunner() instanceof User
             ? $this->iriConverter->getIriFromResource($entity->getRunner())

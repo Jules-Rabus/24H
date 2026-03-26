@@ -2,8 +2,8 @@
 
 namespace App\Serializer;
 
-use App\Api\Medias\Resource\Medias as MediasResource;
-use App\Entity\Medias as MediasEntity;
+use App\ApiResource\Medias\MediasApi;
+use App\Entity\Medias;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
@@ -31,10 +31,10 @@ final class MediasNormalizer implements NormalizerInterface, NormalizerAwareInte
         $context[self::ALREADY_CALLED] = true;
         $data = $this->normalizer->normalize($object, $format, $context);
 
-        /** @var MediasResource $object */
+        /** @var MediasApi $object */
         if (null !== $object->id) {
-            $entity = $this->entityManager->find(MediasEntity::class, $object->id);
-            if ($entity instanceof MediasEntity && null !== $entity->filePath) {
+            $entity = $this->entityManager->find(Medias::class, $object->id);
+            if ($entity instanceof Medias && null !== $entity->filePath) {
                 $data['filePath'] = $this->storage->resolveUri($entity, 'file');
             }
         }
@@ -48,11 +48,11 @@ final class MediasNormalizer implements NormalizerInterface, NormalizerAwareInte
             return false;
         }
 
-        return $data instanceof MediasResource;
+        return $data instanceof MediasApi;
     }
 
     public function getSupportedTypes(?string $format): array
     {
-        return [MediasResource::class => false];
+        return [MediasApi::class => false];
     }
 }

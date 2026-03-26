@@ -2,7 +2,7 @@
 
 namespace App\Tests\Functional\Api\User;
 
-use App\Api\User\Resource\User;
+use App\ApiResource\User\UserApi;
 use App\Factory\UserFactory;
 use App\Tests\Functional\Api\AbstractTestCase;
 
@@ -28,7 +28,7 @@ final class UserUpdateTest extends AbstractTestCase
             '@type' => 'User',
             'email' => $newEmail,
         ]);
-        $this->assertMatchesResourceItemJsonSchema(User::class);
+        $this->assertMatchesResourceItemJsonSchema(UserApi::class);
     }
 
     public function testUpdateUserForbiddenForOwner(): void

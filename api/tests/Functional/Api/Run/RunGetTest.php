@@ -2,7 +2,7 @@
 
 namespace App\Tests\Functional\Api\Run;
 
-use App\Api\Run\Resource\Run;
+use App\ApiResource\Run\RunApi;
 use App\Factory\RunFactory;
 use App\Factory\UserFactory;
 use App\Tests\Functional\Api\AbstractTestCase;
@@ -28,7 +28,7 @@ final class RunGetTest extends AbstractTestCase
             'totalItems' => 3,
         ]);
         $this->assertCount(3, $response->toArray()['member']);
-        $this->assertMatchesResourceCollectionJsonSchema(Run::class);
+        $this->assertMatchesResourceCollectionJsonSchema(RunApi::class);
     }
 
     public function testGetCollectionForbiddenForUser(): void
@@ -49,6 +49,6 @@ final class RunGetTest extends AbstractTestCase
         ]);
 
         $this->assertResponseIsSuccessful();
-        $this->assertMatchesResourceItemJsonSchema(Run::class);
+        $this->assertMatchesResourceItemJsonSchema(RunApi::class);
     }
 }

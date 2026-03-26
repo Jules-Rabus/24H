@@ -4,60 +4,40 @@ namespace App\State;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
-use App\Entity\RaceMedia as RaceMediaEntity;
-use App\Entity\User;
-use Doctrine\ORM\EntityManagerInterface;
+use App\ApiResource\RaceMedia\RaceMediaApi;
+use App\Entity\RaceMedia;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
-use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\ObjectMapper\ObjectMapperInterface;
 
 /**
- * @implements ProcessorInterface<RaceMediaEntity, RaceMediaEntity>
+ * @implements ProcessorInterface<null, RaceMediaApi>
  */
 final readonly class RaceMediaProcessor implements ProcessorInterface
 {
+    /**
+     * @param ProcessorInterface<RaceMedia, RaceMedia|void> $persistProcessor
+     */
     public function __construct(
-        private EntityManagerInterface $entityManager,
-        private RequestStack $requestStack,
+        #[Autowire(service: 'api_platform.doctrine.orm.state.persist_processor')]
+        private ProcessorInterface $persistProcessor,
+        private ObjectMapperInterface $objectMapper,
     ) {
     }
 
-    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): RaceMediaEntity
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): RaceMediaApi
     {
-        $request = $this->requestStack->getCurrentRequest();
-        if (null === $request) {
-            throw new BadRequestException('Request is null');
-        }
-
-        $file = $request->files->get('file');
+        $request = $context['request'] ?? null;
+        $file = $request?->files->get('file');
         if (!$file) {
             throw new BadRequestException('File is required');
         }
 
-        $runnerIri = $request->request->get('runner');
-        if (!$runnerIri) {
-            throw new BadRequestException('Runner IRI is required');
-        }
-
-        // Extract ID from IRI (e.g., /users/1 -> 1)
-        preg_match('/\/users\/(\d+)/', $runnerIri, $matches);
-        $runnerId = $matches[1] ?? null;
-
-        if (!$runnerId) {
-            throw new BadRequestException('Invalid runner IRI');
-        }
-
-        $user = $this->entityManager->getRepository(User::class)->find($runnerId);
-        if (!$user) {
-            throw new BadRequestException('User not found');
-        }
-
-        $raceMedia = new RaceMediaEntity();
+        $raceMedia = new RaceMedia();
         $raceMedia->setFile($file);
-        $raceMedia->setRunner($user);
 
-        $this->entityManager->persist($raceMedia);
-        $this->entityManager->flush();
+        $entity = $this->persistProcessor->process($raceMedia, $operation, $uriVariables, $context);
 
-        return $raceMedia;
+        return $this->objectMapper->map($entity, RaceMediaApi::class);
     }
 }
