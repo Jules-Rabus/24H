@@ -3,7 +3,6 @@
 namespace App\Tests\Functional\RaceMedia;
 
 use App\Entity\RaceMedia;
-use App\Entity\User;
 use App\Factory\UserFactory;
 use App\Tests\Functional\FunctionalTestCase;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -12,7 +11,8 @@ use Zenstruck\Foundry\Test\ResetDatabase;
 
 class RaceMediaTest extends FunctionalTestCase
 {
-    use ResetDatabase, Factories;
+    use ResetDatabase;
+    use Factories;
 
     public function testUploadRaceMedia(): void
     {
@@ -23,7 +23,7 @@ class RaceMediaTest extends FunctionalTestCase
 
         // Create a dummy image file for upload
         $imageContent = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==');
-        $tempFilePath = tempnam(sys_get_temp_dir(), 'test_img_') . '.png';
+        $tempFilePath = tempnam(sys_get_temp_dir(), 'test_img_').'.png';
         file_put_contents($tempFilePath, $imageContent);
 
         $uploadedFile = new UploadedFile(
@@ -45,15 +45,15 @@ class RaceMediaTest extends FunctionalTestCase
                 ],
             ],
             'body' => [
-                'runner' => '/users/' . $runner->getId(),
-            ]
+                'runner' => '/users/'.$runner->getId(),
+            ],
         ]);
 
         $this->assertResponseStatusCodeSame(201);
         $this->assertJsonContains([
             '@context' => '/contexts/RaceMedia',
             '@type' => 'RaceMedia',
-            'runner' => '/users/' . $runner->getId(),
+            'runner' => '/users/'.$runner->getId(),
         ]);
 
         $response = $client->getResponse();
@@ -84,7 +84,7 @@ class RaceMediaTest extends FunctionalTestCase
         $client = $this->createClientWithCredentials($user);
 
         $client->request('GET', '/race_medias', [
-            'headers' => ['Accept' => 'application/ld+json']
+            'headers' => ['Accept' => 'application/ld+json'],
         ]);
 
         $this->assertResponseStatusCodeSame(200);
