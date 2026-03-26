@@ -40,8 +40,8 @@ use Symfony\Component\ObjectMapper\Attribute\Map;
                                     ],
                                     'runner' => [
                                         'type' => 'string',
-                                        'description' => 'IRI of the runner (User)'
-                                    ]
+                                        'description' => 'IRI of the runner (User)',
+                                    ],
                                 ],
                                 'required' => ['file', 'runner'],
                             ],

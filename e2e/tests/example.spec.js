@@ -1,28 +1,34 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
 
-test('homepage', async ({ page }) => {
-  await page.goto('https://localhost/');
-  await expect(page).toHaveTitle('Welcome to API Platform!');
+test('public race status page', async ({ page }) => {
+  await page.goto('https://localhost/public-race-status');
+  // Wait for the UI to load
+  await expect(page.getByText('Statut de la Course')).toBeVisible();
+  // It should show Beauvais location
+  await expect(page.getByText('UniLaSalle, Beauvais')).toBeVisible();
 });
 
-test('swagger', async ({ page }) => {
+test('swagger API docs', async ({ page }) => {
   await page.goto('https://localhost/docs');
+  // Verify API docs are still available
   await expect(page).toHaveTitle('Hello API Platform - API Platform');
-  await expect(page.locator('.operation-tag-content > span')).toHaveCount(5);
+  // Verify RaceMedia endpoint is present
+  await expect(page.locator('text=RaceMedia').first()).toBeVisible();
 });
 
-test('admin', async ({ page, browserName }) => {
-  await page.goto('https://localhost/admin');
-  await page.getByLabel('Create').click();
-  await page.getByLabel('Name').fill('foo' + browserName);
-  await page.getByLabel('Save').click();
-  await expect(page).toHaveURL(/admin#\/greetings$/);
-  await page.getByText('foo' + browserName).first().click();
-  await expect(page).toHaveURL(/show$/);
-  await page.getByLabel('Edit').first().click();
-  await page.getByLabel('Name').fill('bar' + browserName);
-  await page.getByLabel('Save').click();
-  await expect(page).toHaveURL(/admin#\/greetings$/);
-  await page.getByText('bar' + browserName).first().click();
+test('login page', async ({ page }) => {
+  await page.goto('https://localhost/login');
+  await expect(page.getByText('Log in to your account')).toBeVisible();
+
+  // Try to submit the form without data to check validation
+  const btn = page.getByRole('button', { name: 'Sign in' });
+  await expect(btn).toBeDisabled();
+});
+
+test('upload page shows form', async ({ page }) => {
+  await page.goto('https://localhost/upload');
+  await expect(page.getByText('Partagez un moment')).toBeVisible();
+  // Ensure the photo upload input is there
+  await expect(page.locator('input[type="file"]')).toBeVisible();
 });

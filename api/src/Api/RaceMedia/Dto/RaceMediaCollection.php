@@ -2,7 +2,6 @@
 
 namespace App\Api\RaceMedia\Dto;
 
-use ApiPlatform\Metadata\ApiProperty;
 use Symfony\Component\ObjectMapper\Attribute\Map;
 
 class RaceMediaCollection
