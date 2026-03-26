@@ -23,7 +23,8 @@ final class MediasNormalizer implements NormalizerInterface, NormalizerAwareInte
     public function __construct(
         private readonly StorageInterface $storage,
         private readonly EntityManagerInterface $entityManager,
-    ) {}
+    ) {
+    }
 
     public function normalize(mixed $object, ?string $format = null, array $context = []): array
     {
