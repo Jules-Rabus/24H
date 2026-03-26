@@ -9,3 +9,9 @@ vich_uploader:
             namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
             delete_on_update: true
             delete_on_remove: true
+        race_media:
+            uri_prefix: '%env(S3_PUBLIC_URL)%/images/race_media'
+            upload_destination: race_media.storage
+            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+            delete_on_update: true
+            delete_on_remove: true
