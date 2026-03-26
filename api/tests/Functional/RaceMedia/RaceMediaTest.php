@@ -38,9 +38,9 @@ class RaceMediaTest extends AbstractTestCase
                 'files' => [
                     'file' => $uploadedFile,
                 ],
-            ],
-            'body' => [
-                'runner' => '/users/'.$runner->getId(),
+                'parameters' => [
+                    'runner' => '/users/'.$runner->getId(),
+                ],
             ],
         ]);
 
@@ -71,7 +71,8 @@ class RaceMediaTest extends AbstractTestCase
         // Setup some media
         $media = new RaceMedia();
         $media->setFilePath('dummy.png');
-        $media->setRunner($user->_real());
+        $media->setRunner($user);
+
         $em = $this->getContainer()->get('doctrine')->getManager();
         $em->persist($media);
         $em->flush();
