@@ -15,13 +15,16 @@ parameters:
         # DTO/Resource properties and methods are used by the Symfony Serializer/Security at runtime
         -
             identifier: shipmonk.deadProperty.neverRead
-            path: src/Api/*
+            path: src/ApiResource/*
         -
             identifier: shipmonk.deadProperty.neverWritten
-            path: src/Api/*
+            path: src/ApiResource/*
         -
-            identifier: shipmonk.deadMethod
-            path: src/Api/*
+            identifier: shipmonk.deadProperty.neverRead
+            path: src/Dto/*
+        -
+            identifier: shipmonk.deadProperty.neverWritten
+            path: src/Dto/*
         # instanceof check on PHPDoc union type — false positive
         -
             identifier: instanceof.alwaysFalse

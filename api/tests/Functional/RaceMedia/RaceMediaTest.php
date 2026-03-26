@@ -12,8 +12,6 @@ class RaceMediaTest extends AbstractTestCase
     public function testUploadRaceMedia(): void
     {
         $user = UserFactory::createOne(['roles' => ['ROLE_ADMIN']]);
-        $runner = UserFactory::createOne();
-
         $client = $this->createClientWithCredentials($user);
 
         // Create a dummy image file for upload
@@ -38,9 +36,6 @@ class RaceMediaTest extends AbstractTestCase
                 'files' => [
                     'file' => $uploadedFile,
                 ],
-                'parameters' => [
-                    'runner' => '/users/'.$runner->getId(),
-                ],
             ],
         ]);
 
@@ -48,7 +43,6 @@ class RaceMediaTest extends AbstractTestCase
         $this->assertJsonContains([
             '@context' => '/contexts/RaceMedia',
             '@type' => 'RaceMedia',
-            'runner' => '/users/'.$runner->getId(),
         ]);
 
         $response = $client->getResponse();
@@ -71,7 +65,6 @@ class RaceMediaTest extends AbstractTestCase
         // Setup some media
         $media = new RaceMedia();
         $media->setFilePath('dummy.png');
-        $media->setRunner($user);
 
         $em = $this->getContainer()->get('doctrine')->getManager();
         $em->persist($media);
@@ -85,16 +78,16 @@ class RaceMediaTest extends AbstractTestCase
 
         $this->assertResponseStatusCodeSame(200);
         $this->assertJsonContains([
-            '@context' => '/contexts/RaceMediaCollection',
+            '@context' => '/contexts/RaceMedia',
             '@id' => '/race_medias',
-            '@type' => 'hydra:Collection',
-            'hydra:totalItems' => 1,
+            '@type' => 'Collection',
+            'totalItems' => 1,
         ]);
 
         $response = $client->getResponse();
         $responseData = json_decode($response->getContent(), true);
 
-        $this->assertCount(1, $responseData['hydra:member']);
-        $this->assertSame('dummy.png', $responseData['hydra:member'][0]['filePath']);
+        $this->assertCount(1, $responseData['member']);
+        $this->assertSame('dummy.png', $responseData['member'][0]['filePath']);
     }
 }

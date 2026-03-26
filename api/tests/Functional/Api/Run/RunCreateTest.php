@@ -2,7 +2,7 @@
 
 namespace App\Tests\Functional\Api\Run;
 
-use App\Api\Run\Resource\Run;
+use App\ApiResource\Run\RunApi;
 use App\Factory\UserFactory;
 use App\Tests\Functional\Api\AbstractTestCase;
 
@@ -32,7 +32,7 @@ final class RunCreateTest extends AbstractTestCase
             'startDate' => $startDate->format(\DateTimeInterface::RFC3339),
         ]);
         $this->assertMatchesRegularExpression('~^/runs/\d+$~', $response->toArray()['@id']);
-        $this->assertMatchesResourceItemJsonSchema(Run::class);
+        $this->assertMatchesResourceItemJsonSchema(RunApi::class);
     }
 
     public function testCreateRunForbiddenForUser(): void

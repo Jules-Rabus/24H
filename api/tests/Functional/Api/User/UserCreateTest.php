@@ -2,7 +2,7 @@
 
 namespace App\Tests\Functional\Api\User;
 
-use App\Api\User\Resource\User;
+use App\ApiResource\User\UserApi;
 use App\Factory\UserFactory;
 use App\Tests\Functional\Api\AbstractTestCase;
 
@@ -36,7 +36,7 @@ final class UserCreateTest extends AbstractTestCase
             'email' => $userData->getEmail(),
         ]);
         $this->assertMatchesRegularExpression('~^/users/\d+$~', $response->toArray()['@id']);
-        $this->assertMatchesResourceItemJsonSchema(User::class);
+        $this->assertMatchesResourceItemJsonSchema(UserApi::class);
     }
 
     public function testCreateUserForbiddenForUser(): void

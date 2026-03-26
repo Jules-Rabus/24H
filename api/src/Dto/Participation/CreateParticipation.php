@@ -1,0 +1,16 @@
+<?php
+
+namespace App\Dto\Participation;
+
+use App\Entity\Participation;
+use Symfony\Component\ObjectMapper\Attribute\Map;
+
+#[Map(target: Participation::class)]
+final class CreateParticipation
+{
+    public string $run;
+
+    public string $user;
+
+    public ?\DateTimeInterface $arrivalTime = null;
+}
