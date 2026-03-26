@@ -4,16 +4,11 @@ namespace App\Tests\Functional\RaceMedia;
 
 use App\Entity\RaceMedia;
 use App\Factory\UserFactory;
-use App\Tests\Functional\FunctionalTestCase;
+use App\Tests\Functional\Api\AbstractTestCase;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
-class RaceMediaTest extends FunctionalTestCase
+class RaceMediaTest extends AbstractTestCase
 {
-    use ResetDatabase;
-    use Factories;
-
     public function testUploadRaceMedia(): void
     {
         $user = UserFactory::createOne(['roles' => ['ROLE_ADMIN']]);
