@@ -10,6 +10,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\RequestStack;
 
+/**
+ * @implements ProcessorInterface<RaceMediaEntity, RaceMediaEntity>
+ */
 final readonly class RaceMediaProcessor implements ProcessorInterface
 {
     public function __construct(

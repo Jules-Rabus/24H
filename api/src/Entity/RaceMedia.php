@@ -24,7 +24,7 @@ class RaceMedia
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $runner = null;
+    private User $runner;
 
     public function getId(): ?int
     {
@@ -51,12 +51,12 @@ class RaceMedia
         $this->filePath = $filePath;
     }
 
-    public function getRunner(): ?User
+    public function getRunner(): User
     {
         return $this->runner;
     }
 
-    public function setRunner(?User $runner): self
+    public function setRunner(User $runner): self
     {
         $this->runner = $runner;
 
