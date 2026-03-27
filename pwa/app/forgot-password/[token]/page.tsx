@@ -7,6 +7,7 @@ import {
   Card,
   Container,
   Field,
+  Group,
   Heading,
   Input,
   Separator,
@@ -18,10 +19,28 @@ import { motion } from "framer-motion";
 import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
-import { postForgotPasswordToken } from "@/api/generated/sdk.gen";
+import { useUpdatePasswordMutation } from "@/state/auth/mutations";
 import { toaster } from "../../../components/ui/toaster";
 
 const MotionBox = motion.create(Box);
+
+function extractApiError(err: unknown): string {
+  if (
+    err &&
+    typeof err === "object" &&
+    "response" in err &&
+    err.response &&
+    typeof err.response === "object" &&
+    "data" in err.response &&
+    err.response.data &&
+    typeof err.response.data === "object" &&
+    "detail" in err.response.data &&
+    typeof err.response.data.detail === "string"
+  ) {
+    return err.response.data.detail;
+  }
+  return "Le lien de réinitialisation est invalide ou expiré. Veuillez recommencer.";
+}
 
 export default function ResetPasswordPage({
   params,
@@ -31,6 +50,9 @@ export default function ResetPasswordPage({
   const { token } = use(params);
   const router = useRouter();
   const [success, setSuccess] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const updatePasswordMutation = useUpdatePasswordMutation();
 
   const form = useForm({
     defaultValues: {
@@ -39,18 +61,16 @@ export default function ResetPasswordPage({
     },
     onSubmit: async ({ value }) => {
       try {
-        await postForgotPasswordToken({
-          path: { tokenValue: token },
-          body: { password: value.password },
-          throwOnError: true,
+        await updatePasswordMutation.mutateAsync({
+          token,
+          password: value.password,
         });
         setSuccess(true);
       } catch (err) {
         console.error("[reset-password] error:", err);
         toaster.create({
           title: "Erreur",
-          description:
-            "Le lien de réinitialisation est invalide ou expiré. Veuillez recommencer.",
+          description: extractApiError(err),
           type: "error",
           closable: true,
         });
@@ -172,15 +192,34 @@ export default function ResetPasswordPage({
                           <Field.Label fontSize="sm" fontWeight="medium">
                             Nouveau mot de passe
                           </Field.Label>
-                          <Input
-                            type="password"
-                            name={field.name}
-                            value={field.state.value}
-                            onBlur={field.handleBlur}
-                            onChange={(e) => field.handleChange(e.target.value)}
-                            placeholder="••••••••"
-                            size="lg"
-                          />
+                          <Group attached w="full">
+                            <Input
+                              type={showPassword ? "text" : "password"}
+                              name={field.name}
+                              value={field.state.value}
+                              onBlur={field.handleBlur}
+                              onChange={(e) =>
+                                field.handleChange(e.target.value)
+                              }
+                              placeholder="••••••••"
+                              size="lg"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="lg"
+                              onClick={() => setShowPassword((v) => !v)}
+                              borderLeftRadius="0"
+                              borderLeftWidth="0"
+                              px="3"
+                              fontSize="xs"
+                              fontWeight="medium"
+                              color="fg.muted"
+                              flexShrink={0}
+                            >
+                              {showPassword ? "Masquer" : "Afficher"}
+                            </Button>
+                          </Group>
                           <Field.ErrorText fontSize="xs">
                             {field.state.meta.errors[0]}
                           </Field.ErrorText>
@@ -193,7 +232,9 @@ export default function ResetPasswordPage({
                       validators={{
                         onChangeListenTo: ["password"],
                         onChange: ({ value, fieldApi }) => {
-                          if (value !== fieldApi.form.getFieldValue("password")) {
+                          if (
+                            value !== fieldApi.form.getFieldValue("password")
+                          ) {
                             return "Les mots de passe ne correspondent pas";
                           }
                           return undefined;
@@ -210,15 +251,34 @@ export default function ResetPasswordPage({
                           <Field.Label fontSize="sm" fontWeight="medium">
                             Confirmer le mot de passe
                           </Field.Label>
-                          <Input
-                            type="password"
-                            name={field.name}
-                            value={field.state.value}
-                            onBlur={field.handleBlur}
-                            onChange={(e) => field.handleChange(e.target.value)}
-                            placeholder="••••••••"
-                            size="lg"
-                          />
+                          <Group attached w="full">
+                            <Input
+                              type={showConfirm ? "text" : "password"}
+                              name={field.name}
+                              value={field.state.value}
+                              onBlur={field.handleBlur}
+                              onChange={(e) =>
+                                field.handleChange(e.target.value)
+                              }
+                              placeholder="••••••••"
+                              size="lg"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="lg"
+                              onClick={() => setShowConfirm((v) => !v)}
+                              borderLeftRadius="0"
+                              borderLeftWidth="0"
+                              px="3"
+                              fontSize="xs"
+                              fontWeight="medium"
+                              color="fg.muted"
+                              flexShrink={0}
+                            >
+                              {showConfirm ? "Masquer" : "Afficher"}
+                            </Button>
+                          </Group>
                           <Field.ErrorText fontSize="xs">
                             {field.state.meta.errors[0]}
                           </Field.ErrorText>
