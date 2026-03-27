@@ -1,23 +1,21 @@
-import Providers from "./providers"
-import React from 'react'
+import Providers from "./providers";
+import React from "react";
 
 export const metadata = {
-  title: 'Race Tracker',
-  description: 'Suivi de course en temps réel et back-office',
-}
+  title: "Race Tracker",
+  description: "Suivi de course en temps réel et back-office",
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html lang="fr" suppressHydrationWarning>
       <body>
-        <Providers>
-          {children}
-        </Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
-  )
+  );
 }
