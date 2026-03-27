@@ -13,8 +13,8 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use App\Controller\MeController;
 use App\Controller\SecurityController;
+use App\State\User\CurrentUserProvider;
 use App\Dto\User\CreateUser;
 use App\Dto\User\UpdateUser;
 use App\Dto\User\UserCollection;
@@ -28,8 +28,7 @@ use Symfony\Component\ObjectMapper\Attribute\Map;
     operations: [
         new Get(
             uriTemplate: '/users/me',
-            controller: MeController::class,
-            read: false,
+            provider: CurrentUserProvider::class,
             security: "is_granted('ROLE_USER')",
             name: 'me',
         ),
