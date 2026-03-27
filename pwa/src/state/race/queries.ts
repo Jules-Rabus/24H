@@ -1,5 +1,13 @@
 import { useQuery } from "@tanstack/react-query"
-import { apiClient } from "@/api/client"
+import { apiRunsGetCollection, apiParticipationsGetCollection } from "@/api/generated/sdk.gen"
+import {
+  runsCollectionSchema,
+  participationsCollectionSchema,
+  type Run,
+  type Participation,
+} from "./schemas"
+
+export type { Run, Participation }
 
 export const raceKeys = {
   all: ["race"] as const,
@@ -7,57 +15,28 @@ export const raceKeys = {
   participations: () => [...raceKeys.all, "participations"] as const,
 }
 
-export interface Run {
-  id: number
-  startDate: string
-  endDate: string
-  participations: string[]
-  finishedParticipantsCount: number
-  inProgressParticipantsCount: number
-  participantsCount: number
-}
-
-export interface Participation {
-  id: number
-  arrivalTime?: string
-  totalTime?: number
-  user: {
-    id: number
-    firstName: string
-    lastName: string
-    surname?: string
-    finishedParticipationsCount: number
-  }
-  run: string
-  status: string
-}
-
-async function fetchRuns(): Promise<Run[]> {
-  const { data } = await apiClient.get<{ member: Run[] }>("/runs", {
-    params: { "order[startDate]": "asc" },
-    headers: { Accept: "application/ld+json" },
-  })
-  return data.member
-}
-
-async function fetchParticipations(): Promise<Participation[]> {
-  const { data } = await apiClient.get<{ member: Participation[] }>("/participations", {
-    params: { "order[arrivalTime]": "desc", itemsPerPage: 1000 },
-    headers: { Accept: "application/ld+json" },
-  })
-  return data.member.filter((p) => p.status === "FINISHED")
-}
-
 export function useRunsQuery() {
   return useQuery({
     queryKey: raceKeys.runs(),
-    queryFn: fetchRuns,
+    queryFn: async () => {
+      const { data } = await apiRunsGetCollection({
+        query: { "order[startDate]": "asc" },
+      })
+      const parsed = runsCollectionSchema.parse(data)
+      return parsed.member
+    },
   })
 }
 
 export function useParticipationsQuery() {
   return useQuery({
     queryKey: raceKeys.participations(),
-    queryFn: fetchParticipations,
+    queryFn: async () => {
+      const { data } = await apiParticipationsGetCollection({
+        query: { "order[arrivalTime]": "desc", itemsPerPage: 1000 },
+      })
+      const parsed = participationsCollectionSchema.parse(data)
+      return parsed.member.filter((p) => p.status === "FINISHED")
+    },
   })
 }

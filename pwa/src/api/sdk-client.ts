@@ -7,7 +7,7 @@ import { client } from "./generated/client.gen"
 client.setConfig({
   baseURL: process.env.NEXT_PUBLIC_ENTRYPOINT ?? "http://localhost",
   throwOnError: true,
-  credentials: "include",
+  withCredentials: true,
 })
 
 export { client }

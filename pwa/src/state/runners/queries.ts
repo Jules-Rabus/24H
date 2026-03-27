@@ -1,5 +1,8 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query"
-import { apiClient } from "@/api/client"
+import { apiUserspublicGetCollection } from "@/api/generated/sdk.gen"
+import { runnersPageSchema, type Runner } from "./schemas"
+
+export type { Runner }
 
 const ITEMS_PER_PAGE = 30
 
@@ -9,29 +12,24 @@ export const runnerKeys = {
   infinite: (params?: Record<string, string>) => [...runnerKeys.all, "infinite", params] as const,
 }
 
-export interface Runner {
-  id: number
-  firstName: string
-  lastName: string
-  surname?: string | null
-  organization?: string | null
-}
-
 interface RunnersPage {
   member: Runner[]
   totalItems: number
   nextPage: number | null
 }
 
-async function fetchRunnersPage(page: number, params?: Record<string, string>): Promise<RunnersPage> {
-  const { data } = await apiClient.get<{ member: Runner[]; "hydra:totalItems": number; "hydra:view"?: { "hydra:next"?: string } }>("/users/public", {
-    params: { itemsPerPage: ITEMS_PER_PAGE, page, ...params },
-    headers: { Accept: "application/ld+json" },
+async function fetchRunnersPage(
+  page: number,
+  extraParams?: Record<string, string>,
+): Promise<RunnersPage> {
+  const { data } = await apiUserspublicGetCollection({
+    query: { page, itemsPerPage: ITEMS_PER_PAGE, ...extraParams },
   })
-  const hasNext = !!data["hydra:view"]?.["hydra:next"]
+  const parsed = runnersPageSchema.parse(data)
+  const hasNext = !!parsed.view?.next
   return {
-    member: data.member,
-    totalItems: data["hydra:totalItems"],
+    member: parsed.member,
+    totalItems: parsed.totalItems ?? 0,
     nextPage: hasNext ? page + 1 : null,
   }
 }
@@ -49,8 +47,11 @@ export function useRunnersQuery(params?: Record<string, string>) {
   return useQuery({
     queryKey: runnerKeys.list(params),
     queryFn: async () => {
-      const page = await fetchRunnersPage(1, { ...params, itemsPerPage: "100" })
-      return page.member
+      const { data } = await apiUserspublicGetCollection({
+        query: { itemsPerPage: 100, ...params },
+      })
+      const parsed = runnersPageSchema.parse(data)
+      return parsed.member
     },
   })
 }
