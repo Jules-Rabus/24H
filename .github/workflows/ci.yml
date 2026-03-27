@@ -77,3 +77,39 @@ jobs:
       -
         name: Run PHPUnit
         run: docker compose exec -T php bin/phpunit --no-coverage
+
+  pwa-quality:
+    name: PWA Quality
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: pwa
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: pwa/package-lock.json
+      -
+        name: Install dependencies
+        run: npm ci --legacy-peer-deps
+      -
+        name: Type check
+        run: npm run type-check
+      -
+        name: Format check
+        run: npm run format:check
+      -
+        name: Lint
+        run: npm run lint
+      -
+        name: Unit tests
+        run: npm run test
+      -
+        name: Build
+        run: npm run build
