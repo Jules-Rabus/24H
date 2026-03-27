@@ -1,10 +1,10 @@
 import { defineConfig } from "@hey-api/openapi-ts"
 
 export default defineConfig({
-  input: `${process.env.NEXT_PUBLIC_ENTRYPOINT ?? "http://localhost"}/api/docs.json`,
+  input: process.env.OPENAPI_INPUT ?? "./openapi.json",
   output: {
     path: "src/api/generated",
-    format: "prettier",
+    postProcess: ["prettier"],
   },
   plugins: [
     "@hey-api/typescript",
