@@ -11,7 +11,6 @@ import {
   Dialog,
   Heading,
   HStack,
-  Image,
   Portal,
   SimpleGrid,
   Spinner,
@@ -329,28 +328,18 @@ export default function UserDetailPage({
 
           <HStack gap="6" align="flex-start" flexWrap="wrap">
             {imageUrl ? (
-              <Image
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
                 src={imageUrl}
                 alt={`Photo de ${fullName}`}
-                boxSize="120px"
-                objectFit="cover"
-                rounded="lg"
-                borderWidth="1px"
-                borderColor="border.subtle"
-                fallback={
-                  <Box
-                    boxSize="120px"
-                    rounded="lg"
-                    bg="bg.subtle"
-                    borderWidth="1px"
-                    borderColor="border.subtle"
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                  >
-                    <Text fontSize="3xl">👤</Text>
-                  </Box>
-                }
+                style={{
+                  width: "120px",
+                  height: "120px",
+                  objectFit: "cover",
+                  borderRadius: "8px",
+                  border: "1px solid var(--chakra-colors-border-subtle)",
+                }}
+                onError={(e) => { e.currentTarget.style.display = "none" }}
               />
             ) : (
               <Box
