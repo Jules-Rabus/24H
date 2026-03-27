@@ -1,37 +1,22 @@
 import { useMutation } from "@tanstack/react-query"
-import { apiClient } from "@/api/client"
-
-interface LoginCredentials {
-  email: string
-  password: string
-}
-
-interface LoginResponse {
-  token: string
-}
-
-async function login(credentials: LoginCredentials): Promise<LoginResponse> {
-  const { data } = await apiClient.post<LoginResponse>("/auth", credentials)
-  return data
-}
-
-async function resetPassword(payload: { email: string }): Promise<void> {
-  await apiClient.post("/forgot-password/", payload)
-}
+import { loginCheckPost, postForgotPassword } from "@/api/generated/sdk.gen"
 
 export function useLoginMutation() {
   return useMutation({
-    mutationFn: login,
-    onSuccess: (data) => {
-      if (typeof window !== "undefined") {
-        localStorage.setItem("token", data.token)
-      }
+    mutationFn: async (credentials: { email: string; password: string }) => {
+      await loginCheckPost({
+        body: credentials,
+      })
     },
   })
 }
 
 export function useResetPasswordMutation() {
   return useMutation({
-    mutationFn: resetPassword,
+    mutationFn: async (payload: { email: string }) => {
+      await postForgotPassword({
+        body: payload,
+      })
+    },
   })
 }
