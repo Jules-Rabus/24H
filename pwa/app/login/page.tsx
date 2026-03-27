@@ -7,7 +7,6 @@ import {
   Card,
   Container,
   Field,
-  Group,
   Heading,
   Input,
   Separator,
@@ -20,12 +19,12 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { z } from "zod";
 import { useLoginMutation } from "@/state/auth/mutations";
+import { PasswordInput } from "@/components/ui/password-input";
 
 const MotionBox = motion.create(Box);
 
 export default function LoginPage() {
   const [error, setError] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const loginMutation = useLoginMutation();
 
@@ -185,32 +184,15 @@ export default function LoginPage() {
                             Mot de passe oublié ?
                           </Button>
                         </Stack>
-                        <Group attached w="full">
-                          <Input
-                            type={showPassword ? "text" : "password"}
-                            name={field.name}
-                            value={field.state.value}
-                            onBlur={field.handleBlur}
-                            onChange={(e) => field.handleChange(e.target.value)}
-                            placeholder="••••••••"
-                            size="lg"
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="lg"
-                            onClick={() => setShowPassword((v) => !v)}
-                            borderLeftRadius="0"
-                            borderLeftWidth="0"
-                            px="3"
-                            fontSize="xs"
-                            fontWeight="medium"
-                            color="fg.muted"
-                            flexShrink={0}
-                          >
-                            {showPassword ? "Masquer" : "Afficher"}
-                          </Button>
-                        </Group>
+                        <PasswordInput
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          placeholder="••••••••"
+                          size="lg"
+                          w="full"
+                        />
                         <Field.ErrorText fontSize="xs">
                           {field.state.meta.errors[0]}
                         </Field.ErrorText>
