@@ -1,37 +1,37 @@
 # Architecture technique — PWA 24H Race
 
 Documentation destinée aux développeurs et aux agents IA intervenant sur ce projet.
-Dernière mise à jour : 2026-03-26.
+Dernière mise à jour : 2026-03-27.
 
 ---
 
 ## Stack technique
 
-| Couche | Outil | Version | Notes |
-|--------|-------|---------|-------|
-| Framework | Next.js App Router | ^16 | `output: "standalone"`, Turbopack en dev |
-| UI | Chakra UI v3 | ^3.34 | **Pas** Chakra UI v2 — API différente |
-| Styles legacy | Tailwind CSS v4 + DaisyUI v5 | — | Uniquement dans `app/legacy/` |
-| State / fetch | TanStack Query v5 | ^5.95 | `retry: 3` global sur les queries |
-| Formulaires | TanStack Form v1 | ^1.28 | Validators inline avec Zod `safeParse` |
-| Validation | Zod v4 | ^4.3 | Formulaires + (à venir) parsing réponses API |
-| Animations | Framer Motion | ^12 | `motion.create(Box)` pour les composants Chakra |
-| HTTP client | Axios via `src/api/client.ts` | ^1.9 | Intercepteur JWT auto depuis localStorage |
-| SDK API | hey-api/openapi-ts | ^0.94 | Génération depuis `/api/docs.json` |
-| Tests unitaires | Vitest + React Testing Library | — | MSW v2 pour mocker les appels |
-| Tests E2E | Playwright | ^1.58 | `e2e/navigation.spec.ts` |
-| Notifications | Chakra UI Toaster | — | `components/ui/toaster.tsx`, `toaster.create()` |
+| Couche          | Outil                          | Version | Notes                                           |
+| --------------- | ------------------------------ | ------- | ----------------------------------------------- |
+| Framework       | Next.js App Router             | ^16     | `output: "standalone"`, Turbopack en dev        |
+| UI              | Chakra UI v3                   | ^3.34   | **Pas** Chakra UI v2 — API différente           |
+| Styles legacy   | Tailwind CSS v4 + DaisyUI v5   | —       | Uniquement dans `app/legacy/`                   |
+| State / fetch   | TanStack Query v5              | ^5.95   | `retry: 3` global sur les queries               |
+| Formulaires     | TanStack Form v1               | ^1.28   | Validators inline avec Zod `safeParse`          |
+| Validation      | Zod v4                         | ^4.3    | Formulaires + (à venir) parsing réponses API    |
+| Animations      | Framer Motion                  | ^12     | `motion.create(Box)` pour les composants Chakra |
+| HTTP client     | Axios via `src/api/client.ts`  | ^1.9    | Intercepteur JWT auto depuis localStorage       |
+| SDK API         | hey-api/openapi-ts             | ^0.94   | Génération depuis `/api/docs.json`              |
+| Tests unitaires | Vitest + React Testing Library | —       | MSW v2 pour mocker les appels                   |
+| Tests E2E       | Playwright                     | ^1.58   | `e2e/navigation.spec.ts`                        |
+| Notifications   | Chakra UI Toaster              | —       | `components/ui/toaster.tsx`, `toaster.create()` |
 
 ---
 
 ## Variables d'environnement
 
-| Variable | Utilisation | Valeur par défaut |
-|----------|-------------|-------------------|
-| `NEXT_PUBLIC_ENTRYPOINT` | Base URL de l'API Symfony | `http://localhost` |
-| `NEXT_PUBLIC_MERCURE_HUB_URL` | URL du hub Mercure | — |
-| `DISPLAY_EMAIL` / `DISPLAY_PASSWORD` | Credentials pour la page display (SSR legacy) | — |
-| `API_ENTRYPOINT` | Alternative server-side à `NEXT_PUBLIC_ENTRYPOINT` | — |
+| Variable                             | Utilisation                                        | Valeur par défaut  |
+| ------------------------------------ | -------------------------------------------------- | ------------------ |
+| `NEXT_PUBLIC_ENTRYPOINT`             | Base URL de l'API Symfony                          | `http://localhost` |
+| `NEXT_PUBLIC_MERCURE_HUB_URL`        | URL du hub Mercure                                 | —                  |
+| `DISPLAY_EMAIL` / `DISPLAY_PASSWORD` | Credentials pour la page display (SSR legacy)      | —                  |
+| `API_ENTRYPOINT`                     | Alternative server-side à `NEXT_PUBLIC_ENTRYPOINT` | —                  |
 
 > **Important** : toujours utiliser `NEXT_PUBLIC_ENTRYPOINT`, jamais `NEXT_PUBLIC_API_URL` (n'existe pas dans ce projet).
 
@@ -67,11 +67,21 @@ pwa/
 │   │   └── generated/            # SDK généré par hey-api (gitignored — voir §SDK)
 │   │
 │   └── state/                    # Queries et mutations par domaine
-│       ├── auth/mutations.ts     # useLoginMutation, useResetPasswordMutation
-│       ├── race/queries.ts       # useRunsQuery, useParticipationsQuery + types Run/Participation
-│       ├── runners/queries.ts    # useRunnersQuery, useRunnersInfiniteQuery + type Runner
-│       ├── media/mutations.ts    # useUploadRaceMediaMutation
-│       └── weather/queries.ts    # useWeatherQuery (Open-Meteo, pas notre API)
+│       ├── auth/
+│       │   ├── mutations.ts      # useLoginMutation, useResetPasswordMutation
+│       │   └── schemas.ts        # loginResponseSchema
+│       ├── race/
+│       │   ├── queries.ts        # useRunsQuery, useParticipationsQuery
+│       │   └── schemas.ts        # runSchema, participationSchema + types Run/Participation
+│       ├── runners/
+│       │   ├── queries.ts        # useRunnersQuery, useRunnersInfiniteQuery
+│       │   └── schemas.ts        # runnerSchema, runnersPageSchema + type Runner
+│       ├── media/
+│       │   ├── mutations.ts      # useUploadRaceMediaMutation
+│       │   └── schemas.ts        # raceMediaSchema + type RaceMedia
+│       └── weather/
+│           ├── queries.ts        # useWeatherQuery (Open-Meteo, pas notre API)
+│           └── schemas.ts        # weatherResponseSchema + type WeatherResponse
 │
 ├── openapi-ts.config.ts          # Config hey-api (input: /api/docs.json, output: src/api/generated)
 └── ARCHITECTURE.md               # Ce fichier
@@ -118,7 +128,7 @@ export const runnerKeys = {
   all: ["runners"] as const,
   list: (params?) => [...runnerKeys.all, "list", params] as const,
   infinite: (params?) => [...runnerKeys.all, "infinite", params] as const,
-}
+};
 ```
 
 ### Queries régulières vs InfiniteQuery
@@ -170,12 +180,14 @@ src/api/generated/
 
 ```ts
 // Configurer le client (fait dans src/api/sdk-client.ts)
-import { client } from "./generated/client.gen"
-client.setConfig({ baseURL: process.env.NEXT_PUBLIC_ENTRYPOINT })
+import { client } from "./generated/client.gen";
+client.setConfig({ baseURL: process.env.NEXT_PUBLIC_ENTRYPOINT });
 
 // Appeler une fonction du SDK
-import { getUsersPublicCollection } from "@/api/generated/sdk.gen"
-const { data } = await getUsersPublicCollection({ query: { itemsPerPage: 30 } })
+import { getUsersPublicCollection } from "@/api/generated/sdk.gen";
+const { data } = await getUsersPublicCollection({
+  query: { itemsPerPage: 30 },
+});
 ```
 
 > **Règle** : ne jamais deviner les routes (`/users/public`, `/runs`, etc.) — toujours utiliser les fonctions du SDK généré.
@@ -186,13 +198,16 @@ const { data } = await getUsersPublicCollection({ query: { itemsPerPage: 30 } })
 
 Ces pages utilisent **Tailwind CSS + DaisyUI**, pas Chakra UI. Ne pas mélanger.
 
-| Page | Route | Notes |
-|------|-------|-------|
-| Admin | `/legacy/admin` | React-Admin + API Platform |
-| Display | `/legacy/display` | `getServerSideProps` + SSE Mercure, credentials env |
-| Résultats | `/legacy/resultats` | Client-side, axios direct |
+| Page      | Route               | Notes                                          |
+| --------- | ------------------- | ---------------------------------------------- |
+| Admin     | `/legacy/admin`     | React-Admin + API Platform                     |
+| Display   | `/legacy/display`   | Client-side (`useEffect` + axios), SSE Mercure |
+| Résultats | `/legacy/resultats` | Client-side, axios direct                      |
+| Scanner   | `/legacy/scanner`   | QR code scanner                                |
 
-La page `display` utilise `getServerSideProps` qui n'est **pas** supporté en App Router natif — elle vit dans `app/legacy/display/index.tsx` avec un wrapper Page Router simulé.
+Chaque page legacy a un `page.tsx` (App Router) avec `"use client"` et `next/dynamic` (ssr: false) qui charge l'`index.tsx` côté client uniquement. La page `display` charge ses données via `useEffect` + axios (pas `getServerSideProps` — non supporté en App Router).
+
+> **Important** : les packages `@api-platform/admin` et `react-admin` ne déclarent pas `"use client"` (conçus pour Pages Router). Ils sont listés dans `transpilePackages` dans `next.config.ts` pour éviter les erreurs "You're importing a module that depends on useState into a React Server Component".
 
 ---
 
@@ -205,6 +220,7 @@ npm run test
 ```
 
 MSW est configuré dans `src/mocks/handlers.ts` — les handlers mockent :
+
 - `GET /users/public` → liste de coureurs
 - `POST /race_medias` → upload OK
 - `POST /auth` → token si credentials corrects
@@ -217,6 +233,42 @@ npx playwright test
 ```
 
 Tests dans `e2e/navigation.spec.ts`. Requiert que `next dev` tourne sur le port 3000.
+
+---
+
+## Pipeline CI (GitHub Actions)
+
+Le job `pwa-quality` dans `.github/workflows/ci.yml` exécute dans l'ordre :
+
+1. `npm run type-check` — vérification TypeScript (`tsc --noEmit`)
+2. `npm run format:check` — vérification formatage Prettier
+3. `npm run lint` — ESLint
+4. `npm run test` — Vitest (tests unitaires)
+5. `npm run build` — `next build` (production)
+
+**Scripts disponibles dans `package.json`** :
+
+| Script         | Commande             |
+| -------------- | -------------------- |
+| `type-check`   | `tsc --noEmit`       |
+| `lint`         | `eslint .`           |
+| `lint:fix`     | `eslint . --fix`     |
+| `format`       | `prettier --write .` |
+| `format:check` | `prettier --check .` |
+| `test`         | `vitest run`         |
+| `test:watch`   | `vitest`             |
+| `build`        | `next build`         |
+
+---
+
+## Stratégie Zod (approche hybride — Option C)
+
+Voir `docs/zod-strategy.md` pour le détail. En résumé :
+
+- Les schémas Zod sont dans `src/state/<domain>/schemas.ts` — **1 fichier de schémas par domaine**
+- Les types exposés à l'UI viennent de `z.infer<typeof schema>` (pas de `types.gen.ts` directement)
+- Le `responseValidator` hey-api (activé dans `openapi-ts.config.ts`) valide déjà les réponses HTTP via `zod.gen.ts` — les schémas manuels ne re-valident pas la structure brute mais expriment la **projection métier**
+- Exception : `weather/schemas.ts` valide manuellement l'API Open-Meteo (non générée)
 
 ---
 
