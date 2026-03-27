@@ -1,23 +1,31 @@
 "use client"
 
 import {
+  Alert,
   Box,
   Button,
+  Card,
   Container,
+  Field,
   Heading,
   Input,
+  Separator,
   Stack,
   Text,
 } from "@chakra-ui/react"
 import { useForm } from "@tanstack/react-form"
-import { z } from "zod"
-import { useState } from "react"
+import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
-import { resetPassword } from "@/api"
+import { useState } from "react"
+import { z } from "zod"
+import { useResetPasswordMutation } from "@/state/auth/mutations"
+
+const MotionBox = motion.create(Box)
 
 export default function ForgotPasswordPage() {
   const [success, setSuccess] = useState(false)
   const router = useRouter()
+  const resetMutation = useResetPasswordMutation()
 
   const form = useForm({
     defaultValues: {
@@ -25,92 +33,171 @@ export default function ForgotPasswordPage() {
     },
     onSubmit: async ({ value }) => {
       try {
-        await resetPassword(value)
+        await resetMutation.mutateAsync(value)
+      } catch {
+        // Intentionally silent for security
+      } finally {
         setSuccess(true)
-      } catch (err) {
-        // Handle error implicitly as requested often for security
       }
     },
   })
 
   return (
-    <Container maxW="md" py={{ base: "12", md: "24" }}>
-      <Stack p="8" bg="white" shadow="sm" borderRadius="xl">
-        <Stack textAlign="center">
-          <Heading size="xl" mb="2">
-            Forgot password
-          </Heading>
-          <Text color="gray.600">
-            No worries, we'll send you reset instructions.
-          </Text>
-        </Stack>
-
-        {success ? (
-          <Box textAlign="center" mt="6">
-            <Text color="green.600" mb="4">
-              Check your email for a reset link.
-            </Text>
-            <Button w="full" onClick={() => router.push("/login")}>
-              Back to log in
-            </Button>
-          </Box>
-        ) : (
-          <Box
-            as="form"
-            mt="6"
-            onSubmit={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              form.handleSubmit()
-            }}
+    <Box
+      minH="100vh"
+      bg="bg.subtle"
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      px="4"
+    >
+      <Container maxW="sm" p="0">
+        <MotionBox
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, ease: "easeOut" }}
+        >
+          {/* Back link */}
+          <Button
+            variant="plain"
+            size="sm"
+            colorPalette="primary"
+            color="colorPalette.fg"
+            onClick={() => router.push("/login")}
+            mb="6"
+            p="0"
+            h="auto"
+            fontWeight="normal"
           >
-            <Stack>
-              <form.Field
-                name="email"
-                validators={{
-                  onChange: ({ value }) => {
-                     const parsed = z.string().email("Invalid email address").safeParse(value);
-                     return parsed.success ? undefined : parsed.error.issues[0].message;
-                  }
-                }}
-              >
-                {(field) => (
-                  <Box>
-                    <Text mb="1" fontWeight="medium" fontSize="sm">
-                      Email
-                    </Text>
-                    <Input
-                      type="email"
-                      name={field.name}
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                    />
-                    {field.state.meta.errors ? (
-                      <Text color="red.500" fontSize="sm" mt="1">
-                        {field.state.meta.errors.join(", ")}
-                      </Text>
-                    ) : null}
-                  </Box>
-                )}
-              </form.Field>
+            ← Retour à la connexion
+          </Button>
 
-              <Button mt="8" type="submit" w="full" colorScheme="primary" disabled={!form.state.canSubmit}>
-                Reset password
-              </Button>
-
-              <Button
-                variant="plain"
-                mt="4"
-                w="full"
-                onClick={() => router.push("/login")}
+          {/* Header */}
+          <Stack align="center" mb="8" gap="1">
+            <Box
+              px="3"
+              py="1"
+              bg="colorPalette.muted"
+              rounded="full"
+              colorPalette="primary"
+              mb="3"
+            >
+              <Text
+                fontSize="xs"
+                fontWeight="semibold"
+                color="colorPalette.fg"
+                letterSpacing="wider"
+                textTransform="uppercase"
               >
-                Back to log in
-              </Button>
-            </Stack>
-          </Box>
-        )}
-      </Stack>
-    </Container>
+                24H Race
+              </Text>
+            </Box>
+            <Heading size="2xl" fontWeight="bold" textAlign="center">
+              Mot de passe oublié
+            </Heading>
+            <Text color="fg.muted" textAlign="center" fontSize="sm">
+              Entrez votre email pour recevoir un lien de réinitialisation.
+            </Text>
+          </Stack>
+
+          {/* Card */}
+          <Card.Root variant="outline" shadow="sm" borderColor="border.subtle">
+            <Card.Body p="8">
+              {success ? (
+                <Stack gap="5">
+                  <Alert.Root status="success">
+                    <Alert.Indicator />
+                    <Alert.Content>
+                      <Alert.Title>Email envoyé</Alert.Title>
+                      <Alert.Description>
+                        Si un compte existe avec cette adresse, vous recevrez un
+                        lien de réinitialisation dans quelques minutes.
+                      </Alert.Description>
+                    </Alert.Content>
+                  </Alert.Root>
+                  <Separator />
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    colorPalette="primary"
+                    w="full"
+                    onClick={() => router.push("/login")}
+                  >
+                    Retour à la connexion
+                  </Button>
+                </Stack>
+              ) : (
+                <Box
+                  as="form"
+                  onSubmit={(e: React.FormEvent) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    form.handleSubmit()
+                  }}
+                >
+                  <Stack gap="5">
+                    <form.Field
+                      name="email"
+                      validators={{
+                        onChange: ({ value }) => {
+                          const parsed = z
+                            .string()
+                            .email("Adresse email invalide")
+                            .safeParse(value)
+                          return parsed.success
+                            ? undefined
+                            : parsed.error.issues[0].message
+                        },
+                      }}
+                    >
+                      {(field) => (
+                        <Field.Root
+                          invalid={
+                            field.state.meta.isTouched &&
+                            field.state.meta.errors.length > 0
+                          }
+                        >
+                          <Field.Label fontSize="sm" fontWeight="medium">
+                            Email
+                          </Field.Label>
+                          <Input
+                            type="email"
+                            name={field.name}
+                            value={field.state.value}
+                            onBlur={field.handleBlur}
+                            onChange={(e) =>
+                              field.handleChange(e.target.value)
+                            }
+                            placeholder="vous@exemple.fr"
+                            size="lg"
+                          />
+                          <Field.ErrorText fontSize="xs">
+                            {field.state.meta.errors[0]}
+                          </Field.ErrorText>
+                        </Field.Root>
+                      )}
+                    </form.Field>
+
+                    <Separator />
+
+                    <Button
+                      type="submit"
+                      size="lg"
+                      colorPalette="primary"
+                      w="full"
+                      loading={form.state.isSubmitting}
+                      loadingText="Envoi en cours..."
+                      disabled={!form.state.canSubmit}
+                    >
+                      Réinitialiser le mot de passe
+                    </Button>
+                  </Stack>
+                </Box>
+              )}
+            </Card.Body>
+          </Card.Root>
+        </MotionBox>
+      </Container>
+    </Box>
   )
 }

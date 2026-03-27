@@ -38,7 +38,7 @@ export default function Page() {
   const searchParams = useSearchParams();
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const qs = searchParams.toString();
+  const qs = searchParams?.toString() ?? "";
 
   useEffect(() => {
     setIsLoading(true);

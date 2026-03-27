@@ -17,8 +17,8 @@ export const toaster = createToaster({
 export const Toaster = () => {
   return (
     <Portal>
-      <ChakraToaster toaster={toaster}>
-        {(toast: any) => (
+      <ChakraToaster toaster={toaster} insetInline={{ mdDown: "4" }}>
+        {(toast) => (
           <Toast.Root width={{ md: "sm" }}>
             {toast.type === "loading" ? (
               <Spinner size="sm" color="blue.solid" />
@@ -34,7 +34,7 @@ export const Toaster = () => {
             {toast.action && (
               <Toast.ActionTrigger>{toast.action.label}</Toast.ActionTrigger>
             )}
-            {toast.meta?.closable && <Toast.CloseTrigger />}
+            {toast.closable && <Toast.CloseTrigger />}
           </Toast.Root>
         )}
       </ChakraToaster>

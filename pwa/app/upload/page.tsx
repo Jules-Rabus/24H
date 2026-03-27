@@ -10,20 +10,21 @@ import {
   Text,
 } from "@chakra-ui/react"
 import { useForm } from "@tanstack/react-form"
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import { z } from "zod"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { fetchRunners, uploadRaceMedia } from "@/api"
-import { QUERY_KEYS } from "@/state/queryKeys"
+import { useRunnersInfiniteQuery } from "@/state/runners/queries"
+import { useUploadRaceMediaMutation } from "@/state/media/mutations"
 
 export default function UploadPage() {
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
 
-  const { data: runners } = useQuery({ queryKey: QUERY_KEYS.RUNNERS, queryFn: fetchRunners })
-  const uploadMutation = useMutation({ mutationFn: uploadRaceMedia })
+  const { data: runnersData, fetchNextPage, hasNextPage } = useRunnersInfiniteQuery()
+  const runners = runnersData?.pages.flatMap((p) => p.member) ?? []
+  const uploadMutation = useUploadRaceMediaMutation()
 
   const form = useForm({
     defaultValues: {
@@ -92,14 +93,17 @@ export default function UploadPage() {
                     <Text mb="1" fontWeight="medium" fontSize="sm">
                       Sélectionner le coureur
                     </Text>
-                    <select style={{padding: "8px", width: "100%", border: "1px solid #e2e8f0", borderRadius: "0.375rem"}} value={field.state.value} onChange={(e: any) => field.handleChange(e.target.value)}>
+                    <select style={{padding: "8px", width: "100%", border: "1px solid #e2e8f0", borderRadius: "0.375rem"}} value={field.state.value} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => field.handleChange(e.target.value)}>
                       <option value="">-- Choisissez un coureur --</option>
-                      {runners?.['hydra:member']?.map((r: any) => (
+                      {runners.map((r) => (
                         <option key={r.id} value={`/users/${r.id}`}>{r.firstName} {r.lastName}</option>
                       ))}
-                      <option value="/users/1">Jean Dupont</option>
-                      <option value="/users/2">Marie Curie</option>
                     </select>
+                    {hasNextPage && (
+                      <Button size="xs" variant="ghost" onClick={() => fetchNextPage()} type="button" mt="1">
+                        Charger plus de coureurs
+                      </Button>
+                    )}
                     {field.state.meta.errors ? (
                       <Text color="red.500" fontSize="sm" mt="1">
                         {field.state.meta.errors.join(", ")}

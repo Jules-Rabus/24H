@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "generate-api": "openapi-ts"
   },
   "dependencies": {
     "@api-platform/admin": "^4.0.6",
@@ -60,6 +61,8 @@
   "devDependencies": {
     "@babel/core": "^7.27.1",
     "@eslint/eslintrc": "^3.3.1",
+    "@hey-api/client-axios": "^0.9.1",
+    "@hey-api/openapi-ts": "^0.94.5",
     "@popperjs/core": "^2.11.8",
     "@types/file-saver": "^2.0.7",
     "@types/lodash.isplainobject": "^4.0.9",
