@@ -35,8 +35,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# generated API SDK (run npm run generate-api to regenerate)
-/src/api/generated
+# openapi spec snapshot (regenerate with: curl -sk https://localhost/docs.jsonopenapi -o openapi.json)
+openapi.json
 
 /.idea
 

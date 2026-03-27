@@ -6,8 +6,13 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
+    "type-check": "tsc --noEmit",
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "generate-api": "openapi-ts"
   },
   "dependencies": {
@@ -64,6 +69,8 @@
     "@hey-api/client-axios": "^0.9.1",
     "@hey-api/openapi-ts": "^0.94.5",
     "@popperjs/core": "^2.11.8",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/user-event": "^14.6.1",
     "@types/file-saver": "^2.0.7",
     "@types/lodash.isplainobject": "^4.0.9",
     "@types/node": "^22.15.3",
