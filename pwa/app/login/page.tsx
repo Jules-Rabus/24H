@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   Alert,
@@ -12,20 +12,20 @@ import {
   Separator,
   Stack,
   Text,
-} from "@chakra-ui/react"
-import { useForm } from "@tanstack/react-form"
-import { motion } from "framer-motion"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
-import { z } from "zod"
-import { useLoginMutation } from "@/state/auth/mutations"
+} from "@chakra-ui/react";
+import { useForm } from "@tanstack/react-form";
+import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { z } from "zod";
+import { useLoginMutation } from "@/state/auth/mutations";
 
-const MotionBox = motion.create(Box)
+const MotionBox = motion.create(Box);
 
 export default function LoginPage() {
-  const [error, setError] = useState("")
-  const router = useRouter()
-  const loginMutation = useLoginMutation()
+  const [error, setError] = useState("");
+  const router = useRouter();
+  const loginMutation = useLoginMutation();
 
   const form = useForm({
     defaultValues: {
@@ -33,15 +33,15 @@ export default function LoginPage() {
       password: "",
     },
     onSubmit: async ({ value }) => {
-      setError("")
+      setError("");
       try {
-        await loginMutation.mutateAsync(value)
-        router.push("/")
+        await loginMutation.mutateAsync(value);
+        router.push("/");
       } catch {
-        setError("Identifiants invalides. Veuillez réessayer.")
+        setError("Identifiants invalides. Veuillez réessayer.");
       }
     },
-  })
+  });
 
   return (
     <Box
@@ -92,9 +92,9 @@ export default function LoginPage() {
               <Box
                 as="form"
                 onSubmit={(e: React.FormEvent) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  form.handleSubmit()
+                  e.preventDefault();
+                  e.stopPropagation();
+                  form.handleSubmit();
                 }}
               >
                 <Stack gap="5">
@@ -106,10 +106,10 @@ export default function LoginPage() {
                         const parsed = z
                           .string()
                           .email("Adresse email invalide")
-                          .safeParse(value)
+                          .safeParse(value);
                         return parsed.success
                           ? undefined
-                          : parsed.error.issues[0].message
+                          : parsed.error.issues[0].message;
                       },
                     }}
                   >
@@ -147,10 +147,10 @@ export default function LoginPage() {
                         const parsed = z
                           .string()
                           .min(1, "Le mot de passe est requis")
-                          .safeParse(value)
+                          .safeParse(value);
                         return parsed.success
                           ? undefined
-                          : parsed.error.issues[0].message
+                          : parsed.error.issues[0].message;
                       },
                     }}
                   >
@@ -228,5 +228,5 @@ export default function LoginPage() {
         </MotionBox>
       </Container>
     </Box>
-  )
+  );
 }

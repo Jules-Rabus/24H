@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   Alert,
@@ -12,20 +12,21 @@ import {
   Separator,
   Stack,
   Text,
-} from "@chakra-ui/react"
-import { useForm } from "@tanstack/react-form"
-import { motion } from "framer-motion"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
-import { z } from "zod"
-import { useResetPasswordMutation } from "@/state/auth/mutations"
+} from "@chakra-ui/react";
+import { useForm } from "@tanstack/react-form";
+import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { z } from "zod";
+import { useResetPasswordMutation } from "@/state/auth/mutations";
+import { toaster } from "../../components/ui/toaster";
 
-const MotionBox = motion.create(Box)
+const MotionBox = motion.create(Box);
 
 export default function ForgotPasswordPage() {
-  const [success, setSuccess] = useState(false)
-  const router = useRouter()
-  const resetMutation = useResetPasswordMutation()
+  const [success, setSuccess] = useState(false);
+  const router = useRouter();
+  const resetMutation = useResetPasswordMutation();
 
   const form = useForm({
     defaultValues: {
@@ -33,14 +34,20 @@ export default function ForgotPasswordPage() {
     },
     onSubmit: async ({ value }) => {
       try {
-        await resetMutation.mutateAsync(value)
-      } catch {
-        // Intentionally silent for security
+        await resetMutation.mutateAsync(value);
+      } catch (err) {
+        console.error("[forgot-password] reset error:", err);
+        toaster.create({
+          title: "Erreur",
+          description: "Une erreur est survenue. Veuillez réessayer.",
+          type: "error",
+          closable: true,
+        });
       } finally {
-        setSuccess(true)
+        setSuccess(true);
       }
     },
-  })
+  });
 
   return (
     <Box
@@ -130,9 +137,9 @@ export default function ForgotPasswordPage() {
                 <Box
                   as="form"
                   onSubmit={(e: React.FormEvent) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    form.handleSubmit()
+                    e.preventDefault();
+                    e.stopPropagation();
+                    form.handleSubmit();
                   }}
                 >
                   <Stack gap="5">
@@ -143,10 +150,10 @@ export default function ForgotPasswordPage() {
                           const parsed = z
                             .string()
                             .email("Adresse email invalide")
-                            .safeParse(value)
+                            .safeParse(value);
                           return parsed.success
                             ? undefined
-                            : parsed.error.issues[0].message
+                            : parsed.error.issues[0].message;
                         },
                       }}
                     >
@@ -165,9 +172,7 @@ export default function ForgotPasswordPage() {
                             name={field.name}
                             value={field.state.value}
                             onBlur={field.handleBlur}
-                            onChange={(e) =>
-                              field.handleChange(e.target.value)
-                            }
+                            onChange={(e) => field.handleChange(e.target.value)}
                             placeholder="vous@exemple.fr"
                             size="lg"
                           />
@@ -199,5 +204,5 @@ export default function ForgotPasswordPage() {
         </MotionBox>
       </Container>
     </Box>
-  )
+  );
 }
