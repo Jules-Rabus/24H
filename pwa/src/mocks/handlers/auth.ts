@@ -1,12 +1,32 @@
 import { http, HttpResponse } from "msw"
 
 export const authHandlers = [
-  http.post("*/login", async ({ request }) => {
-    const body = (await request.json()) as { email: string; password: string }
-    if (body.email === "admin@example.com" && body.password === "password") {
-      return HttpResponse.json({ token: "fake-jwt-token" })
-    }
-    return HttpResponse.json({ error: "Invalid credentials" }, { status: 401 })
+  http.post("*/login", () => {
+    return new HttpResponse(null, {
+      status: 200,
+      headers: {
+        "Set-Cookie": "BEARER=fake-jwt-token; HttpOnly; Path=/",
+      },
+    })
+  }),
+
+  http.post("*/logout", () => {
+    return new HttpResponse(null, {
+      status: 204,
+      headers: {
+        "Set-Cookie": "BEARER=; HttpOnly; Path=/; Max-Age=0",
+      },
+    })
+  }),
+
+  http.get("*/users/me", () => {
+    return HttpResponse.json({
+      id: 1,
+      email: "admin@example.com",
+      firstName: "Admin",
+      lastName: "User",
+      roles: ["ROLE_ADMIN"],
+    })
   }),
 
   http.post("*/forgot-password/", () => {
