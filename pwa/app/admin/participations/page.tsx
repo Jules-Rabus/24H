@@ -16,6 +16,7 @@ import {
   Text,
   VStack,
   IconButton,
+  createListCollection,
 } from "@chakra-ui/react"
 import {
   useAdminParticipationsQuery,
@@ -232,6 +233,14 @@ export default function ParticipationsPage() {
     },
   ]
 
+  const statusCollection = createListCollection({
+    items: [
+      { label: "Tous", value: "" },
+      { label: "Terminé", value: "FINISHED" },
+      { label: "En cours", value: "IN_PROGRESS" },
+    ],
+  })
+
   // ------------------------------------------------------------------
   // Render
   // ------------------------------------------------------------------
@@ -300,6 +309,7 @@ export default function ParticipationsPage() {
               <Field.Label fontSize="sm">Statut</Field.Label>
               <Select.Root
                 size="sm"
+                collection={statusCollection}
                 value={[statusFilter]}
                 onValueChange={({ value }) => setStatusFilter(value[0] ?? "")}
               >
@@ -309,17 +319,11 @@ export default function ParticipationsPage() {
                 <Portal>
                   <Select.Positioner>
                     <Select.Content>
-                      <Select.Item item={{ label: "Tous", value: "" }}>
-                        Tous
-                      </Select.Item>
-                      <Select.Item item={{ label: "Terminé", value: "FINISHED" }}>
-                        Terminé
-                      </Select.Item>
-                      <Select.Item
-                        item={{ label: "En cours", value: "IN_PROGRESS" }}
-                      >
-                        En cours
-                      </Select.Item>
+                      {statusCollection.items.map((item) => (
+                        <Select.Item key={item.value} item={item}>
+                          {item.label}
+                        </Select.Item>
+                      ))}
                     </Select.Content>
                   </Select.Positioner>
                 </Portal>

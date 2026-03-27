@@ -125,12 +125,12 @@ export default function AdminMediasPage() {
               aspectRatio={1}
             >
               {media.filePath && (
-                <Box
-                  as="img"
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
                   src={`${process.env.NEXT_PUBLIC_ENTRYPOINT}/${media.filePath}`}
                   alt={`Photo ${media.id}`}
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                  onError={(e) => {
                     e.currentTarget.src = "/placeholder.png"
                   }}
                 />

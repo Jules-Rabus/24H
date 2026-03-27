@@ -24,7 +24,8 @@ const mercureUiUrl = mercureHubUrl ? `${mercureHubUrl}/ui/` : "";
 
 const services = [
   { image: apiPicture, title: "API", url: `${apiUrl}/docs` },
-  { image: adminPicture, title: "Admin", url: "/legacy/admin" },
+  { image: adminPicture, title: "Admin (nouveau)", url: "/admin" },
+  { image: adminPicture, title: "Admin (legacy)", url: "/legacy/admin" },
   { image: rocketPicture, title: "Race Display", url: "/legacy/display" },
   { image: rocketPicture, title: "Race Hub Start", url: "/public-race-status" },
   {
