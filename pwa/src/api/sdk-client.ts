@@ -1,18 +1,13 @@
 /**
- * Hey API generated client setup.
- *
- * Import `apiClient` from this file to use the typed SDK.
- * The generated SDK files live in `src/api/generated/` — regenerate with:
- *   npm run generate-api
+ * Initialise le client hey-api avec la baseURL et les cookies HttpOnly.
+ * Le token JWT est envoyé automatiquement via le cookie BEARER.
  */
 import { client } from "./generated/client.gen"
 
 client.setConfig({
   baseURL: process.env.NEXT_PUBLIC_ENTRYPOINT ?? "http://localhost",
-  auth: () =>
-    typeof window !== "undefined"
-      ? (localStorage.getItem("token") ?? undefined)
-      : undefined,
+  throwOnError: true,
+  credentials: "include",
 })
 
 export { client }
