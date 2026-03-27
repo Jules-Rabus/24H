@@ -13,6 +13,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use App\Controller\MeController;
 use App\Controller\SecurityController;
 use App\Dto\User\CreateUser;
 use App\Dto\User\UpdateUser;
@@ -25,6 +26,13 @@ use Symfony\Component\ObjectMapper\Attribute\Map;
     shortName: 'User',
     stateOptions: new Options(entityClass: User::class),
     operations: [
+        new Get(
+            uriTemplate: '/users/me',
+            controller: MeController::class,
+            read: false,
+            security: "is_granted('ROLE_USER')",
+            name: 'me',
+        ),
         new GetCollection(security: 'is_granted("ROLE_ADMIN")'),
         new GetCollection(
             uriTemplate: 'users/public',
