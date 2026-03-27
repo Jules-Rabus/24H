@@ -7,9 +7,7 @@ import {
   Card,
   Container,
   Field,
-  Group,
   Heading,
-  Input,
   Separator,
   Stack,
   Text,
@@ -20,6 +18,7 @@ import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { useUpdatePasswordMutation } from "@/state/auth/mutations";
+import { PasswordInput } from "@/components/ui/password-input";
 import { toaster } from "../../../components/ui/toaster";
 
 const MotionBox = motion.create(Box);
@@ -50,8 +49,6 @@ export default function ResetPasswordPage({
   const { token } = use(params);
   const router = useRouter();
   const [success, setSuccess] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
   const updatePasswordMutation = useUpdatePasswordMutation();
 
   const form = useForm({
@@ -192,34 +189,17 @@ export default function ResetPasswordPage({
                           <Field.Label fontSize="sm" fontWeight="medium">
                             Nouveau mot de passe
                           </Field.Label>
-                          <Group attached w="full">
-                            <Input
-                              type={showPassword ? "text" : "password"}
-                              name={field.name}
-                              value={field.state.value}
-                              onBlur={field.handleBlur}
-                              onChange={(e) =>
-                                field.handleChange(e.target.value)
-                              }
-                              placeholder="••••••••"
-                              size="lg"
-                            />
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="lg"
-                              onClick={() => setShowPassword((v) => !v)}
-                              borderLeftRadius="0"
-                              borderLeftWidth="0"
-                              px="3"
-                              fontSize="xs"
-                              fontWeight="medium"
-                              color="fg.muted"
-                              flexShrink={0}
-                            >
-                              {showPassword ? "Masquer" : "Afficher"}
-                            </Button>
-                          </Group>
+                          <PasswordInput
+                            name={field.name}
+                            value={field.state.value}
+                            onBlur={field.handleBlur}
+                            onChange={(e) =>
+                              field.handleChange(e.target.value)
+                            }
+                            placeholder="••••••••"
+                            size="lg"
+                            w="full"
+                          />
                           <Field.ErrorText fontSize="xs">
                             {field.state.meta.errors[0]}
                           </Field.ErrorText>
@@ -251,34 +231,17 @@ export default function ResetPasswordPage({
                           <Field.Label fontSize="sm" fontWeight="medium">
                             Confirmer le mot de passe
                           </Field.Label>
-                          <Group attached w="full">
-                            <Input
-                              type={showConfirm ? "text" : "password"}
-                              name={field.name}
-                              value={field.state.value}
-                              onBlur={field.handleBlur}
-                              onChange={(e) =>
-                                field.handleChange(e.target.value)
-                              }
-                              placeholder="••••••••"
-                              size="lg"
-                            />
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="lg"
-                              onClick={() => setShowConfirm((v) => !v)}
-                              borderLeftRadius="0"
-                              borderLeftWidth="0"
-                              px="3"
-                              fontSize="xs"
-                              fontWeight="medium"
-                              color="fg.muted"
-                              flexShrink={0}
-                            >
-                              {showConfirm ? "Masquer" : "Afficher"}
-                            </Button>
-                          </Group>
+                          <PasswordInput
+                            name={field.name}
+                            value={field.state.value}
+                            onBlur={field.handleBlur}
+                            onChange={(e) =>
+                              field.handleChange(e.target.value)
+                            }
+                            placeholder="••••••••"
+                            size="lg"
+                            w="full"
+                          />
                           <Field.ErrorText fontSize="xs">
                             {field.state.meta.errors[0]}
                           </Field.ErrorText>
