@@ -1,7 +1,6 @@
 "use client";
 
 import axios from "axios";
-import https from "https";
 import { useEffect, useState } from "react";
 import Display from "./index";
 
@@ -9,7 +8,7 @@ type Run = {
   id: number;
   startDate: string;
   endDate: string;
-  participations: string[];
+  participations: [string];
   finishedParticipantsCount: number;
   inProgressParticipantsCount: number;
   participantsCount: number;
@@ -30,6 +29,11 @@ type Participation = {
   status: string;
 };
 
+const displayClient = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_ENTRYPOINT ?? "",
+  withCredentials: true,
+});
+
 export default function DisplayPage() {
   const [runs, setRuns] = useState<Run[]>([]);
   const [participations, setParticipations] = useState<Participation[]>([]);
@@ -37,34 +41,21 @@ export default function DisplayPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const entrypoint = process.env.NEXT_PUBLIC_ENTRYPOINT ?? "";
     const email = process.env.NEXT_PUBLIC_DISPLAY_EMAIL ?? "";
     const password = process.env.NEXT_PUBLIC_DISPLAY_PASSWORD ?? "";
 
     async function load() {
       try {
-        const loginResp = await axios.post<{ token: string }>(
-          `${entrypoint}/login`,
-          {
-            email,
-            password,
-          },
-        );
-        const token = loginResp.data.token;
-        const headers = { Authorization: `Bearer ${token}` };
+        // Login sets the BEARER cookie automatically via Set-Cookie header
+        await displayClient.post("/login", { email, password });
 
         const [runsResp, partResp] = await Promise.all([
-          axios.get<{ member: Run[] }>(`${entrypoint}/runs`, {
-            headers,
+          displayClient.get<{ member: Run[] }>("/runs", {
             params: { "order[startDate]": "asc" },
           }),
-          axios.get<{ member: Participation[] }>(
-            `${entrypoint}/participations`,
-            {
-              headers,
-              params: { "order[arrivalTime]": "desc", itemsPerPage: 1000 },
-            },
-          ),
+          displayClient.get<{ member: Participation[] }>("/participations", {
+            params: { "order[arrivalTime]": "desc", itemsPerPage: 1000 },
+          }),
         ]);
 
         setRuns(runsResp.data.member);
