@@ -37,7 +37,7 @@ interface DisplayProps {
 
 export async function getServerSideProps() {
   const { DISPLAY_EMAIL, DISPLAY_PASSWORD, NEXT_PUBLIC_ENTRYPOINT, API_ENTRYPOINT } =
-    process.env;
+    process.env as Record<string, string | undefined>;
 
   const entrypoint = API_ENTRYPOINT || NEXT_PUBLIC_ENTRYPOINT;
 
