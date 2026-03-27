@@ -1,12 +1,15 @@
 import { useQuery } from "@tanstack/react-query"
 import axios from "axios"
+import { weatherResponseSchema, type WeatherResponse } from "./schemas"
+
+export type { WeatherResponse }
 
 export const weatherKeys = {
   all: ["weather"] as const,
   forecast: (lat: number, lon: number) => [...weatherKeys.all, lat, lon] as const,
 }
 
-async function fetchWeather(lat: number, lon: number) {
+async function fetchWeather(lat: number, lon: number): Promise<WeatherResponse> {
   const { data } = await axios.get("https://api.open-meteo.com/v1/forecast", {
     params: {
       latitude: lat,
@@ -16,7 +19,7 @@ async function fetchWeather(lat: number, lon: number) {
       timezone: "Europe/Paris",
     },
   })
-  return data
+  return weatherResponseSchema.parse(data)
 }
 
 export function useWeatherQuery(lat: number, lon: number) {

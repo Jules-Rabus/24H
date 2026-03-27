@@ -1,19 +1,19 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { apiClient } from "@/api/client"
+import { apiRaceMediasPost } from "@/api/generated/sdk.gen"
 import { raceKeys } from "../race/queries"
-
-async function uploadRaceMedia(data: FormData) {
-  const { data: response } = await apiClient.post("/race_medias", data, {
-    headers: { "Content-Type": "multipart/form-data" },
-  })
-  return response
-}
+import { raceMediaSchema } from "./schemas"
 
 export function useUploadRaceMediaMutation() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: uploadRaceMedia,
+    mutationFn: async (formData: FormData) => {
+      const file = formData.get("file") as File
+      const { data } = await apiRaceMediasPost({
+        body: { file },
+      })
+      return raceMediaSchema.parse(data)
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: raceKeys.all })
     },
