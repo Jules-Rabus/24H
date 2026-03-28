@@ -6,6 +6,7 @@ use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -14,6 +15,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model;
 use App\Dto\RaceMedia\RaceMediaCollection;
 use App\Entity\RaceMedia;
+use App\ObjectMapper\RaceMediaContentUrlTransformer;
 use App\State\RaceMediaProcessor;
 use Symfony\Component\ObjectMapper\Attribute\Map;
 
@@ -42,6 +44,10 @@ use Symfony\Component\ObjectMapper\Attribute\Map;
                                         'type' => 'string',
                                         'format' => 'binary',
                                     ],
+                                    'comment' => [
+                                        'type' => 'string',
+                                        'nullable' => true,
+                                    ],
                                 ],
                                 'required' => ['file'],
                             ],
@@ -50,6 +56,7 @@ use Symfony\Component\ObjectMapper\Attribute\Map;
                 )
             ),
             processor: RaceMediaProcessor::class,
+            output: RaceMediaApi::class,
             deserialize: false,
             read: false,
         ),
@@ -66,8 +73,11 @@ final class RaceMediaApi
 {
     public ?int $id = null;
 
-    #[Map(source: 'filePath')]
-    public ?string $filePath = null;
+    #[ApiProperty(readable: true)]
+    #[Map(source: 'filePath', transform: RaceMediaContentUrlTransformer::class)]
+    public ?string $contentUrl = null;
+
+    public ?string $comment = null;
 
     public ?\DateTimeInterface $createdAt = null;
 }
