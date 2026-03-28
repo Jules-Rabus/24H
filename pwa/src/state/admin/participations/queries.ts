@@ -13,11 +13,6 @@ const participationSchema = z.object({
 
 export type AdminParticipation = z.infer<typeof participationSchema>
 
-const participationsCollectionSchema = z.object({
-  member: z.array(participationSchema),
-  totalItems: z.number().optional(),
-})
-
 export const adminParticipationKeys = {
   all: ["admin", "participations"] as const,
   list: (filters?: Record<string, string>) =>
@@ -49,8 +44,8 @@ export function useAdminParticipationsQuery(filters: ParticipationFilters = {}) 
       const { data } = await apiParticipationsGetCollection({
         query: { page, itemsPerPage, "order[run.id]": "asc", ...rest },
       })
-      const parsed = participationsCollectionSchema.parse(data)
-      return { member: parsed.member, totalItems: parsed.totalItems ?? 0 }
+      const member = z.array(participationSchema).parse(data)
+      return { member, totalItems: member.length }
     },
   })
 }

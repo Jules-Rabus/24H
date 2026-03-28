@@ -4,8 +4,8 @@ import { apiUserspublicGetCollection, apiRaceMediasPost } from "../generated/sdk
 describe("SDK generated client", () => {
   it("fetchRunners retourne une liste de coureurs", async () => {
     const { data } = await apiUserspublicGetCollection()
-    expect(data?.member).toHaveLength(2)
-    expect(data?.member?.[0].firstName).toBe("Jean")
+    expect(data).toHaveLength(2)
+    expect((data as Array<{ firstName?: string }>)?.[0].firstName).toBe("Jean")
   })
 
   it("uploadRaceMedia retourne le media créé", async () => {

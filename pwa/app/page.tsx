@@ -28,6 +28,9 @@ const services = [
   { image: adminPicture, title: "Admin (legacy)", url: "/legacy/admin" },
   { image: rocketPicture, title: "Race Display", url: "/legacy/display" },
   { image: rocketPicture, title: "Race Hub Start", url: "/public-race-status" },
+  { image: rocketPicture, title: "Scanner arrivées", url: "/scanner" },
+  { image: rocketPicture, title: "Upload photo", url: "/upload" },
+  { image: rocketPicture, title: "Galerie photos", url: "/gallery" },
   {
     image: mercurePicture,
     title: "Mercure debugger",

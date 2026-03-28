@@ -15,11 +15,6 @@ const runSchema = z.object({
 
 export type AdminRun = z.infer<typeof runSchema>
 
-const runsCollectionSchema = z.object({
-  member: z.array(runSchema),
-  totalItems: z.number().optional(),
-})
-
 export const adminRunKeys = {
   all: ["admin", "runs"] as const,
   list: () => [...adminRunKeys.all, "list"] as const,
@@ -33,7 +28,7 @@ export function useAdminRunsQuery() {
       const { data } = await apiRunsGetCollection({
         query: { "order[startDate]": "asc", itemsPerPage: 100 },
       })
-      return runsCollectionSchema.parse(data).member
+      return z.array(runSchema).parse(data)
     },
   })
 }

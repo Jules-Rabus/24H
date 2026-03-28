@@ -8,12 +8,8 @@ export default defineConfig({
   },
   plugins: [
     "@hey-api/typescript",
-    "zod",
     {
       name: "@hey-api/sdk",
-      validator: {
-        response: "zod",
-      },
     },
     {
       name: "@hey-api/client-axios",
