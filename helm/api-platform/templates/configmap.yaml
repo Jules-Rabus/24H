@@ -11,7 +11,7 @@ data:
   php-trusted-hosts: {{ .Values.php.trustedHosts | quote }}
   php-trusted-proxies: "{{ join "," .Values.php.trustedProxies }}"
   mercure-url: "http://{{ include "api-platform.fullname" . }}/.well-known/mercure"
-  mercure-public-url: {{ .Values.mercure.publicUrl | default "" | quote }}
+  mercure-public-url: {{ .Values.mercure.publicUrl | default "http://127.0.0.1/.well-known/mercure" | quote }}
   mercure-extra-directives: {{ .Values.mercure.extraDirectives | quote }}
   caddy-global-options: {{ .Values.php.caddyGlobalOptions | quote }}
   s3-endpoint: {{ .Values.s3.endpoint | quote }}
@@ -20,5 +20,3 @@ data:
   s3-public-url: {{ .Values.s3.publicUrl | quote }}
   mailer-sender: {{ .Values.mailer.sender | quote }}
   frontend-base-url: {{ .Values.mailer.frontendBaseUrl | quote }}
-  pwa-public-api-base-url: {{ .Values.pwa.publicApiBaseUrl | quote }}
-  pwa-public-mercure-hub-url: {{ .Values.pwa.publicMercureHubUrl | default .Values.mercure.publicUrl | quote }}
