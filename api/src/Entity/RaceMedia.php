@@ -4,9 +4,18 @@ namespace App\Entity;
 
 use App\Entity\Traits\Timestampable;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
 use Symfony\Component\HttpFoundation\File\File;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
+#[ApiResource(
+    operations: [
+        new GetCollection(),
+        new Post(inputFormats: ['multipart' => ['multipart/form-data']])
+    ]
+)]
 #[Vich\Uploadable]
 #[ORM\Entity]
 class RaceMedia
