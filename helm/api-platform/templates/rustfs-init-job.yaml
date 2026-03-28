@@ -1,0 +1,43 @@
+{{- if .Values.rustfs.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "api-platform.fullname" . }}-rustfs-init
+  labels:
+    {{- include "api-platform.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  template:
+    metadata:
+      labels:
+        {{- include "api-platform.selectorLabels" . | nindent 8 }}
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: mc
+          image: "{{ .Values.rustfs.initImage.repository }}:{{ .Values.rustfs.initImage.tag }}"
+          imagePullPolicy: {{ .Values.rustfs.initImage.pullPolicy }}
+          command:
+            - /bin/sh
+            - -ec
+            - |
+              until wget -q --spider http://{{ .Values.rustfs.service.name }}:{{ .Values.rustfs.service.port }}/minio/health/live; do
+                sleep 2
+              done
+              mc alias set local http://{{ .Values.rustfs.service.name }}:{{ .Values.rustfs.service.port }} "$RUSTFS_ROOT_USER" "$RUSTFS_ROOT_PASSWORD"
+              mc mb --ignore-existing local/{{ .Values.s3.bucket }}
+              mc anonymous set download local/{{ .Values.s3.bucket }}
+          env:
+            - name: RUSTFS_ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "api-platform.fullname" . }}
+                  key: s3-access-key
+            - name: RUSTFS_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "api-platform.fullname" . }}
+                  key: s3-secret-key
+{{- end }}
