@@ -26,6 +26,7 @@ use Symfony\Component\ObjectMapper\Attribute\Map;
     shortName: 'User',
     stateOptions: new Options(entityClass: User::class),
     operations: [
+        new Get(security: 'is_granted("ROLE_ADMIN") or is_granted("USER_VIEW", object)'),
         new Get(
             uriTemplate: '/users/me',
             provider: CurrentUserProvider::class,
@@ -38,7 +39,6 @@ use Symfony\Component\ObjectMapper\Attribute\Map;
             output: UserCollection::class,
             cacheHeaders: ['max_age' => 60, 'shared_max_age' => 60, 'public' => true],
         ),
-        new Get(security: 'is_granted("ROLE_ADMIN") or is_granted("USER_VIEW", object)'),
         new Get(
             uriTemplate: 'users/public/{id}',
             output: UserCollection::class,

@@ -70,7 +70,7 @@ final readonly class MediasProcessor implements ProcessorInterface
             ? $this->iriConverter->getIriFromResource($entity->getRunner())
             : null;
         // Build full public URL via VichUploader storage
-        $resource->filePath = $this->storage->resolveUri($entity, 'file');
+        $resource->contentUrl = $this->storage->resolveUri($entity, 'file');
 
         return $resource;
     }
