@@ -14,11 +14,11 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Controller\SecurityController;
-use App\State\User\CurrentUserProvider;
 use App\Dto\User\CreateUser;
 use App\Dto\User\UpdateUser;
 use App\Dto\User\UserCollection;
 use App\Entity\User;
+use App\State\User\CurrentUserProvider;
 use App\State\UserProcessor;
 use Symfony\Component\ObjectMapper\Attribute\Map;
 
