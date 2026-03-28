@@ -1,7 +1,9 @@
 import { apiClient } from "./client";
 
 export const fetchWeather = async (lat: number, lon: number) => {
-  const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&hourly=temperature_2m,weather_code&timezone=Europe%2FParis`);
+  const res = await fetch(
+    `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&hourly=temperature_2m,weather_code&timezone=Europe%2FParis`,
+  );
   if (!res.ok) throw new Error("Weather fetch failed");
   return res.json();
 };
@@ -41,11 +43,11 @@ export const uploadRaceMedia = async (data: FormData) => {
 };
 
 export const login = async (credentials: any) => {
-  const { data } = await apiClient.post('/auth', credentials);
+  const { data } = await apiClient.post("/auth", credentials);
   return data;
 };
 
 export const resetPassword = async (payload: { email: string }) => {
-  const { data } = await apiClient.post('/forgot-password', payload);
+  const { data } = await apiClient.post("/forgot-password", payload);
   return data;
 };

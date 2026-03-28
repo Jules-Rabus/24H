@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   Box,
@@ -8,16 +8,16 @@ import {
   Input,
   Stack,
   Text,
-} from "@chakra-ui/react"
-import { useForm } from "@tanstack/react-form"
-import { z } from "zod"
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { login } from "@/api"
+} from "@chakra-ui/react";
+import { useForm } from "@tanstack/react-form";
+import { z } from "zod";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { login } from "@/api";
 
 export default function LoginPage() {
-  const [error, setError] = useState("")
-  const router = useRouter()
+  const [error, setError] = useState("");
+  const router = useRouter();
 
   const form = useForm({
     defaultValues: {
@@ -26,14 +26,14 @@ export default function LoginPage() {
     },
     onSubmit: async ({ value }) => {
       try {
-        const data = await login(value)
-        localStorage.setItem("token", data.token)
-        router.push("/dashboard")
+        const data = await login(value);
+        localStorage.setItem("token", data.token);
+        router.push("/dashboard");
       } catch (err) {
-        setError("Login failed. Please check your credentials.")
+        setError("Login failed. Please check your credentials.");
       }
     },
-  })
+  });
 
   return (
     <Container maxW="md" py={{ base: "12", md: "24" }}>
@@ -42,16 +42,14 @@ export default function LoginPage() {
           <Heading size="xl" mb="2">
             Log in to your account
           </Heading>
-          <Text color="gray.600">
-            Welcome back! Please enter your details.
-          </Text>
+          <Text color="gray.600">Welcome back! Please enter your details.</Text>
         </Stack>
         <Box
           as="form"
           onSubmit={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            form.handleSubmit()
+            e.preventDefault();
+            e.stopPropagation();
+            form.handleSubmit();
           }}
         >
           <Stack mt="6">
@@ -59,9 +57,14 @@ export default function LoginPage() {
               name="email"
               validators={{
                 onChange: ({ value }) => {
-                   const parsed = z.string().email("Invalid email address").safeParse(value);
-                   return parsed.success ? undefined : parsed.error.issues[0].message;
-                }
+                  const parsed = z
+                    .string()
+                    .email("Invalid email address")
+                    .safeParse(value);
+                  return parsed.success
+                    ? undefined
+                    : parsed.error.issues[0].message;
+                },
               }}
             >
               {(field) => (
@@ -89,9 +92,14 @@ export default function LoginPage() {
               name="password"
               validators={{
                 onChange: ({ value }) => {
-                   const parsed = z.string().min(1, "Password is required").safeParse(value);
-                   return parsed.success ? undefined : parsed.error.issues[0].message;
-                }
+                  const parsed = z
+                    .string()
+                    .min(1, "Password is required")
+                    .safeParse(value);
+                  return parsed.success
+                    ? undefined
+                    : parsed.error.issues[0].message;
+                },
               }}
             >
               {(field) => (
@@ -132,11 +140,17 @@ export default function LoginPage() {
             </Text>
           )}
 
-          <Button mt="8" type="submit" w="full" colorScheme="primary" disabled={!form.state.canSubmit}>
+          <Button
+            mt="8"
+            type="submit"
+            w="full"
+            colorScheme="primary"
+            disabled={!form.state.canSubmit}
+          >
             Sign in
           </Button>
         </Box>
       </Stack>
     </Container>
-  )
+  );
 }

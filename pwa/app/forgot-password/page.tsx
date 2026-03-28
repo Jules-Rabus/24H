@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   Box,
@@ -8,16 +8,16 @@ import {
   Input,
   Stack,
   Text,
-} from "@chakra-ui/react"
-import { useForm } from "@tanstack/react-form"
-import { z } from "zod"
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { resetPassword } from "@/api"
+} from "@chakra-ui/react";
+import { useForm } from "@tanstack/react-form";
+import { z } from "zod";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { resetPassword } from "@/api";
 
 export default function ForgotPasswordPage() {
-  const [success, setSuccess] = useState(false)
-  const router = useRouter()
+  const [success, setSuccess] = useState(false);
+  const router = useRouter();
 
   const form = useForm({
     defaultValues: {
@@ -25,13 +25,13 @@ export default function ForgotPasswordPage() {
     },
     onSubmit: async ({ value }) => {
       try {
-        await resetPassword(value)
-        setSuccess(true)
+        await resetPassword(value);
+        setSuccess(true);
       } catch (err) {
         // Handle error implicitly as requested often for security
       }
     },
-  })
+  });
 
   return (
     <Container maxW="md" py={{ base: "12", md: "24" }}>
@@ -59,9 +59,9 @@ export default function ForgotPasswordPage() {
             as="form"
             mt="6"
             onSubmit={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              form.handleSubmit()
+              e.preventDefault();
+              e.stopPropagation();
+              form.handleSubmit();
             }}
           >
             <Stack>
@@ -69,9 +69,14 @@ export default function ForgotPasswordPage() {
                 name="email"
                 validators={{
                   onChange: ({ value }) => {
-                     const parsed = z.string().email("Invalid email address").safeParse(value);
-                     return parsed.success ? undefined : parsed.error.issues[0].message;
-                  }
+                    const parsed = z
+                      .string()
+                      .email("Invalid email address")
+                      .safeParse(value);
+                    return parsed.success
+                      ? undefined
+                      : parsed.error.issues[0].message;
+                  },
                 }}
               >
                 {(field) => (
@@ -95,7 +100,13 @@ export default function ForgotPasswordPage() {
                 )}
               </form.Field>
 
-              <Button mt="8" type="submit" w="full" colorScheme="primary" disabled={!form.state.canSubmit}>
+              <Button
+                mt="8"
+                type="submit"
+                w="full"
+                colorScheme="primary"
+                disabled={!form.state.canSubmit}
+              >
                 Reset password
               </Button>
 
@@ -112,5 +123,5 @@ export default function ForgotPasswordPage() {
         )}
       </Stack>
     </Container>
-  )
+  );
 }
