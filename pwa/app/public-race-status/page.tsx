@@ -87,7 +87,7 @@ export default function PublicRaceStatusPage() {
 
   // Manual autoplay (mediaList.length computed below — use medias count here)
   const autoplayTimer = useRef<ReturnType<typeof setInterval> | null>(null);
-  const mediaCount = medias?.filter((m) => m.filePath).length ?? 0;
+  const mediaCount = medias?.filter((m) => m.contentUrl).length ?? 0;
   useEffect(() => {
     if (!emblaApi || mediaCount <= 3) return;
     autoplayTimer.current = setInterval(() => emblaApi.scrollNext(), 4000);
@@ -190,7 +190,7 @@ export default function PublicRaceStatusPage() {
     .filter((h) => new Date(h.time).getTime() > now)
     .slice(0, 5) ?? [];
 
-  const mediaList = medias?.filter((m) => m.filePath) ?? [];
+  const mediaList = medias?.filter((m) => m.contentUrl) ?? [];
 
   return (
     <Box
@@ -407,7 +407,7 @@ export default function PublicRaceStatusPage() {
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={m.filePath ?? ""}
+                        src={m.contentUrl ?? ""}
                         alt="Race media"
                         style={{ width: "100%", flex: 1, objectFit: "contain", minHeight: 0 }}
                       />
