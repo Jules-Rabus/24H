@@ -25,7 +25,7 @@ final class ParticipationCreateTest extends AbstractTestCase
         ]);
 
         $this->assertResponseStatusCodeSame(201);
-        
+
         // On vérifie que les objets RunRef et UserRef sont bien retournés
         $this->assertJsonContains([
             'run' => ['id' => $run->getId()],

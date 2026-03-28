@@ -51,7 +51,7 @@ abstract class AbstractTestCase extends ApiTestCase
             'headers' => [
                 'Authorization' => 'Bearer '.$token,
                 'Accept' => 'application/json',
-            ]
+            ],
         ]);
     }
 

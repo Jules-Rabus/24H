@@ -39,12 +39,14 @@ final readonly class RelationTransformer implements TransformCallableInterface
             if ($value->id) {
                 return $this->entityManager->find(Run::class, $value->id);
             }
+
             return $this->objectMapper->map($value, Run::class);
         }
         if ($value instanceof UserApi || $value instanceof UserRef) {
             if ($value->id) {
                 return $this->entityManager->find(User::class, $value->id);
             }
+
             return $this->objectMapper->map($value, User::class);
         }
 
