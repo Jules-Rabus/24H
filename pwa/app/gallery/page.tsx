@@ -21,7 +21,7 @@ import { LuArrowLeft, LuImages, LuCamera } from "react-icons/lu";
 export default function GalleryPage() {
   const router = useRouter();
   const { data: medias, isLoading } = useAdminRaceMediasQuery();
-  const mediaList = medias?.filter((m) => m.filePath) ?? [];
+  const mediaList = medias?.filter((m) => m.contentUrl) ?? [];
 
   return (
     <Box bg="bg.canvas" minH="100vh" colorPalette="primary">
