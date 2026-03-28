@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
+import { useState } from "react";
+import Link from "next/link";
 import {
   Badge,
   Box,
@@ -16,28 +16,34 @@ import {
   Portal,
   Text,
   VStack,
-} from "@chakra-ui/react"
+} from "@chakra-ui/react";
 import {
   useAdminUsersQuery,
   type AdminUser,
   type UserFilters,
-} from "@/state/admin/users/queries"
-import { type SortState } from "@/components/admin/ui/DataTable"
+} from "@/state/admin/users/queries";
+import { type SortState } from "@/components/admin/ui/DataTable";
 import {
   useCreateUserMutation,
   useUpdateUserMutation,
   useDeleteUserMutation,
-} from "@/state/admin/users/mutations"
-import { DataTable, type Column } from "@/components/admin/ui/DataTable"
-import { ConfirmDialog } from "@/components/admin/ui/ConfirmDialog"
+} from "@/state/admin/users/mutations";
+import { DataTable, type Column } from "@/components/admin/ui/DataTable";
+import { ConfirmDialog } from "@/components/admin/ui/ConfirmDialog";
 
 // ---------------------------------------------------------------------------
 // UserForm — used for both create and edit
 // ---------------------------------------------------------------------------
 
-function UserForm({ user, onClose }: { user?: AdminUser; onClose: () => void }) {
-  const createMutation = useCreateUserMutation()
-  const updateMutation = useUpdateUserMutation()
+function UserForm({
+  user,
+  onClose,
+}: {
+  user?: AdminUser;
+  onClose: () => void;
+}) {
+  const createMutation = useCreateUserMutation();
+  const updateMutation = useUpdateUserMutation();
 
   const [form, setForm] = useState({
     firstName: user?.firstName ?? "",
@@ -47,19 +53,19 @@ function UserForm({ user, onClose }: { user?: AdminUser; onClose: () => void }) 
     plainPassword: "",
     organization: user?.organization ?? "",
     isAdmin: user?.roles?.includes("ROLE_ADMIN") ?? false,
-  })
+  });
 
-  const isLoading = createMutation.isPending || updateMutation.isPending
+  const isLoading = createMutation.isPending || updateMutation.isPending;
 
   const handleChange = (field: keyof typeof form, value: string | boolean) => {
-    setForm((prev) => ({ ...prev, [field]: value }))
-  }
+    setForm((prev) => ({ ...prev, [field]: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     const roles: string[] = form.isAdmin
       ? ["ROLE_USER", "ROLE_ADMIN"]
-      : ["ROLE_USER"]
+      : ["ROLE_USER"];
 
     const body = {
       firstName: form.firstName,
@@ -69,18 +75,18 @@ function UserForm({ user, onClose }: { user?: AdminUser; onClose: () => void }) 
       organization: form.organization || null,
       roles,
       ...(form.plainPassword ? { plainPassword: form.plainPassword } : {}),
-    }
+    };
 
     if (user?.id) {
-      await updateMutation.mutateAsync({ id: user.id, body })
+      await updateMutation.mutateAsync({ id: user.id, body });
     } else {
       await createMutation.mutateAsync({
         ...body,
         plainPassword: form.plainPassword || null,
-      })
+      });
     }
-    onClose()
-  }
+    onClose();
+  };
 
   return (
     <Box as="form" onSubmit={handleSubmit}>
@@ -164,7 +170,12 @@ function UserForm({ user, onClose }: { user?: AdminUser; onClose: () => void }) 
       </Dialog.Body>
 
       <Dialog.Footer gap="3">
-        <Button variant="outline" onClick={onClose} type="button" disabled={isLoading}>
+        <Button
+          variant="outline"
+          onClick={onClose}
+          type="button"
+          disabled={isLoading}
+        >
           Annuler
         </Button>
         <Button type="submit" colorPalette="primary" loading={isLoading}>
@@ -172,50 +183,66 @@ function UserForm({ user, onClose }: { user?: AdminUser; onClose: () => void }) 
         </Button>
       </Dialog.Footer>
     </Box>
-  )
+  );
 }
 
 // ---------------------------------------------------------------------------
 // AdminUsersPage
 // ---------------------------------------------------------------------------
 
-const ITEMS_PER_PAGE = 30
+const ITEMS_PER_PAGE = 30;
 
 export default function AdminUsersPage() {
-  const [filters, setFilters] = useState<UserFilters>({ page: 1, itemsPerPage: ITEMS_PER_PAGE })
-  const [search, setSearch] = useState({ firstName: "", lastName: "", email: "" })
-  const [sort, setSort] = useState<SortState>({ field: "lastName", dir: "asc" })
+  const [filters, setFilters] = useState<UserFilters>({
+    page: 1,
+    itemsPerPage: ITEMS_PER_PAGE,
+  });
+  const [search, setSearch] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+  });
+  const [sort, setSort] = useState<SortState>({
+    field: "lastName",
+    dir: "asc",
+  });
 
-  const { data, isLoading } = useAdminUsersQuery({ ...filters, orderField: sort.field, orderDir: sort.dir })
+  const { data, isLoading } = useAdminUsersQuery({
+    ...filters,
+    orderField: sort.field,
+    orderDir: sort.dir,
+  });
 
-  const [formOpen, setFormOpen] = useState(false)
-  const [editUser, setEditUser] = useState<AdminUser | undefined>(undefined)
-  const [deleteUser, setDeleteUser] = useState<AdminUser | undefined>(undefined)
+  const [formOpen, setFormOpen] = useState(false);
+  const [editUser, setEditUser] = useState<AdminUser | undefined>(undefined);
+  const [deleteUser, setDeleteUser] = useState<AdminUser | undefined>(
+    undefined,
+  );
 
-  const deleteMutation = useDeleteUserMutation()
+  const deleteMutation = useDeleteUserMutation();
 
   const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     setFilters({
       page: 1,
       itemsPerPage: ITEMS_PER_PAGE,
       firstName: search.firstName || undefined,
       lastName: search.lastName || undefined,
       email: search.email || undefined,
-    })
-  }
+    });
+  };
 
   const handleCloseForm = () => {
-    setFormOpen(false)
-    setEditUser(undefined)
-  }
+    setFormOpen(false);
+    setEditUser(undefined);
+  };
 
   const handleConfirmDelete = async () => {
     if (deleteUser?.id) {
-      await deleteMutation.mutateAsync(deleteUser.id)
+      await deleteMutation.mutateAsync(deleteUser.id);
     }
-    setDeleteUser(undefined)
-  }
+    setDeleteUser(undefined);
+  };
 
   const columns: Column<AdminUser>[] = [
     {
@@ -289,8 +316,8 @@ export default function AdminUsersPage() {
             variant="ghost"
             aria-label="Modifier"
             onClick={() => {
-              setEditUser(u)
-              setFormOpen(true)
+              setEditUser(u);
+              setFormOpen(true);
             }}
           >
             ✏️
@@ -307,7 +334,7 @@ export default function AdminUsersPage() {
         </HStack>
       ),
     },
-  ]
+  ];
 
   return (
     <VStack align="stretch" gap="6">
@@ -317,8 +344,8 @@ export default function AdminUsersPage() {
         <Button
           colorPalette="primary"
           onClick={() => {
-            setEditUser(undefined)
-            setFormOpen(true)
+            setEditUser(undefined);
+            setFormOpen(true);
           }}
         >
           + Créer un utilisateur
@@ -342,7 +369,9 @@ export default function AdminUsersPage() {
               size="sm"
               placeholder="Prénom…"
               value={search.firstName}
-              onChange={(e) => setSearch((s) => ({ ...s, firstName: e.target.value }))}
+              onChange={(e) =>
+                setSearch((s) => ({ ...s, firstName: e.target.value }))
+              }
             />
           </Field.Root>
 
@@ -352,7 +381,9 @@ export default function AdminUsersPage() {
               size="sm"
               placeholder="Nom…"
               value={search.lastName}
-              onChange={(e) => setSearch((s) => ({ ...s, lastName: e.target.value }))}
+              onChange={(e) =>
+                setSearch((s) => ({ ...s, lastName: e.target.value }))
+              }
             />
           </Field.Root>
 
@@ -362,7 +393,9 @@ export default function AdminUsersPage() {
               size="sm"
               placeholder="email@exemple.fr…"
               value={search.email}
-              onChange={(e) => setSearch((s) => ({ ...s, email: e.target.value }))}
+              onChange={(e) =>
+                setSearch((s) => ({ ...s, email: e.target.value }))
+              }
             />
           </Field.Root>
 
@@ -378,8 +411,8 @@ export default function AdminUsersPage() {
               size="sm"
               variant="outline"
               onClick={() => {
-                setSearch({ firstName: "", lastName: "", email: "" })
-                setFilters({ page: 1, itemsPerPage: ITEMS_PER_PAGE })
+                setSearch({ firstName: "", lastName: "", email: "" });
+                setFilters({ page: 1, itemsPerPage: ITEMS_PER_PAGE });
               }}
             >
               Réinitialiser
@@ -400,11 +433,17 @@ export default function AdminUsersPage() {
         onPageChange={(page) => setFilters((f) => ({ ...f, page }))}
         emptyMessage="Aucun utilisateur trouvé"
         sort={sort}
-        onSortChange={(s) => { setSort(s); setFilters((f) => ({ ...f, page: 1 })) }}
+        onSortChange={(s) => {
+          setSort(s);
+          setFilters((f) => ({ ...f, page: 1 }));
+        }}
       />
 
       {/* Create / Edit dialog */}
-      <Dialog.Root open={formOpen} onOpenChange={({ open }) => !open && handleCloseForm()}>
+      <Dialog.Root
+        open={formOpen}
+        onOpenChange={({ open }) => !open && handleCloseForm()}
+      >
         <Portal>
           <Dialog.Backdrop />
           <Dialog.Positioner>
@@ -447,5 +486,5 @@ export default function AdminUsersPage() {
         loading={deleteMutation.isPending}
       />
     </VStack>
-  )
+  );
 }

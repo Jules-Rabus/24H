@@ -1,4 +1,4 @@
-import { Runner } from "./schemas"
+import { Runner } from "./schemas";
 
 export const mockRunners: Runner[] = [
   {
@@ -15,4 +15,4 @@ export const mockRunners: Runner[] = [
     surname: null,
     organization: null,
   },
-]
+];

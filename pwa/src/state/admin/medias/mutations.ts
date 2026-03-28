@@ -1,24 +1,29 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { apiRaceMediasPost, apiRaceMediasIdDelete } from "@/api/generated/sdk.gen"
-import { adminMediaKeys } from "./queries"
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  apiRaceMediasPost,
+  apiRaceMediasIdDelete,
+} from "@/api/generated/sdk.gen";
+import { adminMediaKeys } from "./queries";
 
 export function useUploadRaceMediaMutation() {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (file: File) => {
-      const { data } = await apiRaceMediasPost({ body: { file } })
-      return data
+      const { data } = await apiRaceMediasPost({ body: { file } });
+      return data;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: adminMediaKeys.all }),
-  })
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: adminMediaKeys.all }),
+  });
 }
 
 export function useDeleteRaceMediaMutation() {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: number) => {
-      await apiRaceMediasIdDelete({ path: { id: String(id) } })
+      await apiRaceMediasIdDelete({ path: { id: String(id) } });
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: adminMediaKeys.all }),
-  })
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: adminMediaKeys.all }),
+  });
 }

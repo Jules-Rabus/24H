@@ -1,20 +1,28 @@
-"use client"
+"use client";
 
-import { Box, Button, Flex, HStack, Spinner, Text, VStack } from "@chakra-ui/react"
-import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
-import { useEffect } from "react"
-import { useMe } from "@/state/auth/queries"
+import {
+  Box,
+  Button,
+  Flex,
+  HStack,
+  Spinner,
+  Text,
+  VStack,
+} from "@chakra-ui/react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useMe } from "@/state/auth/queries";
 
 const NAV_ITEMS = [
   { href: "/admin/runs", label: "Runs", icon: "🏃" },
   { href: "/admin/participations", label: "Participations", icon: "📋" },
   { href: "/admin/users", label: "Utilisateurs", icon: "👥" },
   { href: "/admin/medias", label: "Médias", icon: "📷" },
-]
+];
 
 function Sidebar() {
-  const pathname = usePathname()
+  const pathname = usePathname();
   return (
     <Box
       as="nav"
@@ -38,9 +46,13 @@ function Sidebar() {
         </Box>
 
         {NAV_ITEMS.map((item) => {
-          const isActive = pathname.startsWith(item.href)
+          const isActive = pathname.startsWith(item.href);
           return (
-            <Link key={item.href} href={item.href} style={{ textDecoration: "none" }}>
+            <Link
+              key={item.href}
+              href={item.href}
+              style={{ textDecoration: "none" }}
+            >
               <HStack
                 px="3"
                 py="2"
@@ -58,7 +70,7 @@ function Sidebar() {
                 <Text>{item.label}</Text>
               </HStack>
             </Link>
-          )
+          );
         })}
 
         <Box mt="auto" pt="6" px="3">
@@ -70,34 +82,41 @@ function Sidebar() {
         </Box>
       </VStack>
     </Box>
-  )
+  );
 }
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { data: me, isLoading, isError } = useMe()
-  const router = useRouter()
+  const { data: me, isLoading, isError } = useMe();
+  const router = useRouter();
 
   useEffect(() => {
     if (!isLoading && (isError || !me)) {
-      router.replace("/login")
+      router.replace("/login");
     }
-  }, [me, isLoading, isError, router])
+  }, [me, isLoading, isError, router]);
 
   if (isLoading) {
     return (
       <Flex minH="100vh" align="center" justify="center" bg="bg.subtle">
         <Spinner size="xl" color="primary.500" />
       </Flex>
-    )
+    );
   }
 
-  if (!me) return null
+  if (!me) return null;
 
   return (
     <Flex minH="100vh" bg="bg.subtle">
       <Sidebar />
       <Box flex="1" overflow="auto">
-        <Box as="header" bg="white" borderBottom="1px solid" borderColor="border.subtle" px="6" py="3">
+        <Box
+          as="header"
+          bg="white"
+          borderBottom="1px solid"
+          borderColor="border.subtle"
+          px="6"
+          py="3"
+        >
           <HStack justify="space-between">
             <Text fontSize="sm" color="fg.muted">
               Connecté en tant que{" "}
@@ -122,5 +141,5 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         </Box>
       </Box>
     </Flex>
-  )
+  );
 }

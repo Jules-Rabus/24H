@@ -1,4 +1,4 @@
-import { http, HttpResponse } from "msw"
+import { http, HttpResponse } from "msw";
 
 export const mediaHandlers = [
   http.post("*/race_medias", () => {
@@ -10,6 +10,6 @@ export const mediaHandlers = [
         filePath: "test.png",
       },
       { status: 201 },
-    )
+    );
   }),
-]
+];

@@ -1,76 +1,81 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   apiUsersPost,
   apiUsersIdPatch,
   apiUsersIdDelete,
   apiUsersUserIdimagePost,
-} from "@/api/generated/sdk.gen"
-import { adminUserKeys } from "./queries"
+} from "@/api/generated/sdk.gen";
+import { adminUserKeys } from "./queries";
 
 export interface CreateUserPayload {
-  firstName: string
-  lastName: string
-  surname?: string | null
-  email?: string | null
-  plainPassword?: string | null
-  organization?: string | null
-  roles?: Array<string | null>
+  firstName: string;
+  lastName: string;
+  surname?: string | null;
+  email?: string | null;
+  plainPassword?: string | null;
+  organization?: string | null;
+  roles?: Array<string | null>;
 }
 
 export function useCreateUserMutation() {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (body: CreateUserPayload) => {
-      const { data } = await apiUsersPost({ body })
-      return data
+      const { data } = await apiUsersPost({ body });
+      return data;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: adminUserKeys.all }),
-  })
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: adminUserKeys.all }),
+  });
 }
 
 export function useUpdateUserMutation() {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
       id,
       body,
     }: {
-      id: number
-      body: Partial<CreateUserPayload>
+      id: number;
+      body: Partial<CreateUserPayload>;
     }) => {
-      const { data } = await apiUsersIdPatch({ path: { id: String(id) }, body })
-      return data
+      const { data } = await apiUsersIdPatch({
+        path: { id: String(id) },
+        body,
+      });
+      return data;
     },
     onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: adminUserKeys.all })
-      queryClient.invalidateQueries({ queryKey: adminUserKeys.detail(id) })
+      queryClient.invalidateQueries({ queryKey: adminUserKeys.all });
+      queryClient.invalidateQueries({ queryKey: adminUserKeys.detail(id) });
     },
-  })
+  });
 }
 
 export function useDeleteUserMutation() {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: number) => {
-      await apiUsersIdDelete({ path: { id: String(id) } })
+      await apiUsersIdDelete({ path: { id: String(id) } });
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: adminUserKeys.all }),
-  })
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: adminUserKeys.all }),
+  });
 }
 
 export function useUploadUserImageMutation() {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ userId, file }: { userId: number; file: File }) => {
       const { data } = await apiUsersUserIdimagePost({
         path: { userId: String(userId) },
         body: { file },
-      })
-      return data
+      });
+      return data;
     },
     onSuccess: (_, { userId }) => {
-      queryClient.invalidateQueries({ queryKey: adminUserKeys.detail(userId) })
-      queryClient.invalidateQueries({ queryKey: adminUserKeys.all })
+      queryClient.invalidateQueries({ queryKey: adminUserKeys.detail(userId) });
+      queryClient.invalidateQueries({ queryKey: adminUserKeys.all });
     },
-  })
+  });
 }

@@ -1,4 +1,4 @@
-import { z } from "zod"
+import { z } from "zod";
 
 export const runnerSchema = z.object({
   id: z.number().optional(),
@@ -8,6 +8,6 @@ export const runnerSchema = z.object({
   email: z.string().nullish(),
   organization: z.string().nullish(),
   image: z.string().nullish(),
-})
+});
 
-export type Runner = z.infer<typeof runnerSchema>
+export type Runner = z.infer<typeof runnerSchema>;

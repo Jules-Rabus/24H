@@ -19,7 +19,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUploadRaceMediaMutation } from "@/state/media/mutations";
 import { ColorModeButton } from "../../components/ui/color-mode";
-import { LuCamera, LuCircleCheck, LuCircleAlert, LuArrowLeft } from "react-icons/lu";
+import {
+  LuCamera,
+  LuCircleCheck,
+  LuCircleAlert,
+  LuArrowLeft,
+} from "react-icons/lu";
 
 export default function UploadPage() {
   const [success, setSuccess] = useState(false);
@@ -52,7 +57,13 @@ export default function UploadPage() {
   return (
     <Box bg="bg.canvas" minH="100vh" colorPalette="primary">
       {/* En-tête minimaliste */}
-      <Box as="header" bg="bg.panel" borderBottomWidth="1px" borderColor="border.subtle" mb="8">
+      <Box
+        as="header"
+        bg="bg.panel"
+        borderBottomWidth="1px"
+        borderColor="border.subtle"
+        mb="8"
+      >
         <Container maxW="container.md" py="4">
           <HStack justify="space-between">
             <Button variant="ghost" size="sm" onClick={() => router.back()}>
@@ -64,10 +75,24 @@ export default function UploadPage() {
       </Box>
 
       <Container maxW="md" pb="24">
-        <VStack bg="bg.panel" p={{ base: "6", md: "10" }} shadow="lg" borderRadius="2xl" borderWidth="1px" borderColor="border.subtle" gap="8" align="stretch">
+        <VStack
+          bg="bg.panel"
+          p={{ base: "6", md: "10" }}
+          shadow="lg"
+          borderRadius="2xl"
+          borderWidth="1px"
+          borderColor="border.subtle"
+          gap="8"
+          align="stretch"
+        >
           <VStack textAlign="center" gap="2">
             <Icon as={LuCamera} boxSize="12" color="colorPalette.fg" mb="2" />
-            <Heading size="2xl" fontWeight="black" letterSpacing="tighter" textTransform="uppercase">
+            <Heading
+              size="2xl"
+              fontWeight="black"
+              letterSpacing="tighter"
+              textTransform="uppercase"
+            >
               Partagez l'Action
             </Heading>
             <Text color="fg.muted">
@@ -79,16 +104,35 @@ export default function UploadPage() {
             <VStack textAlign="center" py="10" gap="6">
               <Icon as={LuCircleCheck} boxSize="16" color="green.500" />
               <Box>
-                <Text fontWeight="bold" fontSize="xl" mb="2">Photo envoyée !</Text>
-                <Text color="fg.muted">Merci pour votre contribution à l'événement.</Text>
+                <Text fontWeight="bold" fontSize="xl" mb="2">
+                  Photo envoyée !
+                </Text>
+                <Text color="fg.muted">
+                  Merci pour votre contribution à l'événement.
+                </Text>
               </Box>
-              <Button w="full" size="lg" onClick={() => router.push("/gallery")}>
+              <Button
+                w="full"
+                size="lg"
+                onClick={() => router.push("/gallery")}
+              >
                 Voir la galerie
               </Button>
-              <Button variant="outline" w="full" onClick={() => router.push("/public-race-status")}>
+              <Button
+                variant="outline"
+                w="full"
+                onClick={() => router.push("/public-race-status")}
+              >
                 Tableau de bord
               </Button>
-              <Button variant="ghost" w="full" onClick={() => { setSuccess(false); form.reset(); }}>
+              <Button
+                variant="ghost"
+                w="full"
+                onClick={() => {
+                  setSuccess(false);
+                  form.reset();
+                }}
+              >
                 Envoyer une autre photo
               </Button>
             </VStack>
@@ -107,15 +151,28 @@ export default function UploadPage() {
                   validators={{
                     onChange: ({ value }) => {
                       if (!value) return "Photo requise";
-                      const allowed = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/heic", "image/heif"];
-                      if (!allowed.includes(value.type)) return "Format non supporté (JPEG, PNG, GIF, WebP, HEIC)";
+                      const allowed = [
+                        "image/jpeg",
+                        "image/png",
+                        "image/gif",
+                        "image/webp",
+                        "image/heic",
+                        "image/heif",
+                      ];
+                      if (!allowed.includes(value.type))
+                        return "Format non supporté (JPEG, PNG, GIF, WebP, HEIC)";
                       return undefined;
                     },
                   }}
                 >
                   {(field) => (
                     <Field.Root invalid={!!field.state.meta.errors?.length}>
-                      <Field.Label fontWeight="bold" fontSize="sm" textTransform="uppercase" letterSpacing="wider">
+                      <Field.Label
+                        fontWeight="bold"
+                        fontSize="sm"
+                        textTransform="uppercase"
+                        letterSpacing="wider"
+                      >
                         Votre photo
                       </Field.Label>
                       <Input
@@ -146,8 +203,21 @@ export default function UploadPage() {
                 <form.Field name="comment">
                   {(field) => (
                     <Field.Root>
-                      <Field.Label fontWeight="bold" fontSize="sm" textTransform="uppercase" letterSpacing="wider">
-                        Commentaire <Text as="span" color="fg.subtle" fontWeight="normal" textTransform="none">(optionnel)</Text>
+                      <Field.Label
+                        fontWeight="bold"
+                        fontSize="sm"
+                        textTransform="uppercase"
+                        letterSpacing="wider"
+                      >
+                        Commentaire{" "}
+                        <Text
+                          as="span"
+                          color="fg.subtle"
+                          fontWeight="normal"
+                          textTransform="none"
+                        >
+                          (optionnel)
+                        </Text>
                       </Field.Label>
                       <Textarea
                         placeholder="Décrivez ce moment..."
@@ -162,7 +232,16 @@ export default function UploadPage() {
                 </form.Field>
 
                 {error && (
-                  <HStack color="red.500" gap="2" justify="center" p="3" bg="red.50" rounded="md" borderWidth="1px" borderColor="red.100">
+                  <HStack
+                    color="red.500"
+                    gap="2"
+                    justify="center"
+                    p="3"
+                    bg="red.50"
+                    rounded="md"
+                    borderWidth="1px"
+                    borderColor="red.100"
+                  >
                     <Icon as={LuCircleAlert} />
                     <Text fontSize="sm" fontWeight="medium">
                       {error}
@@ -181,7 +260,9 @@ export default function UploadPage() {
                   loading={uploadMutation.isPending}
                   disabled={!form.state.canSubmit}
                 >
-                  {uploadMutation.isPending ? "Envoi en cours..." : "Envoyer la photo"}
+                  {uploadMutation.isPending
+                    ? "Envoi en cours..."
+                    : "Envoyer la photo"}
                 </Button>
               </Stack>
             </Box>

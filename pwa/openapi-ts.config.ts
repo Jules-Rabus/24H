@@ -1,4 +1,4 @@
-import { defineConfig } from "@hey-api/openapi-ts"
+import { defineConfig } from "@hey-api/openapi-ts";
 
 export default defineConfig({
   input: process.env.OPENAPI_INPUT ?? "./openapi.json",
@@ -15,4 +15,4 @@ export default defineConfig({
       name: "@hey-api/client-axios",
     },
   ],
-})
+});

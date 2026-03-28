@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
 import {
   Badge,
   Box,
@@ -17,46 +17,46 @@ import {
   Spinner,
   Text,
   VStack,
-} from "@chakra-ui/react"
-import { useAdminRunsQuery, type AdminRun } from "@/state/admin/runs/queries"
-import { type SortState } from "@/components/admin/ui/DataTable"
+} from "@chakra-ui/react";
+import { useAdminRunsQuery, type AdminRun } from "@/state/admin/runs/queries";
+import { type SortState } from "@/components/admin/ui/DataTable";
 import {
   useCreateRunMutation,
   useUpdateRunMutation,
   useDeleteRunMutation,
-} from "@/state/admin/runs/mutations"
-import { DataTable, type Column } from "@/components/admin/ui/DataTable"
-import { ConfirmDialog } from "@/components/admin/ui/ConfirmDialog"
+} from "@/state/admin/runs/mutations";
+import { DataTable, type Column } from "@/components/admin/ui/DataTable";
+import { ConfirmDialog } from "@/components/admin/ui/ConfirmDialog";
 
 // ---------------------------------------------------------------------------
 // RunForm — used for both create and edit
 // ---------------------------------------------------------------------------
 
 function RunForm({ run, onClose }: { run?: AdminRun; onClose: () => void }) {
-  const createMutation = useCreateRunMutation()
-  const updateMutation = useUpdateRunMutation()
+  const createMutation = useCreateRunMutation();
+  const updateMutation = useUpdateRunMutation();
   const [startDate, setStartDate] = useState(
-    run?.startDate ? new Date(run.startDate).toISOString().slice(0, 16) : ""
-  )
+    run?.startDate ? new Date(run.startDate).toISOString().slice(0, 16) : "",
+  );
   const [endDate, setEndDate] = useState(
-    run?.endDate ? new Date(run.endDate).toISOString().slice(0, 16) : ""
-  )
+    run?.endDate ? new Date(run.endDate).toISOString().slice(0, 16) : "",
+  );
 
-  const isLoading = createMutation.isPending || updateMutation.isPending
+  const isLoading = createMutation.isPending || updateMutation.isPending;
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     const body = {
       startDate: new Date(startDate).toISOString(),
       endDate: new Date(endDate).toISOString(),
-    }
+    };
     if (run?.id) {
-      await updateMutation.mutateAsync({ id: run.id, body })
+      await updateMutation.mutateAsync({ id: run.id, body });
     } else {
-      await createMutation.mutateAsync(body)
+      await createMutation.mutateAsync(body);
     }
-    onClose()
-  }
+    onClose();
+  };
 
   return (
     <Box as="form" onSubmit={handleSubmit}>
@@ -83,7 +83,12 @@ function RunForm({ run, onClose }: { run?: AdminRun; onClose: () => void }) {
         </VStack>
       </Dialog.Body>
       <Dialog.Footer gap="3">
-        <Button variant="outline" onClick={onClose} type="button" disabled={isLoading}>
+        <Button
+          variant="outline"
+          onClick={onClose}
+          type="button"
+          disabled={isLoading}
+        >
           Annuler
         </Button>
         <Button type="submit" colorPalette="primary" loading={isLoading}>
@@ -91,7 +96,7 @@ function RunForm({ run, onClose }: { run?: AdminRun; onClose: () => void }) {
         </Button>
       </Dialog.Footer>
     </Box>
-  )
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -99,24 +104,27 @@ function RunForm({ run, onClose }: { run?: AdminRun; onClose: () => void }) {
 // ---------------------------------------------------------------------------
 
 export default function AdminRunsPage() {
-  const [sort, setSort] = useState<SortState>({ field: "startDate", dir: "asc" })
-  const { data: runs, isLoading } = useAdminRunsQuery(sort.field, sort.dir)
+  const [sort, setSort] = useState<SortState>({
+    field: "startDate",
+    dir: "asc",
+  });
+  const { data: runs, isLoading } = useAdminRunsQuery(sort.field, sort.dir);
 
   // Dialog state
-  const [formOpen, setFormOpen] = useState(false)
-  const [editRun, setEditRun] = useState<AdminRun | undefined>(undefined)
-  const [deleteRun, setDeleteRun] = useState<AdminRun | undefined>(undefined)
+  const [formOpen, setFormOpen] = useState(false);
+  const [editRun, setEditRun] = useState<AdminRun | undefined>(undefined);
+  const [deleteRun, setDeleteRun] = useState<AdminRun | undefined>(undefined);
 
-  const deleteMutation = useDeleteRunMutation()
+  const deleteMutation = useDeleteRunMutation();
 
   // Computed stats
-  const totalRuns = runs?.length ?? 0
+  const totalRuns = runs?.length ?? 0;
   const totalParticipants =
-    runs?.reduce((s, r) => s + (r.participantsCount ?? 0), 0) ?? 0
+    runs?.reduce((s, r) => s + (r.participantsCount ?? 0), 0) ?? 0;
   const totalInProgress =
-    runs?.reduce((s, r) => s + (r.inProgressParticipantsCount ?? 0), 0) ?? 0
+    runs?.reduce((s, r) => s + (r.inProgressParticipantsCount ?? 0), 0) ?? 0;
   const totalFinished =
-    runs?.reduce((s, r) => s + (r.finishedParticipantsCount ?? 0), 0) ?? 0
+    runs?.reduce((s, r) => s + (r.finishedParticipantsCount ?? 0), 0) ?? 0;
 
   // Column definitions
   const columns: Column<AdminRun>[] = [
@@ -152,7 +160,9 @@ export default function AdminRunsPage() {
       key: "inProgress",
       header: "En cours",
       render: (r) => (
-        <Badge colorPalette="orange">{r.inProgressParticipantsCount ?? 0}</Badge>
+        <Badge colorPalette="orange">
+          {r.inProgressParticipantsCount ?? 0}
+        </Badge>
       ),
       width: "100px",
     },
@@ -175,8 +185,8 @@ export default function AdminRunsPage() {
             variant="ghost"
             aria-label="Modifier"
             onClick={() => {
-              setEditRun(r)
-              setFormOpen(true)
+              setEditRun(r);
+              setFormOpen(true);
             }}
           >
             ✏️
@@ -193,19 +203,19 @@ export default function AdminRunsPage() {
         </HStack>
       ),
     },
-  ]
+  ];
 
   const handleCloseForm = () => {
-    setFormOpen(false)
-    setEditRun(undefined)
-  }
+    setFormOpen(false);
+    setEditRun(undefined);
+  };
 
   const handleConfirmDelete = async () => {
     if (deleteRun?.id) {
-      await deleteMutation.mutateAsync(deleteRun.id)
+      await deleteMutation.mutateAsync(deleteRun.id);
     }
-    setDeleteRun(undefined)
-  }
+    setDeleteRun(undefined);
+  };
 
   return (
     <VStack align="stretch" gap="6">
@@ -215,8 +225,8 @@ export default function AdminRunsPage() {
         <Button
           colorPalette="primary"
           onClick={() => {
-            setEditRun(undefined)
-            setFormOpen(true)
+            setEditRun(undefined);
+            setFormOpen(true);
           }}
         >
           + Créer un run
@@ -227,7 +237,14 @@ export default function AdminRunsPage() {
       <SimpleGrid columns={{ base: 1, sm: 2, lg: 4 }} gap="4">
         <Card.Root variant="outline" shadow="sm" borderColor="border.subtle">
           <Card.Body p="5">
-            <Text fontSize="xs" color="fg.muted" textTransform="uppercase" letterSpacing="wider" fontWeight="semibold" mb="1">
+            <Text
+              fontSize="xs"
+              color="fg.muted"
+              textTransform="uppercase"
+              letterSpacing="wider"
+              fontWeight="semibold"
+              mb="1"
+            >
               Total runs
             </Text>
             <Text fontSize="2xl" fontWeight="bold">
@@ -238,7 +255,14 @@ export default function AdminRunsPage() {
 
         <Card.Root variant="outline" shadow="sm" borderColor="border.subtle">
           <Card.Body p="5">
-            <Text fontSize="xs" color="fg.muted" textTransform="uppercase" letterSpacing="wider" fontWeight="semibold" mb="1">
+            <Text
+              fontSize="xs"
+              color="fg.muted"
+              textTransform="uppercase"
+              letterSpacing="wider"
+              fontWeight="semibold"
+              mb="1"
+            >
               Participants total
             </Text>
             <Text fontSize="2xl" fontWeight="bold">
@@ -249,7 +273,14 @@ export default function AdminRunsPage() {
 
         <Card.Root variant="outline" shadow="sm" borderColor="border.subtle">
           <Card.Body p="5">
-            <Text fontSize="xs" color="fg.muted" textTransform="uppercase" letterSpacing="wider" fontWeight="semibold" mb="1">
+            <Text
+              fontSize="xs"
+              color="fg.muted"
+              textTransform="uppercase"
+              letterSpacing="wider"
+              fontWeight="semibold"
+              mb="1"
+            >
               En cours
             </Text>
             <Text fontSize="2xl" fontWeight="bold" color="orange.fg">
@@ -260,7 +291,14 @@ export default function AdminRunsPage() {
 
         <Card.Root variant="outline" shadow="sm" borderColor="border.subtle">
           <Card.Body p="5">
-            <Text fontSize="xs" color="fg.muted" textTransform="uppercase" letterSpacing="wider" fontWeight="semibold" mb="1">
+            <Text
+              fontSize="xs"
+              color="fg.muted"
+              textTransform="uppercase"
+              letterSpacing="wider"
+              fontWeight="semibold"
+              mb="1"
+            >
               Terminés
             </Text>
             <Text fontSize="2xl" fontWeight="bold" color="green.fg">
@@ -327,5 +365,5 @@ export default function AdminRunsPage() {
         loading={deleteMutation.isPending}
       />
     </VStack>
-  )
+  );
 }

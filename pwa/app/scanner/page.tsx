@@ -15,7 +15,13 @@ const ScannerComponent = dynamic(() => import("./_scanner"), {
 
 export default function ScannerPage() {
   return (
-    <Box w="100vw" h="100vh" overflow="hidden" bg="gray.950" colorPalette="primary">
+    <Box
+      w="100vw"
+      h="100vh"
+      overflow="hidden"
+      bg="gray.950"
+      colorPalette="primary"
+    >
       <ScannerComponent />
     </Box>
   );
