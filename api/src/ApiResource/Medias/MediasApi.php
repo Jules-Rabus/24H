@@ -73,6 +73,7 @@ final class MediasApi
     public ?int $id = null;
 
     #[ApiProperty(readable: true)]
+    #[Map(source: 'filePath', transform: MediasContentUrlTransformer::class)]
     public ?string $contentUrl = null;
 
     #[Map(if: false)]
