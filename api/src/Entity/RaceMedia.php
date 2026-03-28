@@ -22,6 +22,9 @@ class RaceMedia
     #[ORM\Column(nullable: true)]
     public ?string $filePath = null;
 
+    #[ORM\Column(type: 'text', nullable: true)]
+    public ?string $comment = null;
+
     public function getId(): ?int
     {
         return $this->id;

@@ -3,15 +3,18 @@
 namespace App\Dto\RaceMedia;
 
 use App\Entity\RaceMedia;
+use App\ObjectMapper\RaceMediaContentUrlTransformer;
 use Symfony\Component\ObjectMapper\Attribute\Map;
 
 #[Map(source: RaceMedia::class)]
-class RaceMediaCollection
+final class RaceMediaCollection
 {
-    public ?int $id = null;
+    public int $id;
 
-    #[Map(source: 'filePath')]
-    public ?string $filePath = null;
+    #[Map(source: 'filePath', transform: RaceMediaContentUrlTransformer::class)]
+    public ?string $contentUrl = null;
+
+    public ?string $comment = null;
 
     public ?\DateTimeInterface $createdAt = null;
 }
