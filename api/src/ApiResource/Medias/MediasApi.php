@@ -6,6 +6,7 @@ use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -16,6 +17,7 @@ use ApiPlatform\OpenApi\Model;
 use App\Dto\Medias\MediasCollection;
 use App\Entity\Medias;
 use App\Entity\User;
+use App\ObjectMapper\MediasContentUrlTransformer;
 use App\State\MediasProcessor;
 use Symfony\Component\ObjectMapper\Attribute\Map;
 
@@ -54,6 +56,7 @@ use Symfony\Component\ObjectMapper\Attribute\Map;
             ),
             security: 'is_granted("ROLE_ADMIN")',
             processor: MediasProcessor::class,
+            output: MediasApi::class,
             deserialize: false,
             read: false,
         ),
@@ -69,8 +72,9 @@ final class MediasApi
 {
     public ?int $id = null;
 
-    #[Map(source: 'filePath')]
-    public ?string $filePath = null;
+    #[ApiProperty(readable: true)]
+    #[Map(source: 'filePath', transform: MediasContentUrlTransformer::class)]
+    public ?string $contentUrl = null;
 
     #[Map(if: false)]
     public ?string $runner = null;

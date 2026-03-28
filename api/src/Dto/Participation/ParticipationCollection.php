@@ -2,7 +2,10 @@
 
 namespace App\Dto\Participation;
 
+use App\Dto\Run\RunRef;
+use App\Dto\User\UserRef;
 use App\Entity\Participation;
+use App\ObjectMapper\RelationTransformer;
 use Symfony\Component\ObjectMapper\Attribute\Map;
 
 #[Map(source: Participation::class)]
@@ -10,9 +13,13 @@ final class ParticipationCollection
 {
     public int $id;
 
-    public ?string $run = null;
+    #[Map(transform: RelationTransformer::class)]
+    public ?RunRef $run = null;
 
-    public ?string $user = null;
+    #[Map(transform: RelationTransformer::class)]
+    public ?UserRef $user = null;
+
+    public ?\DateTimeInterface $arrivalTime = null;
 
     #[Map(source: 'status')]
     public string $status = 'IN_PROGRESS';

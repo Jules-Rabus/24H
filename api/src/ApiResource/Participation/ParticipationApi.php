@@ -18,7 +18,10 @@ use App\Dto\Participation\CreateParticipation;
 use App\Dto\Participation\DataMatrixInput;
 use App\Dto\Participation\ParticipationCollection;
 use App\Dto\Participation\UpdateParticipation;
+use App\Dto\Run\RunRef;
+use App\Dto\User\UserRef;
 use App\Entity\Participation;
+use App\ObjectMapper\RelationTransformer;
 use App\State\ParticipationFinishedProcessor;
 use Symfony\Component\ObjectMapper\Attribute\Map;
 
@@ -56,9 +59,11 @@ final class ParticipationApi
 {
     public ?int $id = null;
 
-    public ?string $run = null;
+    #[Map(transform: RelationTransformer::class)]
+    public ?RunRef $run = null;
 
-    public ?string $user = null;
+    #[Map(transform: RelationTransformer::class)]
+    public ?UserRef $user = null;
 
     public ?\DateTimeInterface $arrivalTime = null;
 

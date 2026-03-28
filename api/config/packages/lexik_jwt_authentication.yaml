@@ -13,3 +13,4 @@ lexik_jwt_authentication:
             secure: true
             samesite: strict
             path: /
+    remove_token_from_body_when_cookies_used: false
