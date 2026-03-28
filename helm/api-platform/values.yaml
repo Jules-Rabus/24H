@@ -4,17 +4,16 @@
 
 php:
   image:
-    repository: "chart-example.local/api-platform/php"
+    repository: "app-php-prod"
     pullPolicy: IfNotPresent
-    # Overrides the image tag whose default is the chart appVersion.
-    tag: ""
+    tag: "latest"
   appEnv: prod
   appDebug: "0"
   appSecret: ""
-  corsAllowOrigin: "^https?://.*?\\.chart-example\\.local$"
-  trustedHosts: "^127\\.0\\.0\\.1|localhost|.*\\.chart-example\\.local$"
+  corsAllowOrigin: "^https?://.*$"
+  trustedHosts: "^127\\.0\\.0\\.1|localhost|(.+\\.)?defi24h\\.org$"
   trustedProxies:
-    - "127.0.0.1"
+    - "127.0.0.0/8"
     - "10.0.0.0/8"
     - "172.16.0.0/12"
     - "192.168.0.0/16"
@@ -22,18 +21,38 @@ php:
 
 pwa:
   image:
-    repository: "chart-example.local/api-platform/pwa"
+    repository: "app-pwa"
     pullPolicy: IfNotPresent
-    # Overrides the image tag whose default is the chart appVersion.
-    tag: ""
+    tag: "latest"
+  publicApiBaseUrl: "https://defi24h.org"
+  publicMercureHubUrl: "https://defi24h.org/.well-known/mercure"
+
+rustfs:
+  enabled: true
+  image:
+    repository: "rustfs/rustfs"
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  initImage:
+    repository: "minio/mc"
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  service:
+    name: "rustfs"
+    port: 9000
+    consolePort: 9001
+  persistence:
+    enabled: true
+    storageClass: ""
+    size: 5Gi
 
 s3:
-  endpoint: ""
+  endpoint: "http://rustfs:9000"
   region: "us-east-1"
   bucket: "runner-images"
-  publicUrl: ""
-  accessKey: ""
-  secretKey: ""
+  publicUrl: "/s3"
+  accessKey: "rustfsadmin"
+  secretKey: "rustfsadmin"
 
 mailer:
   dsn: ""
@@ -42,10 +61,9 @@ mailer:
 
 # You may prefer using the managed version in production: https://mercure.rocks
 mercure:
-  publicUrl: https://chart-example.local/.well-known/mercure
-  # Change me!
-  jwtSecret: "!ChangeThisMercureHubJWTSecretKey!"
-  extraDirectives: cors_origins http://chart-example.local https://chart-example.local
+  publicUrl: "https://defi24h.org/.well-known/mercure"
+  jwtSecret: ""
+  extraDirectives: ""
 
 # Full configuration: https://github.com/bitnami/charts/tree/master/bitnami/postgresql
 postgresql:
@@ -55,16 +73,16 @@ postgresql:
   global:
     postgresql:
       auth:
-        username: "example"
+        username: "app"
         password: "!ChangeMe!"
-        database: "api"
+        database: "app"
   # Persistent Volume Storage configuration.
   # ref: https://kubernetes.io/docs/user-guide/persistent-volumes
   primary:
     persistence:
-      enabled: false
-      storageClass: standard
-      size: 1Gi
+      enabled: true
+      storageClass: ""
+      size: 5Gi
     pullPolicy: IfNotPresent
     image:
       repository: bitnami/postgresql
@@ -106,12 +124,15 @@ service:
 
 ingress:
   enabled: false
+  className: ""
   annotations: {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
-    - host: chart-example.local
-      paths: []
+    - host: "defi24h.org"
+      paths:
+        - path: /
+          pathType: Prefix
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:

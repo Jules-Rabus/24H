@@ -35,7 +35,20 @@ spec:
           imagePullPolicy: {{ .Values.pwa.image.pullPolicy }}
           env:
             - name: NEXT_PUBLIC_ENTRYPOINT
-              value: http://{{ include "api-platform.fullname" . }}
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "api-platform.fullname" . }}
+                  key: pwa-public-api-base-url
+            - name: API_ENTRYPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "api-platform.fullname" . }}
+                  key: pwa-public-api-base-url
+            - name: NEXT_PUBLIC_MERCURE_HUB_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "api-platform.fullname" . }}
+                  key: pwa-public-mercure-hub-url
           ports:
             - name: http
               containerPort: 3000
