@@ -2,6 +2,7 @@
 
 namespace App\Tests\Functional\Api\Medias;
 
+use App\ApiResource\Medias\MediasApi;
 use App\Entity\Medias;
 use App\Factory\MediasFactory;
 use App\Factory\UserFactory;
@@ -48,7 +49,7 @@ final class MediasTest extends AbstractTestCase
 
         $response = $this->createClientWithCredentials()->request('POST', $route, [
             'headers' => [
-                'Accept' => 'application/ld+json',
+                'Accept' => 'application/json',
                 'Content-Type' => 'multipart/form-data',
             ],
             'extra' => [
@@ -57,14 +58,16 @@ final class MediasTest extends AbstractTestCase
         ]);
 
         $this->assertResponseStatusCodeSame(201);
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/json; charset=utf-8');
 
         $data = $response->toArray();
-        $this->assertSame('Medias', $data['@type']);
-        $this->assertArrayHasKey('filePath', $data);
-        $this->assertNotNull($data['filePath']);
-        $this->assertStringContainsString('/images/users/', $data['filePath']);
-        $this->assertMatchesRegularExpression('~^/medias/\d+$~', $data['@id']);
+        $this->assertArrayHasKey('contentUrl', $data);
+        $this->assertNotNull($data['contentUrl']);
+        // Verify it's an absolute URL
+        $this->assertStringStartsWith('http', $data['contentUrl']);
+        $this->assertStringContainsString('/images/users/', $data['contentUrl']);
+        $this->assertIsInt($data['id']);
+        $this->assertMatchesResourceItemJsonSchema(MediasApi::class);
     }
 
     public function testUploadForbiddenForNonAdmin(): void
@@ -74,7 +77,7 @@ final class MediasTest extends AbstractTestCase
 
         $this->createClientWithCredentials($user)->request('POST', $route, [
             'headers' => [
-                'Accept' => 'application/ld+json',
+                'Accept' => 'application/json',
                 'Content-Type' => 'multipart/form-data',
             ],
             'extra' => [
@@ -89,27 +92,30 @@ final class MediasTest extends AbstractTestCase
     {
         $media = MediasFactory::createOne();
 
-        $this->createClientWithCredentials()->request('GET', self::MEDIAS_ROUTE.'/'.$media->getId(), [
-            'headers' => ['Accept' => 'application/ld+json'],
+        $response = $this->createClientWithCredentials()->request('GET', self::MEDIAS_ROUTE.'/'.$media->getId(), [
+            'headers' => ['Accept' => 'application/json'],
         ]);
 
         $this->assertResponseIsSuccessful();
-        $this->assertJsonContains([
-            '@type' => 'Medias',
-            '@id' => '/medias/'.$media->getId(),
-        ]);
+        $data = $response->toArray();
+        $this->assertArrayHasKey('id', $data);
+        $this->assertArrayHasKey('contentUrl', $data);
+        $this->assertStringStartsWith('http', $data['contentUrl']);
+        $this->assertMatchesResourceItemJsonSchema(MediasApi::class);
     }
 
     public function testGetMediasCollectionAsAdmin(): void
     {
         MediasFactory::createMany(3);
 
-        $this->createClientWithCredentials()->request('GET', self::MEDIAS_ROUTE, [
-            'headers' => ['Accept' => 'application/ld+json'],
+        $response = $this->createClientWithCredentials()->request('GET', self::MEDIAS_ROUTE, [
+            'headers' => ['Accept' => 'application/json'],
         ]);
 
         $this->assertResponseIsSuccessful();
-        $this->assertJsonContains(['@type' => 'Collection']);
+        // Since we are in application/json without custom envelope, it's a flat array
+        $this->assertCount(3, $response->toArray());
+        $this->assertMatchesResourceCollectionJsonSchema(MediasApi::class);
     }
 
     public function testGetMediasCollectionForbiddenForNonAdmin(): void
@@ -117,7 +123,7 @@ final class MediasTest extends AbstractTestCase
         $user = UserFactory::createOne();
 
         $this->createClientWithCredentials($user)->request('GET', self::MEDIAS_ROUTE, [
-            'headers' => ['Accept' => 'application/ld+json'],
+            'headers' => ['Accept' => 'application/json'],
         ]);
 
         $this->assertResponseStatusCodeSame(403);

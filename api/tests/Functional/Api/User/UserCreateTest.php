@@ -16,8 +16,8 @@ final class UserCreateTest extends AbstractTestCase
 
         $response = $this->createClientWithCredentials()->request('POST', self::ROUTE, [
             'headers' => [
-                'Accept' => 'application/ld+json',
-                'Content-Type' => 'application/ld+json',
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
             ],
             'json' => [
                 'email' => $userData->getEmail(),
@@ -29,13 +29,11 @@ final class UserCreateTest extends AbstractTestCase
         ]);
 
         $this->assertResponseStatusCodeSame(201);
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/json; charset=utf-8');
         $this->assertJsonContains([
-            '@context' => '/contexts/User',
-            '@type' => 'User',
             'email' => $userData->getEmail(),
         ]);
-        $this->assertMatchesRegularExpression('~^/users/\d+$~', $response->toArray()['@id']);
+        $this->assertIsInt($response->toArray()['id']);
         $this->assertMatchesResourceItemJsonSchema(UserApi::class);
     }
 
@@ -45,8 +43,8 @@ final class UserCreateTest extends AbstractTestCase
 
         $this->createClientWithCredentials($user)->request('POST', self::ROUTE, [
             'headers' => [
-                'Accept' => 'application/ld+json',
-                'Content-Type' => 'application/ld+json',
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
             ],
             'json' => ['email' => 'new@example.com', 'plainPassword' => 'pass'],
         ]);
@@ -58,8 +56,8 @@ final class UserCreateTest extends AbstractTestCase
     {
         $this->createClientWithCredentials()->request('POST', self::ROUTE, [
             'headers' => [
-                'Accept' => 'application/ld+json',
-                'Content-Type' => 'application/ld+json',
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
             ],
             'json' => [
                 'email' => 'not_a_valid_email',

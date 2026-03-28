@@ -17,17 +17,12 @@ final class RunGetTest extends AbstractTestCase
         RunFactory::createMany(3);
 
         $response = $client->request('GET', self::ROUTE, [
-            'headers' => ['Accept' => 'application/ld+json'],
+            'headers' => ['Accept' => 'application/json'],
         ]);
 
         $this->assertResponseIsSuccessful();
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
-        $this->assertJsonContains([
-            '@context' => '/contexts/Run',
-            '@type' => 'Collection',
-            'totalItems' => 3,
-        ]);
-        $this->assertCount(3, $response->toArray()['member']);
+        $this->assertResponseHeaderSame('content-type', 'application/json; charset=utf-8');
+        $this->assertCount(3, $response->toArray());
         $this->assertMatchesResourceCollectionJsonSchema(RunApi::class);
     }
 
@@ -45,7 +40,7 @@ final class RunGetTest extends AbstractTestCase
         $run = RunFactory::createOne();
 
         $this->createClientWithCredentials()->request('GET', self::ROUTE.'/'.$run->getId(), [
-            'headers' => ['Accept' => 'application/ld+json'],
+            'headers' => ['Accept' => 'application/json'],
         ]);
 
         $this->assertResponseIsSuccessful();

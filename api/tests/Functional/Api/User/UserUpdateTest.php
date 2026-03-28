@@ -17,7 +17,7 @@ final class UserUpdateTest extends AbstractTestCase
 
         $this->createClientWithCredentials()->request('PATCH', self::ROUTE.'/'.$user->getId(), [
             'headers' => [
-                'Accept' => 'application/ld+json',
+                'Accept' => 'application/json',
                 'Content-Type' => 'application/merge-patch+json',
             ],
             'json' => ['email' => $newEmail],
@@ -25,7 +25,6 @@ final class UserUpdateTest extends AbstractTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains([
-            '@type' => 'User',
             'email' => $newEmail,
         ]);
         $this->assertMatchesResourceItemJsonSchema(UserApi::class);
@@ -37,7 +36,7 @@ final class UserUpdateTest extends AbstractTestCase
 
         $this->createClientWithCredentials($user)->request('PATCH', self::ROUTE.'/'.$user->getId(), [
             'headers' => [
-                'Accept' => 'application/ld+json',
+                'Accept' => 'application/json',
                 'Content-Type' => 'application/merge-patch+json',
             ],
             'json' => ['email' => 'new@example.com'],
@@ -53,7 +52,7 @@ final class UserUpdateTest extends AbstractTestCase
 
         $this->createClientWithCredentials($wrongUser)->request('PATCH', self::ROUTE.'/'.$user->getId(), [
             'headers' => [
-                'Accept' => 'application/ld+json',
+                'Accept' => 'application/json',
                 'Content-Type' => 'application/merge-patch+json',
             ],
             'json' => ['email' => 'new@example.com'],
