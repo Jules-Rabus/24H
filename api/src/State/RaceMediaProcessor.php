@@ -37,6 +37,7 @@ final readonly class RaceMediaProcessor implements ProcessorInterface
 
         $raceMedia = new RaceMedia();
         $raceMedia->setFile($file);
+        $raceMedia->comment = $request->request->get('comment') ?: null;
 
         return $this->persistProcessor->process($raceMedia, $operation, $uriVariables, $context);
     }

@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useRef, useState } from "react"
+import { useRef, useState } from "react";
 import {
   Box,
   Button,
@@ -12,42 +12,48 @@ import {
   Spinner,
   Text,
   VStack,
-} from "@chakra-ui/react"
+} from "@chakra-ui/react";
 import {
   useAdminRaceMediasQuery,
   type AdminRaceMedia,
-} from "@/state/admin/medias/queries"
+} from "@/state/admin/medias/queries";
 import {
   useUploadRaceMediaMutation,
   useDeleteRaceMediaMutation,
-} from "@/state/admin/medias/mutations"
-import { ConfirmDialog } from "@/components/admin/ui/ConfirmDialog"
+} from "@/state/admin/medias/mutations";
+import { ConfirmDialog } from "@/components/admin/ui/ConfirmDialog";
 
 export default function AdminMediasPage() {
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const [deleteMedia, setDeleteMedia] = useState<AdminRaceMedia | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [deleteMedia, setDeleteMedia] = useState<AdminRaceMedia | null>(null);
 
-  const { data: medias, isLoading } = useAdminRaceMediasQuery()
-  const uploadMutation = useUploadRaceMediaMutation()
-  const deleteMutation = useDeleteRaceMediaMutation()
+  const { data: medias, isLoading } = useAdminRaceMediasQuery();
+  const uploadMutation = useUploadRaceMediaMutation();
+  const deleteMutation = useDeleteRaceMediaMutation();
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    await uploadMutation.mutateAsync(file)
-    if (fileInputRef.current) fileInputRef.current.value = ""
-  }
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await uploadMutation.mutateAsync(file);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   const handleConfirmDelete = async () => {
-    if (!deleteMedia?.id) return
-    await deleteMutation.mutateAsync(deleteMedia.id)
-    setDeleteMedia(null)
-  }
+    if (!deleteMedia?.id) return;
+    await deleteMutation.mutateAsync(deleteMedia.id);
+    setDeleteMedia(null);
+  };
 
   return (
     <Box p={{ base: "4", md: "8" }}>
       {/* Header */}
-      <HStack justify="space-between" align="center" mb="6" flexWrap="wrap" gap="3">
+      <HStack
+        justify="space-between"
+        align="center"
+        mb="6"
+        flexWrap="wrap"
+        gap="3"
+      >
         <Heading size="xl">Médias de course</Heading>
 
         <Box>
@@ -131,7 +137,7 @@ export default function AdminMediasPage() {
                   alt={`Photo ${media.id}`}
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
                   onError={(e) => {
-                    e.currentTarget.src = "/placeholder.png"
+                    e.currentTarget.src = "/placeholder.png";
                   }}
                 />
               )}
@@ -184,5 +190,5 @@ export default function AdminMediasPage() {
         loading={deleteMutation.isPending}
       />
     </Box>
-  )
+  );
 }

@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
 import {
   Badge,
   Box,
@@ -17,34 +17,34 @@ import {
   VStack,
   IconButton,
   createListCollection,
-} from "@chakra-ui/react"
+} from "@chakra-ui/react";
 import {
   useAdminParticipationsQuery,
   type AdminParticipation,
   type ParticipationFilters,
-} from "@/state/admin/participations/queries"
-import { type SortState } from "@/components/admin/ui/DataTable"
+} from "@/state/admin/participations/queries";
+import { type SortState } from "@/components/admin/ui/DataTable";
 import {
   useUpdateParticipationMutation,
   useDeleteParticipationMutation,
-} from "@/state/admin/participations/mutations"
-import { DataTable, type Column } from "@/components/admin/ui/DataTable"
-import { ConfirmDialog } from "@/components/admin/ui/ConfirmDialog"
+} from "@/state/admin/participations/mutations";
+import { DataTable, type Column } from "@/components/admin/ui/DataTable";
+import { ConfirmDialog } from "@/components/admin/ui/ConfirmDialog";
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
 function formatTime(seconds: number | null | undefined): string {
-  if (!seconds) return "-"
-  const m = Math.floor(seconds / 60)
-  const s = seconds % 60
-  return `${m}m ${s.toString().padStart(2, "0")}s`
+  if (!seconds) return "-";
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}m ${s.toString().padStart(2, "0")}s`;
 }
 
 function iriToId(iri: string | null | undefined): string {
-  if (!iri) return "-"
-  return iri.split("/").at(-1) ?? "-"
+  if (!iri) return "-";
+  return iri.split("/").at(-1) ?? "-";
 }
 
 // ---------------------------------------------------------------------------
@@ -55,25 +55,25 @@ function EditParticipationDialog({
   participation,
   onClose,
 }: {
-  participation: AdminParticipation
-  onClose: () => void
+  participation: AdminParticipation;
+  onClose: () => void;
 }) {
-  const updateMutation = useUpdateParticipationMutation()
+  const updateMutation = useUpdateParticipationMutation();
   const [arrivalTime, setArrivalTime] = useState(
     participation.arrivalTime
       ? new Date(participation.arrivalTime).toISOString().slice(0, 16)
-      : ""
-  )
+      : "",
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!participation.id) return
+    e.preventDefault();
+    if (!participation.id) return;
     await updateMutation.mutateAsync({
       id: participation.id,
       arrivalTime: arrivalTime ? new Date(arrivalTime).toISOString() : null,
-    })
-    onClose()
-  }
+    });
+    onClose();
+  };
 
   return (
     <Box as="form" onSubmit={handleSubmit}>
@@ -103,7 +103,7 @@ function EditParticipationDialog({
         </Button>
       </Dialog.Footer>
     </Box>
-  )
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -114,25 +114,29 @@ export default function ParticipationsPage() {
   const [filters, setFilters] = useState<ParticipationFilters>({
     page: 1,
     itemsPerPage: 30,
-  })
-  const [sort, setSort] = useState<SortState>({ field: "run.id", dir: "asc" })
-  const [statusFilter, setStatusFilter] = useState("")
-  const [firstNameInput, setFirstNameInput] = useState("")
-  const [lastNameInput, setLastNameInput] = useState("")
-  const [dossardInput, setDossardInput] = useState("")
+  });
+  const [sort, setSort] = useState<SortState>({ field: "run.id", dir: "asc" });
+  const [statusFilter, setStatusFilter] = useState("");
+  const [firstNameInput, setFirstNameInput] = useState("");
+  const [lastNameInput, setLastNameInput] = useState("");
+  const [dossardInput, setDossardInput] = useState("");
 
   const [editParticipation, setEditParticipation] =
-    useState<AdminParticipation | null>(null)
+    useState<AdminParticipation | null>(null);
   const [deleteParticipation, setDeleteParticipation] =
-    useState<AdminParticipation | null>(null)
+    useState<AdminParticipation | null>(null);
 
-  const { data, isLoading } = useAdminParticipationsQuery({ ...filters, orderField: sort.field, orderDir: sort.dir })
-  const deleteMutation = useDeleteParticipationMutation()
+  const { data, isLoading } = useAdminParticipationsQuery({
+    ...filters,
+    orderField: sort.field,
+    orderDir: sort.dir,
+  });
+  const deleteMutation = useDeleteParticipationMutation();
 
   // Client-side status filter (API does not support status filtering)
   const filtered = statusFilter
     ? (data?.member ?? []).filter((p) => p.status === statusFilter)
-    : (data?.member ?? [])
+    : (data?.member ?? []);
 
   // Apply API-side filters on search
   const applyFilters = () => {
@@ -142,16 +146,16 @@ export default function ParticipationsPage() {
       ...(firstNameInput ? { "user.firstName": firstNameInput } : {}),
       ...(lastNameInput ? { "user.lastName": lastNameInput } : {}),
       ...(dossardInput ? { "user.surname": dossardInput } : {}),
-    })
-  }
+    });
+  };
 
   const resetFilters = () => {
-    setFirstNameInput("")
-    setLastNameInput("")
-    setDossardInput("")
-    setStatusFilter("")
-    setFilters({ page: 1, itemsPerPage: 30 })
-  }
+    setFirstNameInput("");
+    setLastNameInput("");
+    setDossardInput("");
+    setStatusFilter("");
+    setFilters({ page: 1, itemsPerPage: 30 });
+  };
 
   // ------------------------------------------------------------------
   // Table columns
@@ -160,9 +164,7 @@ export default function ParticipationsPage() {
     {
       key: "run",
       header: "Run",
-      render: (row) => (
-        <Text fontWeight="medium">Run #{iriToId(row.run)}</Text>
-      ),
+      render: (row) => <Text fontWeight="medium">Run #{iriToId(row.run)}</Text>,
       width: "110px",
       sortField: "run.id",
     },
@@ -177,12 +179,14 @@ export default function ParticipationsPage() {
       key: "arrivalTime",
       header: "Heure d'arrivée",
       render: (row) =>
-        row.arrivalTime
-          ? new Date(row.arrivalTime).toLocaleString("fr-FR", {
-              dateStyle: "short",
-              timeStyle: "short",
-            })
-          : <Text color="fg.muted">-</Text>,
+        row.arrivalTime ? (
+          new Date(row.arrivalTime).toLocaleString("fr-FR", {
+            dateStyle: "short",
+            timeStyle: "short",
+          })
+        ) : (
+          <Text color="fg.muted">-</Text>
+        ),
       sortField: "arrivalTime",
     },
     {
@@ -237,7 +241,7 @@ export default function ParticipationsPage() {
       ),
       width: "100px",
     },
-  ]
+  ];
 
   const statusCollection = createListCollection({
     items: [
@@ -245,7 +249,7 @@ export default function ParticipationsPage() {
       { label: "Terminé", value: "FINISHED" },
       { label: "En cours", value: "IN_PROGRESS" },
     ],
-  })
+  });
 
   // ------------------------------------------------------------------
   // Render
@@ -360,7 +364,10 @@ export default function ParticipationsPage() {
         onPageChange={(p) => setFilters((prev) => ({ ...prev, page: p }))}
         emptyMessage="Aucune participation trouvée"
         sort={sort}
-        onSortChange={(s) => { setSort(s); setFilters((f) => ({ ...f, page: 1 })) }}
+        onSortChange={(s) => {
+          setSort(s);
+          setFilters((f) => ({ ...f, page: 1 }));
+        }}
       />
 
       {/* Edit dialog */}
@@ -405,9 +412,9 @@ export default function ParticipationsPage() {
         open={deleteParticipation !== null}
         onClose={() => setDeleteParticipation(null)}
         onConfirm={async () => {
-          if (!deleteParticipation?.id) return
-          await deleteMutation.mutateAsync(deleteParticipation.id)
-          setDeleteParticipation(null)
+          if (!deleteParticipation?.id) return;
+          await deleteMutation.mutateAsync(deleteParticipation.id);
+          setDeleteParticipation(null);
         }}
         title="Supprimer la participation"
         description={
@@ -418,5 +425,5 @@ export default function ParticipationsPage() {
         loading={deleteMutation.isPending}
       />
     </Box>
-  )
+  );
 }

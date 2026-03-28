@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { use, useRef, useState } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
+import { use, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   Badge,
   Box,
@@ -16,23 +16,23 @@ import {
   Spinner,
   Text,
   VStack,
-} from "@chakra-ui/react"
-import { useAdminUserQuery, type AdminUser } from "@/state/admin/users/queries"
+} from "@chakra-ui/react";
+import { useAdminUserQuery, type AdminUser } from "@/state/admin/users/queries";
 import {
   useUpdateUserMutation,
   useDeleteUserMutation,
   useUploadUserImageMutation,
-} from "@/state/admin/users/mutations"
-import { ConfirmDialog } from "@/components/admin/ui/ConfirmDialog"
+} from "@/state/admin/users/mutations";
+import { ConfirmDialog } from "@/components/admin/ui/ConfirmDialog";
 
 // ---------------------------------------------------------------------------
 // UserForm (inline, edit only on this detail page)
 // ---------------------------------------------------------------------------
 
-import { Checkbox, Field, Input } from "@chakra-ui/react"
+import { Checkbox, Field, Input } from "@chakra-ui/react";
 
 function UserForm({ user, onClose }: { user: AdminUser; onClose: () => void }) {
-  const updateMutation = useUpdateUserMutation()
+  const updateMutation = useUpdateUserMutation();
 
   const [form, setForm] = useState({
     firstName: user.firstName ?? "",
@@ -41,19 +41,19 @@ function UserForm({ user, onClose }: { user: AdminUser; onClose: () => void }) {
     email: user.email ?? "",
     organization: user.organization ?? "",
     isAdmin: user.roles?.includes("ROLE_ADMIN") ?? false,
-  })
+  });
 
-  const isLoading = updateMutation.isPending
+  const isLoading = updateMutation.isPending;
 
   const handleChange = (field: keyof typeof form, value: string | boolean) => {
-    setForm((prev) => ({ ...prev, [field]: value }))
-  }
+    setForm((prev) => ({ ...prev, [field]: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     const roles: string[] = form.isAdmin
       ? ["ROLE_USER", "ROLE_ADMIN"]
-      : ["ROLE_USER"]
+      : ["ROLE_USER"];
 
     await updateMutation.mutateAsync({
       id: user.id!,
@@ -65,9 +65,9 @@ function UserForm({ user, onClose }: { user: AdminUser; onClose: () => void }) {
         organization: form.organization || null,
         roles,
       },
-    })
-    onClose()
-  }
+    });
+    onClose();
+  };
 
   return (
     <Box as="form" onSubmit={handleSubmit}>
@@ -139,7 +139,12 @@ function UserForm({ user, onClose }: { user: AdminUser; onClose: () => void }) {
       </Dialog.Body>
 
       <Dialog.Footer gap="3">
-        <Button variant="outline" onClick={onClose} type="button" disabled={isLoading}>
+        <Button
+          variant="outline"
+          onClick={onClose}
+          type="button"
+          disabled={isLoading}
+        >
           Annuler
         </Button>
         <Button type="submit" colorPalette="primary" loading={isLoading}>
@@ -147,7 +152,7 @@ function UserForm({ user, onClose }: { user: AdminUser; onClose: () => void }) {
         </Button>
       </Dialog.Footer>
     </Box>
-  )
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -173,7 +178,7 @@ function StatCard({ label, value }: { label: string; value: React.ReactNode }) {
         </Text>
       </Card.Body>
     </Card.Root>
-  )
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -183,39 +188,39 @@ function StatCard({ label, value }: { label: string; value: React.ReactNode }) {
 export default function UserDetailPage({
   params,
 }: {
-  params: Promise<{ id: string }>
+  params: Promise<{ id: string }>;
 }) {
-  const { id } = use(params)
-  const userId = Number(id)
-  const router = useRouter()
+  const { id } = use(params);
+  const userId = Number(id);
+  const router = useRouter();
 
-  const { data: user, isLoading } = useAdminUserQuery(userId)
-  const uploadImageMutation = useUploadUserImageMutation()
-  const deleteUserMutation = useDeleteUserMutation()
+  const { data: user, isLoading } = useAdminUserQuery(userId);
+  const uploadImageMutation = useUploadUserImageMutation();
+  const deleteUserMutation = useDeleteUserMutation();
 
-  const [editOpen, setEditOpen] = useState(false)
-  const [deleteOpen, setDeleteOpen] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [editOpen, setEditOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    await uploadImageMutation.mutateAsync({ userId, file })
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await uploadImageMutation.mutateAsync({ userId, file });
     // Reset input so same file can be re-selected
-    if (fileInputRef.current) fileInputRef.current.value = ""
-  }
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   const handleConfirmDelete = async () => {
-    await deleteUserMutation.mutateAsync(userId)
-    router.push("/admin/users")
-  }
+    await deleteUserMutation.mutateAsync(userId);
+    router.push("/admin/users");
+  };
 
   if (isLoading) {
     return (
       <Box display="flex" justifyContent="center" py="16">
         <Spinner size="xl" color="primary.500" />
       </Box>
-    )
+    );
   }
 
   if (!user) {
@@ -228,19 +233,20 @@ export default function UserDetailPage({
           </Button>
         </Link>
       </VStack>
-    )
+    );
   }
 
-  const fullName = `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || "—"
-  const isAdmin = user.roles?.includes("ROLE_ADMIN") ?? false
-  const finishedRuns = user.finishedParticipationsCount ?? 0
-  const distance = finishedRuns * 4
+  const fullName =
+    `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || "—";
+  const isAdmin = user.roles?.includes("ROLE_ADMIN") ?? false;
+  const finishedRuns = user.finishedParticipationsCount ?? 0;
+  const distance = finishedRuns * 4;
 
   // Build image URL from IRI: "/api/medias/3" → extract "3" → build URL
-  const imageId = user.image?.split("/").at(-1)
+  const imageId = user.image?.split("/").at(-1);
   const imageUrl = imageId
     ? `${process.env.NEXT_PUBLIC_ENTRYPOINT ?? ""}/medias/${imageId}/file`
-    : null
+    : null;
 
   return (
     <VStack align="stretch" gap="6">
@@ -256,7 +262,12 @@ export default function UserDetailPage({
       {/* Header */}
       <Card.Root variant="outline" shadow="sm" borderColor="border.subtle">
         <Card.Body p="6">
-          <HStack justify="space-between" align="flex-start" flexWrap="wrap" gap="4">
+          <HStack
+            justify="space-between"
+            align="flex-start"
+            flexWrap="wrap"
+            gap="4"
+          >
             <VStack align="flex-start" gap="2">
               <HStack gap="3" align="center">
                 <Heading size="xl">{fullName}</Heading>
@@ -266,17 +277,26 @@ export default function UserDetailPage({
               </HStack>
               {user.surname && (
                 <Text color="fg.muted" fontSize="sm">
-                  Surnom : <Text as="span" fontWeight="medium" color="fg">{user.surname}</Text>
+                  Surnom :{" "}
+                  <Text as="span" fontWeight="medium" color="fg">
+                    {user.surname}
+                  </Text>
                 </Text>
               )}
               {user.email && (
                 <Text color="fg.muted" fontSize="sm">
-                  Email : <Text as="span" fontWeight="medium" color="fg">{user.email}</Text>
+                  Email :{" "}
+                  <Text as="span" fontWeight="medium" color="fg">
+                    {user.email}
+                  </Text>
                 </Text>
               )}
               {user.organization && (
                 <Text color="fg.muted" fontSize="sm">
-                  Organisation : <Text as="span" fontWeight="medium" color="fg">{user.organization}</Text>
+                  Organisation :{" "}
+                  <Text as="span" fontWeight="medium" color="fg">
+                    {user.organization}
+                  </Text>
                 </Text>
               )}
               <Text color="fg.muted" fontSize="xs">
@@ -339,7 +359,9 @@ export default function UserDetailPage({
                   borderRadius: "8px",
                   border: "1px solid var(--chakra-colors-border-subtle)",
                 }}
-                onError={(e) => { e.currentTarget.style.display = "none" }}
+                onError={(e) => {
+                  e.currentTarget.style.display = "none";
+                }}
               />
             ) : (
               <Box
@@ -400,7 +422,7 @@ export default function UserDetailPage({
             </Text>
             <VStack align="stretch" gap="1">
               {user.participations.map((iri) => {
-                const partId = iri.split("/").at(-1)
+                const partId = iri.split("/").at(-1);
                 return (
                   <HStack
                     key={iri}
@@ -418,7 +440,7 @@ export default function UserDetailPage({
                       #{partId}
                     </Badge>
                   </HStack>
-                )
+                );
               })}
             </VStack>
           </Card.Body>
@@ -426,7 +448,10 @@ export default function UserDetailPage({
       )}
 
       {/* Edit dialog */}
-      <Dialog.Root open={editOpen} onOpenChange={({ open }) => !open && setEditOpen(false)}>
+      <Dialog.Root
+        open={editOpen}
+        onOpenChange={({ open }) => !open && setEditOpen(false)}
+      >
         <Portal>
           <Dialog.Backdrop />
           <Dialog.Positioner>
@@ -462,5 +487,5 @@ export default function UserDetailPage({
         loading={deleteUserMutation.isPending}
       />
     </VStack>
-  )
+  );
 }

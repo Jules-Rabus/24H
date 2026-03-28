@@ -26,7 +26,13 @@ export default function GalleryPage() {
   return (
     <Box bg="bg.canvas" minH="100vh" colorPalette="primary">
       {/* Header */}
-      <Box as="header" bg="bg.panel" borderBottomWidth="1px" borderColor="border.subtle" mb="8">
+      <Box
+        as="header"
+        bg="bg.panel"
+        borderBottomWidth="1px"
+        borderColor="border.subtle"
+        mb="8"
+      >
         <Container maxW="container.xl" py="4">
           <HStack justify="space-between">
             <HStack gap="3">
@@ -41,7 +47,11 @@ export default function GalleryPage() {
               </HStack>
             </HStack>
             <HStack gap="2">
-              <Button size="sm" colorPalette="primary" onClick={() => router.push("/upload")}>
+              <Button
+                size="sm"
+                colorPalette="primary"
+                onClick={() => router.push("/upload")}
+              >
                 <LuCamera /> Ajouter une photo
               </Button>
               <ColorModeButton />
@@ -59,9 +69,16 @@ export default function GalleryPage() {
         ) : mediaList.length === 0 ? (
           <VStack py="20" gap="4" textAlign="center">
             <Icon as={LuCamera} boxSize="16" color="fg.subtle" />
-            <Heading size="lg" color="fg.muted">Aucune photo pour le moment</Heading>
-            <Text color="fg.subtle">Soyez le premier à partager votre moment !</Text>
-            <Button colorPalette="primary" onClick={() => router.push("/upload")}>
+            <Heading size="lg" color="fg.muted">
+              Aucune photo pour le moment
+            </Heading>
+            <Text color="fg.subtle">
+              Soyez le premier à partager votre moment !
+            </Text>
+            <Button
+              colorPalette="primary"
+              onClick={() => router.push("/upload")}
+            >
               <LuCamera /> Envoyer une photo
             </Button>
           </VStack>
@@ -73,7 +90,12 @@ export default function GalleryPage() {
               </Text>
             </HStack>
             <Grid
-              templateColumns={{ base: "1fr 1fr", sm: "repeat(3, 1fr)", md: "repeat(4, 1fr)", lg: "repeat(5, 1fr)" }}
+              templateColumns={{
+                base: "1fr 1fr",
+                sm: "repeat(3, 1fr)",
+                md: "repeat(4, 1fr)",
+                lg: "repeat(5, 1fr)",
+              }}
               gap="3"
             >
               {mediaList.map((media) => (
@@ -92,25 +114,46 @@ export default function GalleryPage() {
                   <img
                     src={media.filePath ?? ""}
                     alt="Photo de la course"
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
                   />
                   {(media.createdAt || media.comment) && (
                     <Box
                       position="absolute"
-                      bottom="0" left="0" right="0"
-                      px="2" py="1"
+                      bottom="0"
+                      left="0"
+                      right="0"
+                      px="2"
+                      py="1"
                       bg="blackAlpha.700"
                     >
                       {media.comment && (
-                        <Text fontSize="11px" color="whiteAlpha.900" fontWeight="medium" lineClamp={2} mb="0.5">
+                        <Text
+                          fontSize="11px"
+                          color="whiteAlpha.900"
+                          fontWeight="medium"
+                          lineClamp={2}
+                          mb="0.5"
+                        >
                           {media.comment}
                         </Text>
                       )}
                       {media.createdAt && (
-                        <Text fontSize="10px" color="whiteAlpha.700" fontVariantNumeric="tabular-nums">
-                          {new Date(media.createdAt).toLocaleTimeString("fr-FR", {
-                            hour: "2-digit", minute: "2-digit",
-                          })}
+                        <Text
+                          fontSize="10px"
+                          color="whiteAlpha.700"
+                          fontVariantNumeric="tabular-nums"
+                        >
+                          {new Date(media.createdAt).toLocaleTimeString(
+                            "fr-FR",
+                            {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            },
+                          )}
                         </Text>
                       )}
                     </Box>

@@ -1,4 +1,4 @@
-import { http, HttpResponse } from "msw"
+import { http, HttpResponse } from "msw";
 
 export const raceHandlers = [
   http.get("*/runs", () => {
@@ -17,7 +17,7 @@ export const raceHandlers = [
         },
       ],
       "hydra:totalItems": 1,
-    })
+    });
   }),
 
   http.get("*/participations", () => {
@@ -38,6 +38,6 @@ export const raceHandlers = [
         },
       ],
       "hydra:totalItems": 1,
-    })
+    });
   }),
-]
+];

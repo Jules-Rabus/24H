@@ -1,4 +1,4 @@
-import { z } from "zod"
+import { z } from "zod";
 
 export const raceMediaSchema = z.object({
   id: z.number().nullish(),
@@ -6,6 +6,6 @@ export const raceMediaSchema = z.object({
   contentUrl: z.string().nullish(),
   comment: z.string().nullish(),
   createdAt: z.string().nullish(),
-})
+});
 
-export type RaceMedia = z.infer<typeof raceMediaSchema>
+export type RaceMedia = z.infer<typeof raceMediaSchema>;

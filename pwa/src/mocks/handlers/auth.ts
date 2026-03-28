@@ -1,4 +1,4 @@
-import { http, HttpResponse } from "msw"
+import { http, HttpResponse } from "msw";
 
 export const authHandlers = [
   http.post("*/login", () => {
@@ -7,7 +7,7 @@ export const authHandlers = [
       headers: {
         "Set-Cookie": "BEARER=fake-jwt-token; HttpOnly; Path=/",
       },
-    })
+    });
   }),
 
   http.post("*/logout", () => {
@@ -16,7 +16,7 @@ export const authHandlers = [
       headers: {
         "Set-Cookie": "BEARER=; HttpOnly; Path=/; Max-Age=0",
       },
-    })
+    });
   }),
 
   http.get("*/users/me", () => {
@@ -26,10 +26,10 @@ export const authHandlers = [
       firstName: "Admin",
       lastName: "User",
       roles: ["ROLE_ADMIN"],
-    })
+    });
   }),
 
   http.post("*/forgot-password/", () => {
-    return new HttpResponse(null, { status: 204 })
+    return new HttpResponse(null, { status: 204 });
   }),
-]
+];

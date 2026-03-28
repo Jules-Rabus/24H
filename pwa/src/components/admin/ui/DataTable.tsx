@@ -1,35 +1,43 @@
-"use client"
+"use client";
 
-import { Box, Button, HStack, Icon, Spinner, Table, Text } from "@chakra-ui/react"
-import { LuChevronUp, LuChevronDown, LuChevronsUpDown } from "react-icons/lu"
+import {
+  Box,
+  Button,
+  HStack,
+  Icon,
+  Spinner,
+  Table,
+  Text,
+} from "@chakra-ui/react";
+import { LuChevronUp, LuChevronDown, LuChevronsUpDown } from "react-icons/lu";
 
-export type SortDir = "asc" | "desc"
+export type SortDir = "asc" | "desc";
 
 export interface SortState {
-  field: string
-  dir: SortDir
+  field: string;
+  dir: SortDir;
 }
 
 export interface Column<T> {
-  key: string
-  header: string
-  render: (row: T) => React.ReactNode
-  width?: string
-  sortField?: string
+  key: string;
+  header: string;
+  render: (row: T) => React.ReactNode;
+  width?: string;
+  sortField?: string;
 }
 
 interface DataTableProps<T> {
-  columns: Column<T>[]
-  data: T[]
-  isLoading?: boolean
-  keyExtractor: (row: T) => string | number
-  page?: number
-  totalItems?: number
-  itemsPerPage?: number
-  onPageChange?: (page: number) => void
-  emptyMessage?: string
-  sort?: SortState
-  onSortChange?: (sort: SortState) => void
+  columns: Column<T>[];
+  data: T[];
+  isLoading?: boolean;
+  keyExtractor: (row: T) => string | number;
+  page?: number;
+  totalItems?: number;
+  itemsPerPage?: number;
+  onPageChange?: (page: number) => void;
+  emptyMessage?: string;
+  sort?: SortState;
+  onSortChange?: (sort: SortState) => void;
 }
 
 export function DataTable<T>({
@@ -45,26 +53,34 @@ export function DataTable<T>({
   sort,
   onSortChange,
 }: DataTableProps<T>) {
-  const totalPages = Math.ceil(totalItems / itemsPerPage)
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   const handleHeaderClick = (col: Column<T>) => {
-    if (!col.sortField || !onSortChange) return
+    if (!col.sortField || !onSortChange) return;
     if (sort?.field === col.sortField) {
-      onSortChange({ field: col.sortField, dir: sort.dir === "asc" ? "desc" : "asc" })
+      onSortChange({
+        field: col.sortField,
+        dir: sort.dir === "asc" ? "desc" : "asc",
+      });
     } else {
-      onSortChange({ field: col.sortField, dir: "asc" })
+      onSortChange({ field: col.sortField, dir: "asc" });
     }
-  }
+  };
 
   return (
     <Box>
-      <Box overflowX="auto" rounded="lg" borderWidth="1px" borderColor="border.subtle">
+      <Box
+        overflowX="auto"
+        rounded="lg"
+        borderWidth="1px"
+        borderColor="border.subtle"
+      >
         <Table.Root variant="outline" size="sm">
           <Table.Header>
             <Table.Row bg="bg.subtle">
               {columns.map((col) => {
-                const isSorted = sort?.field === col.sortField
-                const isSortable = !!col.sortField && !!onSortChange
+                const isSorted = sort?.field === col.sortField;
+                const isSortable = !!col.sortField && !!onSortChange;
                 return (
                   <Table.ColumnHeader
                     key={col.key}
@@ -98,7 +114,7 @@ export function DataTable<T>({
                       )}
                     </HStack>
                   </Table.ColumnHeader>
-                )
+                );
               })}
             </Table.Row>
           </Table.Header>
@@ -112,12 +128,18 @@ export function DataTable<T>({
             ) : data.length === 0 ? (
               <Table.Row>
                 <Table.Cell colSpan={columns.length} textAlign="center" py="8">
-                  <Text color="fg.muted" fontSize="sm">{emptyMessage}</Text>
+                  <Text color="fg.muted" fontSize="sm">
+                    {emptyMessage}
+                  </Text>
                 </Table.Cell>
               </Table.Row>
             ) : (
               data.map((row) => (
-                <Table.Row key={keyExtractor(row)} _hover={{ bg: "bg.subtle" }} transition="background 0.1s">
+                <Table.Row
+                  key={keyExtractor(row)}
+                  _hover={{ bg: "bg.subtle" }}
+                  transition="background 0.1s"
+                >
                   {columns.map((col) => (
                     <Table.Cell key={col.key} px="4" py="3" fontSize="sm">
                       {col.render(row)}
@@ -159,5 +181,5 @@ export function DataTable<T>({
         </HStack>
       )}
     </Box>
-  )
+  );
 }

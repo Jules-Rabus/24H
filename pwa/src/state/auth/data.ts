@@ -1,4 +1,4 @@
-import { Me } from "./schemas"
+import { Me } from "./schemas";
 
 export const mockMe: Me = {
   id: 1,
@@ -6,4 +6,4 @@ export const mockMe: Me = {
   firstName: "Admin",
   lastName: "User",
   roles: ["ROLE_ADMIN"],
-}
+};

@@ -1,4 +1,4 @@
-import { http, HttpResponse } from "msw"
+import { http, HttpResponse } from "msw";
 
 export const runnersHandlers = [
   http.get("*/users/public", () => {
@@ -27,6 +27,6 @@ export const runnersHandlers = [
         },
       ],
       "hydra:totalItems": 2,
-    })
+    });
   }),
-]
+];
