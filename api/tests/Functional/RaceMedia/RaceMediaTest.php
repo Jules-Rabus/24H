@@ -2,6 +2,7 @@
 
 namespace App\Tests\Functional\RaceMedia;
 
+use App\ApiResource\RaceMedia\RaceMediaApi;
 use App\Entity\RaceMedia;
 use App\Factory\UserFactory;
 use App\Tests\Functional\Api\AbstractTestCase;
@@ -30,7 +31,7 @@ class RaceMediaTest extends AbstractTestCase
         $client->request('POST', '/race_medias', [
             'headers' => [
                 'Content-Type' => 'multipart/form-data',
-                'Accept' => 'application/ld+json',
+                'Accept' => 'application/json',
             ],
             'extra' => [
                 'files' => [
@@ -40,17 +41,16 @@ class RaceMediaTest extends AbstractTestCase
         ]);
 
         $this->assertResponseStatusCodeSame(201);
-        $this->assertJsonContains([
-            '@context' => '/contexts/RaceMedia',
-            '@type' => 'RaceMedia',
-        ]);
 
         $response = $client->getResponse();
         $responseData = json_decode($response->getContent(), true);
 
-        $this->assertArrayHasKey('filePath', $responseData);
-        $this->assertNotNull($responseData['filePath']);
-        $this->assertStringEndsWith('.png', $responseData['filePath']);
+        $this->assertArrayHasKey('contentUrl', $responseData);
+        $this->assertNotNull($responseData['contentUrl']);
+        $this->assertStringStartsWith('http', $responseData['contentUrl']);
+        $this->assertStringContainsString('.png', $responseData['contentUrl']);
+        $this->assertIsInt($responseData['id']);
+        $this->assertMatchesResourceItemJsonSchema(RaceMediaApi::class);
 
         // Verify it was persisted
         $this->assertCount(1, $this->getContainer()->get('doctrine')->getRepository(RaceMedia::class)->findAll());
@@ -72,22 +72,15 @@ class RaceMediaTest extends AbstractTestCase
 
         $client = $this->createClientWithCredentials($user);
 
-        $client->request('GET', '/race_medias', [
-            'headers' => ['Accept' => 'application/ld+json'],
+        $response = $client->request('GET', '/race_medias', [
+            'headers' => ['Accept' => 'application/json'],
         ]);
 
         $this->assertResponseStatusCodeSame(200);
-        $this->assertJsonContains([
-            '@context' => '/contexts/RaceMedia',
-            '@id' => '/race_medias',
-            '@type' => 'Collection',
-            'totalItems' => 1,
-        ]);
 
-        $response = $client->getResponse();
-        $responseData = json_decode($response->getContent(), true);
-
-        $this->assertCount(1, $responseData['member']);
-        $this->assertSame('dummy.png', $responseData['member'][0]['filePath']);
+        $data = $response->toArray();
+        $this->assertCount(1, $data);
+        $this->assertStringContainsString('dummy.png', $data[0]['contentUrl']);
+        $this->assertMatchesResourceCollectionJsonSchema(RaceMediaApi::class);
     }
 }
