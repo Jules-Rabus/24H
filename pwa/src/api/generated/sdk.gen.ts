@@ -92,6 +92,9 @@ import type {
   LogoutData,
   LogoutErrors,
   LogoutResponses,
+  MeData,
+  MeErrors,
+  MeResponses,
   PostForgotPasswordData,
   PostForgotPasswordErrors,
   PostForgotPasswordResponses,
@@ -99,39 +102,6 @@ import type {
   PostForgotPasswordTokenErrors,
   PostForgotPasswordTokenResponses,
 } from "./types.gen";
-import {
-  zApiMediasGetCollectionResponse,
-  zApiMediasIdDeleteResponse,
-  zApiMediasIdGetResponse,
-  zApiParticipationsfinishedPostResponse,
-  zApiParticipationsGetCollectionResponse,
-  zApiParticipationsIdDeleteResponse,
-  zApiParticipationsIdGetResponse,
-  zApiParticipationsIdPatchResponse,
-  zApiParticipationsPostResponse,
-  zApiRaceMediasGetCollectionResponse,
-  zApiRaceMediasIdDeleteResponse,
-  zApiRaceMediasIdGetResponse,
-  zApiRaceMediasPostResponse,
-  zApiRunsGetCollectionResponse,
-  zApiRunsIdDeleteResponse,
-  zApiRunsIdGetResponse,
-  zApiRunsIdPatchResponse,
-  zApiRunsPostResponse,
-  zApiUsersGetCollectionResponse,
-  zApiUsersIdDeleteResponse,
-  zApiUsersIdGetResponse,
-  zApiUsersIdPatchResponse,
-  zApiUsersPostResponse,
-  zApiUserspublicGetCollectionResponse,
-  zApiUserspublicIdGetResponse,
-  zApiUsersUserIdimagePostResponse,
-  zGetForgotPasswordResponse,
-  zLoginCheckPostResponse,
-  zLogoutResponse,
-  zPostForgotPasswordResponse,
-  zPostForgotPasswordTokenResponse,
-} from "./zod.gen";
 
 export type Options<
   TData extends TDataShape = TDataShape,
@@ -161,8 +131,6 @@ export const postForgotPassword = <ThrowOnError extends boolean = false>(
     PostForgotPasswordErrors,
     ThrowOnError
   >({
-    responseValidator: async (data) =>
-      await zPostForgotPasswordResponse.parseAsync(data),
     url: "/forgot-password/",
     ...options,
     headers: {
@@ -183,8 +151,6 @@ export const getForgotPassword = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     responseType: "json",
-    responseValidator: async (data) =>
-      await zGetForgotPasswordResponse.parseAsync(data),
     url: "/forgot-password/{tokenValue}",
     ...options,
   });
@@ -200,8 +166,6 @@ export const postForgotPasswordToken = <ThrowOnError extends boolean = false>(
     PostForgotPasswordTokenErrors,
     ThrowOnError
   >({
-    responseValidator: async (data) =>
-      await zPostForgotPasswordTokenResponse.parseAsync(data),
     url: "/forgot-password/{tokenValue}",
     ...options,
     headers: {
@@ -224,8 +188,6 @@ export const loginCheckPost = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     responseType: "json",
-    responseValidator: async (data) =>
-      await zLoginCheckPostResponse.parseAsync(data),
     url: "/login",
     ...options,
     headers: {
@@ -248,8 +210,6 @@ export const apiMediasGetCollection = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     responseType: "json",
-    responseValidator: async (data) =>
-      await zApiMediasGetCollectionResponse.parseAsync(data),
     url: "/medias",
     ...options,
   });
@@ -266,12 +226,7 @@ export const apiMediasIdDelete = <ThrowOnError extends boolean = false>(
     ApiMediasIdDeleteResponses,
     ApiMediasIdDeleteErrors,
     ThrowOnError
-  >({
-    responseValidator: async (data) =>
-      await zApiMediasIdDeleteResponse.parseAsync(data),
-    url: "/medias/{id}",
-    ...options,
-  });
+  >({ url: "/medias/{id}", ...options });
 
 /**
  * Retrieves a Medias resource.
@@ -287,8 +242,6 @@ export const apiMediasIdGet = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     responseType: "json",
-    responseValidator: async (data) =>
-      await zApiMediasIdGetResponse.parseAsync(data),
     url: "/medias/{id}",
     ...options,
   });
@@ -308,8 +261,6 @@ export const apiUsersUserIdimagePost = <ThrowOnError extends boolean = false>(
   >({
     ...formDataBodySerializer,
     responseType: "json",
-    responseValidator: async (data) =>
-      await zApiUsersUserIdimagePostResponse.parseAsync(data),
     url: "/users/{userId}/image",
     ...options,
     headers: {
@@ -334,8 +285,6 @@ export const apiParticipationsGetCollection = <
     ThrowOnError
   >({
     responseType: "json",
-    responseValidator: async (data) =>
-      await zApiParticipationsGetCollectionResponse.parseAsync(data),
     url: "/participations",
     ...options,
   });
@@ -354,12 +303,10 @@ export const apiParticipationsPost = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     responseType: "json",
-    responseValidator: async (data) =>
-      await zApiParticipationsPostResponse.parseAsync(data),
     url: "/participations",
     ...options,
     headers: {
-      "Content-Type": "application/ld+json",
+      "Content-Type": "application/json",
       ...options.headers,
     },
   });
@@ -380,8 +327,6 @@ export const apiParticipationsfinishedPost = <
     ThrowOnError
   >({
     responseType: "json",
-    responseValidator: async (data) =>
-      await zApiParticipationsfinishedPostResponse.parseAsync(data),
     url: "/participations/finished",
     ...options,
     headers: {
@@ -402,12 +347,7 @@ export const apiParticipationsIdDelete = <ThrowOnError extends boolean = false>(
     ApiParticipationsIdDeleteResponses,
     ApiParticipationsIdDeleteErrors,
     ThrowOnError
-  >({
-    responseValidator: async (data) =>
-      await zApiParticipationsIdDeleteResponse.parseAsync(data),
-    url: "/participations/{id}",
-    ...options,
-  });
+  >({ url: "/participations/{id}", ...options });
 
 /**
  * Retrieves a Participation resource.
@@ -423,8 +363,6 @@ export const apiParticipationsIdGet = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     responseType: "json",
-    responseValidator: async (data) =>
-      await zApiParticipationsIdGetResponse.parseAsync(data),
     url: "/participations/{id}",
     ...options,
   });
@@ -443,8 +381,6 @@ export const apiParticipationsIdPatch = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     responseType: "json",
-    responseValidator: async (data) =>
-      await zApiParticipationsIdPatchResponse.parseAsync(data),
     url: "/participations/{id}",
     ...options,
     headers: {
@@ -469,8 +405,6 @@ export const apiRaceMediasGetCollection = <
     ThrowOnError
   >({
     responseType: "json",
-    responseValidator: async (data) =>
-      await zApiRaceMediasGetCollectionResponse.parseAsync(data),
     url: "/race_medias",
     ...options,
   });
@@ -490,8 +424,6 @@ export const apiRaceMediasPost = <ThrowOnError extends boolean = false>(
   >({
     ...formDataBodySerializer,
     responseType: "json",
-    responseValidator: async (data) =>
-      await zApiRaceMediasPostResponse.parseAsync(data),
     url: "/race_medias",
     ...options,
     headers: {
@@ -512,12 +444,7 @@ export const apiRaceMediasIdDelete = <ThrowOnError extends boolean = false>(
     ApiRaceMediasIdDeleteResponses,
     ApiRaceMediasIdDeleteErrors,
     ThrowOnError
-  >({
-    responseValidator: async (data) =>
-      await zApiRaceMediasIdDeleteResponse.parseAsync(data),
-    url: "/race_medias/{id}",
-    ...options,
-  });
+  >({ url: "/race_medias/{id}", ...options });
 
 /**
  * Retrieves a RaceMedia resource.
@@ -533,8 +460,6 @@ export const apiRaceMediasIdGet = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     responseType: "json",
-    responseValidator: async (data) =>
-      await zApiRaceMediasIdGetResponse.parseAsync(data),
     url: "/race_medias/{id}",
     ...options,
   });
@@ -553,8 +478,6 @@ export const apiRunsGetCollection = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     responseType: "json",
-    responseValidator: async (data) =>
-      await zApiRunsGetCollectionResponse.parseAsync(data),
     url: "/runs",
     ...options,
   });
@@ -573,12 +496,10 @@ export const apiRunsPost = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     responseType: "json",
-    responseValidator: async (data) =>
-      await zApiRunsPostResponse.parseAsync(data),
     url: "/runs",
     ...options,
     headers: {
-      "Content-Type": "application/ld+json",
+      "Content-Type": "application/json",
       ...options.headers,
     },
   });
@@ -595,12 +516,7 @@ export const apiRunsIdDelete = <ThrowOnError extends boolean = false>(
     ApiRunsIdDeleteResponses,
     ApiRunsIdDeleteErrors,
     ThrowOnError
-  >({
-    responseValidator: async (data) =>
-      await zApiRunsIdDeleteResponse.parseAsync(data),
-    url: "/runs/{id}",
-    ...options,
-  });
+  >({ url: "/runs/{id}", ...options });
 
 /**
  * Retrieves a Run resource.
@@ -616,8 +532,6 @@ export const apiRunsIdGet = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     responseType: "json",
-    responseValidator: async (data) =>
-      await zApiRunsIdGetResponse.parseAsync(data),
     url: "/runs/{id}",
     ...options,
   });
@@ -636,8 +550,6 @@ export const apiRunsIdPatch = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     responseType: "json",
-    responseValidator: async (data) =>
-      await zApiRunsIdPatchResponse.parseAsync(data),
     url: "/runs/{id}",
     ...options,
     headers: {
@@ -656,11 +568,10 @@ export const logout = <ThrowOnError extends boolean = false>(
 ) =>
   (options.client ?? client).post<LogoutResponses, LogoutErrors, ThrowOnError>({
     responseType: "json",
-    responseValidator: async (data) => await zLogoutResponse.parseAsync(data),
     url: "/logout",
     ...options,
     headers: {
-      "Content-Type": "application/ld+json",
+      "Content-Type": "application/json",
       ...options.headers,
     },
   });
@@ -679,8 +590,6 @@ export const apiUsersGetCollection = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     responseType: "json",
-    responseValidator: async (data) =>
-      await zApiUsersGetCollectionResponse.parseAsync(data),
     url: "/users",
     ...options,
   });
@@ -699,14 +608,26 @@ export const apiUsersPost = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     responseType: "json",
-    responseValidator: async (data) =>
-      await zApiUsersPostResponse.parseAsync(data),
     url: "/users",
     ...options,
     headers: {
-      "Content-Type": "application/ld+json",
+      "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * Retrieves a User resource.
+ *
+ * Retrieves a User resource.
+ */
+export const me = <ThrowOnError extends boolean = false>(
+  options?: Options<MeData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<MeResponses, MeErrors, ThrowOnError>({
+    responseType: "json",
+    url: "/users/me",
+    ...options,
   });
 
 /**
@@ -725,8 +646,6 @@ export const apiUserspublicGetCollection = <
     ThrowOnError
   >({
     responseType: "json",
-    responseValidator: async (data) =>
-      await zApiUserspublicGetCollectionResponse.parseAsync(data),
     url: "/users/public",
     ...options,
   });
@@ -745,8 +664,6 @@ export const apiUserspublicIdGet = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     responseType: "json",
-    responseValidator: async (data) =>
-      await zApiUserspublicIdGetResponse.parseAsync(data),
     url: "/users/public/{id}",
     ...options,
   });
@@ -763,12 +680,7 @@ export const apiUsersIdDelete = <ThrowOnError extends boolean = false>(
     ApiUsersIdDeleteResponses,
     ApiUsersIdDeleteErrors,
     ThrowOnError
-  >({
-    responseValidator: async (data) =>
-      await zApiUsersIdDeleteResponse.parseAsync(data),
-    url: "/users/{id}",
-    ...options,
-  });
+  >({ url: "/users/{id}", ...options });
 
 /**
  * Retrieves a User resource.
@@ -784,8 +696,6 @@ export const apiUsersIdGet = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     responseType: "json",
-    responseValidator: async (data) =>
-      await zApiUsersIdGetResponse.parseAsync(data),
     url: "/users/{id}",
     ...options,
   });
@@ -804,8 +714,6 @@ export const apiUsersIdPatch = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     responseType: "json",
-    responseValidator: async (data) =>
-      await zApiUsersIdPatchResponse.parseAsync(data),
     url: "/users/{id}",
     ...options,
     headers: {

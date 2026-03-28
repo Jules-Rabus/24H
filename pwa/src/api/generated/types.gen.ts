@@ -42,7 +42,7 @@ export type ConstraintViolation = {
 /**
  * Unprocessable entity
  */
-export type ConstraintViolationJsonld = HydraItemBaseSchema & {
+export type ConstraintViolationJsonld = {
   status?: number;
   violations?: Array<{
     /**
@@ -101,7 +101,7 @@ export type Error = {
 /**
  * A representation of common errors.
  */
-export type ErrorJsonld = HydraItemBaseSchema & {
+export type ErrorJsonld = {
   /**
    * A short, human-readable summary of the problem.
    */
@@ -122,72 +122,48 @@ export type ErrorJsonld = HydraItemBaseSchema & {
   readonly description?: string | null;
 };
 
-export type HydraCollectionBaseSchema =
-  HydraCollectionBaseSchemaNoPagination & {
-    view?: {
-      "@id"?: string;
-      "@type"?: string;
-      first?: string;
-      last?: string;
-      previous?: string;
-      next?: string;
-    };
-  };
-
-export type HydraCollectionBaseSchemaNoPagination = {
-  totalItems?: number;
-  search?: {
-    "@type"?: string;
-    template?: string;
-    variableRepresentation?: string;
-    mapping?: Array<{
-      "@type"?: string;
-      variable?: string;
-      property?: string | null;
-      required?: boolean;
-    }>;
-  };
+export type Medias = {
+  id?: number | null;
+  contentUrl?: string | null;
+  runner?: string | null;
 };
 
-export type HydraItemBaseSchema = {
-  "@context"?:
-    | string
-    | {
-        "@vocab": string;
-        hydra: "http://www.w3.org/ns/hydra/core#";
-        [key: string]: unknown;
-      };
-  "@id": string;
-  "@type": string;
-};
-
-export type MediasMediasCollectionJsonld = HydraItemBaseSchema & {
+export type MediasMediasCollection = {
   id?: number;
-  filePath?: string | null;
+  contentUrl?: string | null;
   runner?: string | null;
 };
 
 export type MediasMediasCollectionMultipart = {
   id?: number;
-  filePath?: string | null;
-  runner?: string | null;
-};
-
-export type MediasJsonld = HydraItemBaseSchema & {
-  id?: number | null;
-  filePath?: string | null;
+  contentUrl?: string | null;
   runner?: string | null;
 };
 
 export type MediasMultipart = {
   id?: number | null;
-  filePath?: string | null;
+  contentUrl?: string | null;
   runner?: string | null;
 };
 
+export type Participation = {
+  id?: number | null;
+  run?: RunRef | null;
+  user?: UserRef | null;
+  arrivalTime?: string | null;
+  totalTime?: number | null;
+  status?: string;
+};
+
 export type ParticipationCreateParticipation = {
-  run?: string;
-  user?: string;
+  run?: string | null;
+  user?: string | null;
+  arrivalTime?: string | null;
+};
+
+export type ParticipationCreateParticipationMultipart = {
+  run?: string | null;
+  user?: string | null;
   arrivalTime?: string | null;
 };
 
@@ -195,18 +171,20 @@ export type ParticipationDataMatrixInput = {
   rawValue?: string;
 };
 
-export type ParticipationParticipationCollectionJsonld = HydraItemBaseSchema & {
+export type ParticipationParticipationCollection = {
   id?: number;
-  run?: string | null;
-  user?: string | null;
+  run?: RunRef | null;
+  user?: UserRef | null;
+  arrivalTime?: string | null;
   status?: string;
   totalTime?: number | null;
 };
 
 export type ParticipationParticipationCollectionMultipart = {
   id?: number;
-  run?: string | null;
-  user?: string | null;
+  run?: RunRefMultipart | null;
+  user?: UserRefMultipart | null;
+  arrivalTime?: string | null;
   status?: string;
   totalTime?: number | null;
 };
@@ -215,46 +193,53 @@ export type ParticipationUpdateParticipationJsonMergePatch = {
   arrivalTime?: string | null;
 };
 
-export type ParticipationJsonld = HydraItemBaseSchema & {
-  id?: number | null;
-  run?: string | null;
-  user?: string | null;
-  arrivalTime?: string | null;
-  totalTime?: number | null;
-  status?: string;
-};
-
 export type ParticipationMultipart = {
   id?: number | null;
-  run?: string | null;
-  user?: string | null;
+  run?: RunRefMultipart | null;
+  user?: UserRefMultipart | null;
   arrivalTime?: string | null;
   totalTime?: number | null;
   status?: string;
 };
 
-export type RaceMediaRaceMediaCollectionJsonld = HydraItemBaseSchema & {
+export type RaceMedia = {
   id?: number | null;
-  filePath?: string | null;
+  contentUrl?: string | null;
+  comment?: string | null;
+  createdAt?: string | null;
+};
+
+export type RaceMediaRaceMediaCollection = {
+  id?: number;
+  contentUrl?: string | null;
+  comment?: string | null;
   createdAt?: string | null;
 };
 
 export type RaceMediaRaceMediaCollectionMultipart = {
-  id?: number | null;
-  filePath?: string | null;
-  createdAt?: string | null;
-};
-
-export type RaceMediaJsonld = HydraItemBaseSchema & {
-  id?: number | null;
-  filePath?: string | null;
+  id?: number;
+  contentUrl?: string | null;
+  comment?: string | null;
   createdAt?: string | null;
 };
 
 export type RaceMediaMultipart = {
   id?: number | null;
-  filePath?: string | null;
+  contentUrl?: string | null;
+  comment?: string | null;
   createdAt?: string | null;
+};
+
+export type Run = {
+  id?: number | null;
+  startDate?: string;
+  endDate?: string;
+  participations?: Array<string | null>;
+  participantsCount?: number;
+  inProgressParticipantsCount?: number;
+  finishedParticipantsCount?: number;
+  createdAt?: string | null;
+  updatedAt?: string | null;
 };
 
 export type RunCreateRun = {
@@ -262,7 +247,12 @@ export type RunCreateRun = {
   endDate: string;
 };
 
-export type RunRunCollectionJsonld = HydraItemBaseSchema & {
+export type RunCreateRunMultipart = {
+  startDate: string;
+  endDate: string;
+};
+
+export type RunRunCollection = {
   id?: number;
   startDate?: string;
   endDate?: string;
@@ -281,7 +271,7 @@ export type RunUpdateRunJsonMergePatch = {
   endDate?: string | null;
 };
 
-export type RunJsonld = HydraItemBaseSchema & {
+export type RunMultipart = {
   id?: number | null;
   startDate?: string;
   endDate?: string;
@@ -293,16 +283,16 @@ export type RunJsonld = HydraItemBaseSchema & {
   updatedAt?: string | null;
 };
 
-export type RunMultipart = {
+export type RunRef = {
   id?: number | null;
-  startDate?: string;
-  endDate?: string;
-  participations?: Array<string | null>;
-  participantsCount?: number;
-  inProgressParticipantsCount?: number;
-  finishedParticipantsCount?: number;
-  createdAt?: string | null;
-  updatedAt?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+};
+
+export type RunRefMultipart = {
+  id?: number | null;
+  startDate?: string | null;
+  endDate?: string | null;
 };
 
 export type User = {
@@ -332,6 +322,16 @@ export type UserCreateUser = {
   roles?: Array<string | null>;
 };
 
+export type UserCreateUserMultipart = {
+  firstName: string;
+  lastName: string;
+  surname?: string | null;
+  email?: string | null;
+  plainPassword?: string | null;
+  organization?: string | null;
+  roles?: Array<string | null>;
+};
+
 export type UserUpdateUserJsonMergePatch = {
   firstName?: string | null;
   lastName?: string | null;
@@ -342,7 +342,7 @@ export type UserUpdateUserJsonMergePatch = {
   roles?: Array<string | null> | null;
 };
 
-export type UserUserCollectionJsonld = HydraItemBaseSchema & {
+export type UserUserCollection = {
   id?: number;
   firstName?: string;
   lastName?: string;
@@ -366,7 +366,7 @@ export type UserUserCollectionMultipart = {
   finishedParticipationsCount?: number;
 };
 
-export type UserJsonld = HydraItemBaseSchema & {
+export type UserMultipart = {
   id?: number | null;
   firstName?: string;
   lastName?: string;
@@ -383,21 +383,18 @@ export type UserJsonld = HydraItemBaseSchema & {
   readonly userIdentifier?: string;
 };
 
-export type UserMultipart = {
+export type UserRef = {
   id?: number | null;
-  firstName?: string;
-  lastName?: string;
+  firstName?: string | null;
+  lastName?: string | null;
   surname?: string | null;
-  email?: string | null;
-  roles?: Array<string | null>;
-  organization?: string | null;
-  participations?: Array<string | null>;
-  image?: string | null;
-  createdAt?: string | null;
-  updatedAt?: string | null;
-  finishedParticipations?: Array<string | null>;
-  finishedParticipationsCount?: number;
-  readonly userIdentifier?: string;
+};
+
+export type UserRefMultipart = {
+  id?: number | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  surname?: string | null;
 };
 
 export type ForgotPasswordReset = {
@@ -446,7 +443,7 @@ export type ConstraintViolationWritable = {
 /**
  * Unprocessable entity
  */
-export type ConstraintViolationJsonldWritable = HydraItemBaseSchema & {
+export type ConstraintViolationJsonldWritable = {
   status?: number;
   violations?: Array<{
     /**
@@ -484,27 +481,11 @@ export type ErrorWritable = {
 /**
  * A representation of common errors.
  */
-export type ErrorJsonldWritable = HydraItemBaseSchema & {
+export type ErrorJsonldWritable = {
   status?: number | null;
 };
 
 export type UserWritable = {
-  id?: number | null;
-  firstName?: string;
-  lastName?: string;
-  surname?: string | null;
-  email?: string | null;
-  roles?: Array<string | null>;
-  organization?: string | null;
-  participations?: Array<string | null>;
-  image?: string | null;
-  createdAt?: string | null;
-  updatedAt?: string | null;
-  finishedParticipations?: Array<string | null>;
-  finishedParticipationsCount?: number;
-};
-
-export type UserJsonldWritable = HydraItemBaseSchema & {
   id?: number | null;
   firstName?: string;
   lastName?: string;
@@ -668,10 +649,6 @@ export type ApiMediasGetCollectionData = {
      * The number of items per page
      */
     itemsPerPage?: number;
-    /**
-     * Enable or disable pagination
-     */
-    pagination?: boolean;
     id?: number;
     "id[]"?: Array<number>;
     "order[id]"?: "asc" | "desc";
@@ -691,11 +668,9 @@ export type ApiMediasGetCollectionError =
 
 export type ApiMediasGetCollectionResponses = {
   /**
-   * Medias.MediasCollection.jsonld collection.
+   * Medias collection
    */
-  200: HydraCollectionBaseSchema & {
-    member: Array<MediasMediasCollectionJsonld>;
-  };
+  200: Array<MediasMediasCollection>;
 };
 
 export type ApiMediasGetCollectionResponse =
@@ -763,7 +738,7 @@ export type ApiMediasIdGetResponses = {
   /**
    * Medias resource
    */
-  200: MediasJsonld;
+  200: Medias;
 };
 
 export type ApiMediasIdGetResponse =
@@ -808,7 +783,7 @@ export type ApiUsersUserIdimagePostResponses = {
   /**
    * Medias resource created
    */
-  201: MediasJsonld;
+  201: Medias;
 };
 
 export type ApiUsersUserIdimagePostResponse =
@@ -826,10 +801,6 @@ export type ApiParticipationsGetCollectionData = {
      * The number of items per page
      */
     itemsPerPage?: number;
-    /**
-     * Enable or disable pagination
-     */
-    pagination?: boolean;
     id?: number;
     "id[]"?: Array<number>;
     run?: string;
@@ -874,11 +845,9 @@ export type ApiParticipationsGetCollectionError =
 
 export type ApiParticipationsGetCollectionResponses = {
   /**
-   * Participation.ParticipationCollection.jsonld collection.
+   * Participation collection
    */
-  200: HydraCollectionBaseSchema & {
-    member: Array<ParticipationParticipationCollectionJsonld>;
-  };
+  200: Array<ParticipationParticipationCollection>;
 };
 
 export type ApiParticipationsGetCollectionResponse =
@@ -916,7 +885,7 @@ export type ApiParticipationsPostResponses = {
   /**
    * Participation resource created
    */
-  201: ParticipationJsonld;
+  201: Participation;
 };
 
 export type ApiParticipationsPostResponse =
@@ -954,7 +923,7 @@ export type ApiParticipationsfinishedPostResponses = {
   /**
    * Participation resource created
    */
-  201: ParticipationJsonld;
+  201: Participation;
 };
 
 export type ApiParticipationsfinishedPostResponse =
@@ -1026,7 +995,7 @@ export type ApiParticipationsIdGetResponses = {
   /**
    * Participation resource
    */
-  200: ParticipationJsonld;
+  200: Participation;
 };
 
 export type ApiParticipationsIdGetResponse =
@@ -1073,7 +1042,7 @@ export type ApiParticipationsIdPatchResponses = {
   /**
    * Participation resource updated
    */
-  200: ParticipationJsonld;
+  200: Participation;
 };
 
 export type ApiParticipationsIdPatchResponse =
@@ -1091,10 +1060,6 @@ export type ApiRaceMediasGetCollectionData = {
      * The number of items per page
      */
     itemsPerPage?: number;
-    /**
-     * Enable or disable pagination
-     */
-    pagination?: boolean;
     id?: number;
     "id[]"?: Array<number>;
     "order[id]"?: "asc" | "desc";
@@ -1105,11 +1070,9 @@ export type ApiRaceMediasGetCollectionData = {
 
 export type ApiRaceMediasGetCollectionResponses = {
   /**
-   * RaceMedia.RaceMediaCollection.jsonld collection.
+   * RaceMedia collection
    */
-  200: HydraCollectionBaseSchema & {
-    member: Array<RaceMediaRaceMediaCollectionJsonld>;
-  };
+  200: Array<RaceMediaRaceMediaCollection>;
 };
 
 export type ApiRaceMediasGetCollectionResponse =
@@ -1121,6 +1084,7 @@ export type ApiRaceMediasPostData = {
    */
   body?: {
     file: Blob | File;
+    comment?: string;
   };
   path?: never;
   query?: never;
@@ -1149,7 +1113,7 @@ export type ApiRaceMediasPostResponses = {
   /**
    * RaceMedia resource created
    */
-  201: RaceMediaJsonld;
+  201: RaceMedia;
 };
 
 export type ApiRaceMediasPostResponse =
@@ -1217,7 +1181,7 @@ export type ApiRaceMediasIdGetResponses = {
   /**
    * RaceMedia resource
    */
-  200: RaceMediaJsonld;
+  200: RaceMedia;
 };
 
 export type ApiRaceMediasIdGetResponse =
@@ -1235,10 +1199,6 @@ export type ApiRunsGetCollectionData = {
      * The number of items per page
      */
     itemsPerPage?: number;
-    /**
-     * Enable or disable pagination
-     */
-    pagination?: boolean;
     id?: number;
     "id[]"?: Array<number>;
     "order[id]"?: "asc" | "desc";
@@ -1268,11 +1228,9 @@ export type ApiRunsGetCollectionError =
 
 export type ApiRunsGetCollectionResponses = {
   /**
-   * Run.RunCollection.jsonld collection.
+   * Run collection
    */
-  200: HydraCollectionBaseSchema & {
-    member: Array<RunRunCollectionJsonld>;
-  };
+  200: Array<RunRunCollection>;
 };
 
 export type ApiRunsGetCollectionResponse =
@@ -1309,7 +1267,7 @@ export type ApiRunsPostResponses = {
   /**
    * Run resource created
    */
-  201: RunJsonld;
+  201: Run;
 };
 
 export type ApiRunsPostResponse =
@@ -1380,7 +1338,7 @@ export type ApiRunsIdGetResponses = {
   /**
    * Run resource
    */
-  200: RunJsonld;
+  200: Run;
 };
 
 export type ApiRunsIdGetResponse =
@@ -1427,7 +1385,7 @@ export type ApiRunsIdPatchResponses = {
   /**
    * Run resource updated
    */
-  200: RunJsonld;
+  200: Run;
 };
 
 export type ApiRunsIdPatchResponse =
@@ -1460,7 +1418,7 @@ export type LogoutResponses = {
   /**
    * User resource created
    */
-  201: UserJsonld;
+  201: User;
 };
 
 export type LogoutResponse = LogoutResponses[keyof LogoutResponses];
@@ -1477,10 +1435,6 @@ export type ApiUsersGetCollectionData = {
      * The number of items per page
      */
     itemsPerPage?: number;
-    /**
-     * Enable or disable pagination
-     */
-    pagination?: boolean;
     id?: number;
     "id[]"?: Array<number>;
     firstName?: string;
@@ -1510,11 +1464,9 @@ export type ApiUsersGetCollectionError =
 
 export type ApiUsersGetCollectionResponses = {
   /**
-   * User.jsonld collection.
+   * User collection
    */
-  200: HydraCollectionBaseSchema & {
-    member: Array<UserJsonld>;
-  };
+  200: Array<User>;
 };
 
 export type ApiUsersGetCollectionResponse =
@@ -1551,11 +1503,40 @@ export type ApiUsersPostResponses = {
   /**
    * User resource created
    */
-  201: UserJsonld;
+  201: User;
 };
 
 export type ApiUsersPostResponse =
   ApiUsersPostResponses[keyof ApiUsersPostResponses];
+
+export type MeData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/users/me";
+};
+
+export type MeErrors = {
+  /**
+   * Forbidden
+   */
+  403: ErrorJsonld;
+  /**
+   * Not found
+   */
+  404: ErrorJsonld;
+};
+
+export type MeError = MeErrors[keyof MeErrors];
+
+export type MeResponses = {
+  /**
+   * User resource
+   */
+  200: User;
+};
+
+export type MeResponse = MeResponses[keyof MeResponses];
 
 export type ApiUserspublicGetCollectionData = {
   body?: never;
@@ -1569,10 +1550,6 @@ export type ApiUserspublicGetCollectionData = {
      * The number of items per page
      */
     itemsPerPage?: number;
-    /**
-     * Enable or disable pagination
-     */
-    pagination?: boolean;
     id?: number;
     "id[]"?: Array<number>;
     firstName?: string;
@@ -1592,11 +1569,9 @@ export type ApiUserspublicGetCollectionData = {
 
 export type ApiUserspublicGetCollectionResponses = {
   /**
-   * User.UserCollection.jsonld collection.
+   * User collection
    */
-  200: HydraCollectionBaseSchema & {
-    member: Array<UserUserCollectionJsonld>;
-  };
+  200: Array<UserUserCollection>;
 };
 
 export type ApiUserspublicGetCollectionResponse =
@@ -1628,7 +1603,7 @@ export type ApiUserspublicIdGetResponses = {
   /**
    * User resource
    */
-  200: UserUserCollectionJsonld;
+  200: UserUserCollection;
 };
 
 export type ApiUserspublicIdGetResponse =
@@ -1699,7 +1674,7 @@ export type ApiUsersIdGetResponses = {
   /**
    * User resource
    */
-  200: UserJsonld;
+  200: User;
 };
 
 export type ApiUsersIdGetResponse =
@@ -1746,7 +1721,7 @@ export type ApiUsersIdPatchResponses = {
   /**
    * User resource updated
    */
-  200: UserJsonld;
+  200: User;
 };
 
 export type ApiUsersIdPatchResponse =

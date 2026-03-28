@@ -1,6 +1,7 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query"
 import { apiUserspublicGetCollection } from "@/api/generated/sdk.gen"
-import { runnersPageSchema, type Runner } from "./schemas"
+import { runnerSchema, type Runner } from "./schemas"
+import { z } from "zod"
 
 export type { Runner }
 
@@ -25,11 +26,12 @@ async function fetchRunnersPage(
   const { data } = await apiUserspublicGetCollection({
     query: { page, itemsPerPage: ITEMS_PER_PAGE, ...extraParams },
   })
-  const parsed = runnersPageSchema.parse(data)
-  const hasNext = !!parsed.view?.next
+  const member = z.array(runnerSchema).parse(data)
+  // API returns plain array; if we got a full page there may be more
+  const hasNext = member.length === ITEMS_PER_PAGE
   return {
-    member: parsed.member,
-    totalItems: parsed.totalItems ?? 0,
+    member,
+    totalItems: member.length,
     nextPage: hasNext ? page + 1 : null,
   }
 }
@@ -50,8 +52,7 @@ export function useRunnersQuery(params?: Record<string, string>) {
       const { data } = await apiUserspublicGetCollection({
         query: { itemsPerPage: 100, ...params },
       })
-      const parsed = runnersPageSchema.parse(data)
-      return parsed.member
+      return z.array(runnerSchema).parse(data)
     },
   })
 }

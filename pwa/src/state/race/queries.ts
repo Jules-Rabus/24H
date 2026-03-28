@@ -1,11 +1,12 @@
 import { useQuery } from "@tanstack/react-query"
 import { apiRunsGetCollection, apiParticipationsGetCollection } from "@/api/generated/sdk.gen"
 import {
-  runsCollectionSchema,
-  participationsCollectionSchema,
+  runSchema,
+  participationSchema,
   type Run,
   type Participation,
 } from "./schemas"
+import { z } from "zod"
 
 export type { Run, Participation }
 
@@ -22,8 +23,7 @@ export function useRunsQuery() {
       const { data } = await apiRunsGetCollection({
         query: { "order[startDate]": "asc" },
       })
-      const parsed = runsCollectionSchema.parse(data)
-      return parsed.member
+      return z.array(runSchema).parse(data)
     },
   })
 }
@@ -35,8 +35,7 @@ export function useParticipationsQuery() {
       const { data } = await apiParticipationsGetCollection({
         query: { "order[arrivalTime]": "desc", itemsPerPage: 1000 },
       })
-      const parsed = participationsCollectionSchema.parse(data)
-      return parsed.member.filter((p) => p.status === "FINISHED")
+      return z.array(participationSchema).parse(data).filter((p) => p.status === "FINISHED")
     },
   })
 }

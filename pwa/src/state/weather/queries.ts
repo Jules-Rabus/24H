@@ -14,7 +14,7 @@ async function fetchWeather(lat: number, lon: number): Promise<WeatherResponse> 
     params: {
       latitude: lat,
       longitude: lon,
-      current: "temperature_2m,weather_code",
+      current: "temperature_2m,weather_code,apparent_temperature,windspeed_10m,relative_humidity_2m",
       hourly: "temperature_2m,weather_code",
       timezone: "Europe/Paris",
     },

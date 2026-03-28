@@ -19,6 +19,8 @@
     "@api-platform/admin": "^4.0.6",
     "@api-platform/api-doc-parser": "^0.16.8",
     "@bwip-js/browser": "^4.6.0",
+    "embla-carousel": "^8.6.0",
+    "embla-carousel-react": "^8.6.0",
     "@chakra-ui/react": "^3.34.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",

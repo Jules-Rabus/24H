@@ -19,11 +19,6 @@ const adminUserSchema = z.object({
 
 export type AdminUser = z.infer<typeof adminUserSchema>
 
-const usersCollectionSchema = z.object({
-  member: z.array(adminUserSchema),
-  totalItems: z.number().optional(),
-})
-
 export const adminUserKeys = {
   all: ["admin", "users"] as const,
   list: (filters?: Record<string, string>) =>
@@ -52,8 +47,8 @@ export function useAdminUsersQuery(filters: UserFilters = {}) {
       const { data } = await apiUsersGetCollection({
         query: { page, itemsPerPage, "order[lastName]": "asc", ...rest },
       })
-      const parsed = usersCollectionSchema.parse(data)
-      return { member: parsed.member, totalItems: parsed.totalItems ?? 0 }
+      const member = z.array(adminUserSchema).parse(data)
+      return { member, totalItems: member.length }
     },
   })
 }
