@@ -23,6 +23,7 @@ import {
   type AdminParticipation,
   type ParticipationFilters,
 } from "@/state/admin/participations/queries"
+import { type SortState } from "@/components/admin/ui/DataTable"
 import {
   useUpdateParticipationMutation,
   useDeleteParticipationMutation,
@@ -114,6 +115,7 @@ export default function ParticipationsPage() {
     page: 1,
     itemsPerPage: 30,
   })
+  const [sort, setSort] = useState<SortState>({ field: "run.id", dir: "asc" })
   const [statusFilter, setStatusFilter] = useState("")
   const [firstNameInput, setFirstNameInput] = useState("")
   const [lastNameInput, setLastNameInput] = useState("")
@@ -124,7 +126,7 @@ export default function ParticipationsPage() {
   const [deleteParticipation, setDeleteParticipation] =
     useState<AdminParticipation | null>(null)
 
-  const { data, isLoading } = useAdminParticipationsQuery(filters)
+  const { data, isLoading } = useAdminParticipationsQuery({ ...filters, orderField: sort.field, orderDir: sort.dir })
   const deleteMutation = useDeleteParticipationMutation()
 
   // Client-side status filter (API does not support status filtering)
@@ -162,12 +164,14 @@ export default function ParticipationsPage() {
         <Text fontWeight="medium">Run #{iriToId(row.run)}</Text>
       ),
       width: "110px",
+      sortField: "run.id",
     },
     {
       key: "user",
       header: "Coureur",
       render: (row) => <Text>User #{iriToId(row.user)}</Text>,
       width: "120px",
+      sortField: "user.lastName",
     },
     {
       key: "arrivalTime",
@@ -179,6 +183,7 @@ export default function ParticipationsPage() {
               timeStyle: "short",
             })
           : <Text color="fg.muted">-</Text>,
+      sortField: "arrivalTime",
     },
     {
       key: "totalTime",
@@ -187,6 +192,7 @@ export default function ParticipationsPage() {
         <Text fontFamily="mono">{formatTime(row.totalTime)}</Text>
       ),
       width: "130px",
+      sortField: "totalTime",
     },
     {
       key: "status",
@@ -353,6 +359,8 @@ export default function ParticipationsPage() {
         itemsPerPage={filters.itemsPerPage ?? 30}
         onPageChange={(p) => setFilters((prev) => ({ ...prev, page: p }))}
         emptyMessage="Aucune participation trouvée"
+        sort={sort}
+        onSortChange={(s) => { setSort(s); setFilters((f) => ({ ...f, page: 1 })) }}
       />
 
       {/* Edit dialog */}

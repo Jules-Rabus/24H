@@ -1,12 +1,21 @@
 "use client"
 
-import { Box, Button, HStack, Spinner, Table, Text } from "@chakra-ui/react"
+import { Box, Button, HStack, Icon, Spinner, Table, Text } from "@chakra-ui/react"
+import { LuChevronUp, LuChevronDown, LuChevronsUpDown } from "react-icons/lu"
+
+export type SortDir = "asc" | "desc"
+
+export interface SortState {
+  field: string
+  dir: SortDir
+}
 
 export interface Column<T> {
   key: string
   header: string
   render: (row: T) => React.ReactNode
   width?: string
+  sortField?: string
 }
 
 interface DataTableProps<T> {
@@ -19,6 +28,8 @@ interface DataTableProps<T> {
   itemsPerPage?: number
   onPageChange?: (page: number) => void
   emptyMessage?: string
+  sort?: SortState
+  onSortChange?: (sort: SortState) => void
 }
 
 export function DataTable<T>({
@@ -31,8 +42,19 @@ export function DataTable<T>({
   itemsPerPage = 30,
   onPageChange,
   emptyMessage = "Aucun résultat",
+  sort,
+  onSortChange,
 }: DataTableProps<T>) {
   const totalPages = Math.ceil(totalItems / itemsPerPage)
+
+  const handleHeaderClick = (col: Column<T>) => {
+    if (!col.sortField || !onSortChange) return
+    if (sort?.field === col.sortField) {
+      onSortChange({ field: col.sortField, dir: sort.dir === "asc" ? "desc" : "asc" })
+    } else {
+      onSortChange({ field: col.sortField, dir: "asc" })
+    }
+  }
 
   return (
     <Box>
@@ -40,21 +62,44 @@ export function DataTable<T>({
         <Table.Root variant="outline" size="sm">
           <Table.Header>
             <Table.Row bg="bg.subtle">
-              {columns.map((col) => (
-                <Table.ColumnHeader
-                  key={col.key}
-                  px="4"
-                  py="3"
-                  fontWeight="semibold"
-                  fontSize="xs"
-                  textTransform="uppercase"
-                  letterSpacing="wider"
-                  color="fg.muted"
-                  w={col.width}
-                >
-                  {col.header}
-                </Table.ColumnHeader>
-              ))}
+              {columns.map((col) => {
+                const isSorted = sort?.field === col.sortField
+                const isSortable = !!col.sortField && !!onSortChange
+                return (
+                  <Table.ColumnHeader
+                    key={col.key}
+                    px="4"
+                    py="3"
+                    fontWeight="semibold"
+                    fontSize="xs"
+                    textTransform="uppercase"
+                    letterSpacing="wider"
+                    color={isSorted ? "colorPalette.fg" : "fg.muted"}
+                    w={col.width}
+                    cursor={isSortable ? "pointer" : "default"}
+                    userSelect="none"
+                    onClick={() => handleHeaderClick(col)}
+                    _hover={isSortable ? { color: "fg.default" } : undefined}
+                  >
+                    <HStack gap="1" display="inline-flex">
+                      <span>{col.header}</span>
+                      {isSortable && (
+                        <Icon
+                          as={
+                            isSorted
+                              ? sort!.dir === "asc"
+                                ? LuChevronUp
+                                : LuChevronDown
+                              : LuChevronsUpDown
+                          }
+                          boxSize="3"
+                          opacity={isSorted ? 1 : 0.4}
+                        />
+                      )}
+                    </HStack>
+                  </Table.ColumnHeader>
+                )
+              })}
             </Table.Row>
           </Table.Header>
           <Table.Body>

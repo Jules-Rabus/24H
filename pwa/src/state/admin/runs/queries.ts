@@ -17,16 +17,18 @@ export type AdminRun = z.infer<typeof runSchema>
 
 export const adminRunKeys = {
   all: ["admin", "runs"] as const,
-  list: () => [...adminRunKeys.all, "list"] as const,
+  list: (orderField?: string, orderDir?: string) =>
+    [...adminRunKeys.all, "list", orderField, orderDir] as const,
   detail: (id: number) => [...adminRunKeys.all, "detail", id] as const,
 }
 
-export function useAdminRunsQuery() {
+export function useAdminRunsQuery(orderField = "startDate", orderDir: "asc" | "desc" = "asc") {
+  const orderKey = `order[${orderField}]` as `order[${string}]`
   return useQuery({
-    queryKey: adminRunKeys.list(),
+    queryKey: adminRunKeys.list(orderField, orderDir),
     queryFn: async () => {
       const { data } = await apiRunsGetCollection({
-        query: { "order[startDate]": "asc", itemsPerPage: 100 },
+        query: { [orderKey]: orderDir, itemsPerPage: 100 },
       })
       return z.array(runSchema).parse(data)
     },

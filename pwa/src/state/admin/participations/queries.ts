@@ -26,14 +26,18 @@ export interface ParticipationFilters {
   "run.id"?: number
   page?: number
   itemsPerPage?: number
+  orderField?: string
+  orderDir?: "asc" | "desc"
 }
 
 export function useAdminParticipationsQuery(filters: ParticipationFilters = {}) {
-  const { page = 1, itemsPerPage = 30, ...rest } = filters
-  // Build a serialisable key (stringify numeric run.id)
+  const { page = 1, itemsPerPage = 30, orderField = "run.id", orderDir = "asc", ...rest } = filters
+  const orderKey = `order[${orderField}]` as `order[${string}]`
   const keyFilters: Record<string, string> = {
     page: String(page),
     itemsPerPage: String(itemsPerPage),
+    orderField,
+    orderDir,
   }
   for (const [k, v] of Object.entries(rest)) {
     if (v !== undefined) keyFilters[k] = String(v)
@@ -42,7 +46,7 @@ export function useAdminParticipationsQuery(filters: ParticipationFilters = {}) 
     queryKey: adminParticipationKeys.list(keyFilters),
     queryFn: async () => {
       const { data } = await apiParticipationsGetCollection({
-        query: { page, itemsPerPage, "order[run.id]": "asc", ...rest },
+        query: { page, itemsPerPage, [orderKey]: orderDir, ...rest },
       })
       const member = z.array(participationSchema).parse(data)
       return { member, totalItems: member.length }

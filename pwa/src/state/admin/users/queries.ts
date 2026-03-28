@@ -33,19 +33,24 @@ export interface UserFilters {
   email?: string
   page?: number
   itemsPerPage?: number
+  orderField?: string
+  orderDir?: "asc" | "desc"
 }
 
 export function useAdminUsersQuery(filters: UserFilters = {}) {
-  const { page = 1, itemsPerPage = 30, ...rest } = filters
+  const { page = 1, itemsPerPage = 30, orderField = "lastName", orderDir = "asc", ...rest } = filters
+  const orderKey = `order[${orderField}]` as `order[${string}]`
   return useQuery({
     queryKey: adminUserKeys.list({
       page: String(page),
       itemsPerPage: String(itemsPerPage),
+      orderField,
+      orderDir,
       ...(rest as Record<string, string>),
     }),
     queryFn: async () => {
       const { data } = await apiUsersGetCollection({
-        query: { page, itemsPerPage, "order[lastName]": "asc", ...rest },
+        query: { page, itemsPerPage, [orderKey]: orderDir, ...rest },
       })
       const member = z.array(adminUserSchema).parse(data)
       return { member, totalItems: member.length }

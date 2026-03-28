@@ -22,6 +22,7 @@ import {
   type AdminUser,
   type UserFilters,
 } from "@/state/admin/users/queries"
+import { type SortState } from "@/components/admin/ui/DataTable"
 import {
   useCreateUserMutation,
   useUpdateUserMutation,
@@ -183,8 +184,9 @@ const ITEMS_PER_PAGE = 30
 export default function AdminUsersPage() {
   const [filters, setFilters] = useState<UserFilters>({ page: 1, itemsPerPage: ITEMS_PER_PAGE })
   const [search, setSearch] = useState({ firstName: "", lastName: "", email: "" })
+  const [sort, setSort] = useState<SortState>({ field: "lastName", dir: "asc" })
 
-  const { data, isLoading } = useAdminUsersQuery(filters)
+  const { data, isLoading } = useAdminUsersQuery({ ...filters, orderField: sort.field, orderDir: sort.dir })
 
   const [formOpen, setFormOpen] = useState(false)
   const [editUser, setEditUser] = useState<AdminUser | undefined>(undefined)
@@ -221,26 +223,31 @@ export default function AdminUsersPage() {
       header: "#",
       render: (u) => u.id ?? "-",
       width: "60px",
+      sortField: "id",
     },
     {
       key: "name",
       header: "Nom",
       render: (u) => `${u.firstName ?? ""} ${u.lastName ?? ""}`.trim() || "-",
+      sortField: "lastName",
     },
     {
       key: "surname",
       header: "Surnom",
       render: (u) => u.surname ?? "-",
+      sortField: "surname",
     },
     {
       key: "email",
       header: "Email",
       render: (u) => u.email ?? "-",
+      sortField: "email",
     },
     {
       key: "org",
       header: "Organisation",
       render: (u) => u.organization ?? "-",
+      sortField: "organization",
     },
     {
       key: "roles",
@@ -258,6 +265,7 @@ export default function AdminUsersPage() {
       header: "Runs",
       render: (u) => u.finishedParticipationsCount ?? 0,
       width: "80px",
+      sortField: "finishedParticipationsCount",
     },
     {
       key: "dist",
@@ -391,6 +399,8 @@ export default function AdminUsersPage() {
         itemsPerPage={ITEMS_PER_PAGE}
         onPageChange={(page) => setFilters((f) => ({ ...f, page }))}
         emptyMessage="Aucun utilisateur trouvé"
+        sort={sort}
+        onSortChange={(s) => { setSort(s); setFilters((f) => ({ ...f, page: 1 })) }}
       />
 
       {/* Create / Edit dialog */}

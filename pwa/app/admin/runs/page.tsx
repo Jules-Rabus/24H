@@ -19,6 +19,7 @@ import {
   VStack,
 } from "@chakra-ui/react"
 import { useAdminRunsQuery, type AdminRun } from "@/state/admin/runs/queries"
+import { type SortState } from "@/components/admin/ui/DataTable"
 import {
   useCreateRunMutation,
   useUpdateRunMutation,
@@ -98,7 +99,8 @@ function RunForm({ run, onClose }: { run?: AdminRun; onClose: () => void }) {
 // ---------------------------------------------------------------------------
 
 export default function AdminRunsPage() {
-  const { data: runs, isLoading } = useAdminRunsQuery()
+  const [sort, setSort] = useState<SortState>({ field: "startDate", dir: "asc" })
+  const { data: runs, isLoading } = useAdminRunsQuery(sort.field, sort.dir)
 
   // Dialog state
   const [formOpen, setFormOpen] = useState(false)
@@ -123,24 +125,28 @@ export default function AdminRunsPage() {
       header: "#",
       render: (r) => r.id ?? "-",
       width: "60px",
+      sortField: "id",
     },
     {
       key: "start",
       header: "Début",
       render: (r) =>
         r.startDate ? new Date(r.startDate).toLocaleString("fr-FR") : "-",
+      sortField: "startDate",
     },
     {
       key: "end",
       header: "Fin",
       render: (r) =>
         r.endDate ? new Date(r.endDate).toLocaleString("fr-FR") : "-",
+      sortField: "endDate",
     },
     {
       key: "total",
       header: "Participants",
       render: (r) => r.participantsCount ?? 0,
       width: "120px",
+      sortField: "participantsCount",
     },
     {
       key: "inProgress",
@@ -271,6 +277,8 @@ export default function AdminRunsPage() {
         isLoading={isLoading}
         keyExtractor={(r) => r.id ?? Math.random()}
         emptyMessage="Aucun run trouvé"
+        sort={sort}
+        onSortChange={setSort}
       />
 
       {/* Create / Edit dialog */}
