@@ -55,9 +55,7 @@ class Run
 
     public function setStartDate(\DateTimeInterface $startDate): void
     {
-        $this->startDate = $startDate instanceof \DateTimeImmutable
-            ? \DateTime::createFromImmutable($startDate)
-            : $startDate;
+        $this->startDate = $startDate;
     }
 
     public function getEndDate(): \DateTimeInterface
@@ -67,9 +65,7 @@ class Run
 
     public function setEndDate(\DateTimeInterface $endDate): void
     {
-        $this->endDate = $endDate instanceof \DateTimeImmutable
-            ? \DateTime::createFromImmutable($endDate)
-            : $endDate;
+        $this->endDate = $endDate;
     }
 
     /**

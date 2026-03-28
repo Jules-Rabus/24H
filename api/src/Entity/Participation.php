@@ -17,11 +17,11 @@ class Participation
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: Run::class, inversedBy: 'participations', cascade: ['persist'])]
+    #[ORM\ManyToOne(targetEntity: Run::class, inversedBy: 'participations')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Run $run = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'participations', cascade: ['persist'])]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'participations')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 

@@ -1,3 +1,5 @@
+import axios from "axios";
+import https from "https";
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 
@@ -31,6 +33,60 @@ interface User {
 interface DisplayProps {
   runs: Run[];
   initialParticipations: Participation[];
+}
+
+export async function getServerSideProps() {
+  const { DISPLAY_EMAIL, DISPLAY_PASSWORD, NEXT_PUBLIC_ENTRYPOINT, API_ENTRYPOINT } =
+    process.env;
+
+  const entrypoint = API_ENTRYPOINT || NEXT_PUBLIC_ENTRYPOINT;
+
+  if (!DISPLAY_EMAIL || !DISPLAY_PASSWORD || !entrypoint) {
+    throw new Error("Env variables are not set");
+  }
+
+  const httpsAgent = new https.Agent({
+    rejectUnauthorized: process.env.NODE_ENV === "development" ? false : true,
+  });
+
+  const loginResp = await axios.post<{ token: string }>(
+    `${entrypoint}/login`,
+    {
+      email: DISPLAY_EMAIL,
+      password: DISPLAY_PASSWORD,
+    },
+    { httpsAgent },
+  );
+
+  const token = loginResp.data.token;
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  const runsResp = await axios.get<{ member: Run[] }>(
+    `${entrypoint}/runs?order[startDate]=asc`,
+    { headers, httpsAgent },
+  );
+
+  const partResp = await axios.get<{
+    member: Participation[];
+  }>(`${entrypoint}/participations`, {
+    headers,
+    httpsAgent,
+    params: {
+      "order[arrivalTime]": "desc",
+      itemsPerPage: 1000,
+    },
+  });
+
+  return {
+    props: {
+      runs: runsResp.data.member,
+      initialParticipations: partResp.data.member.filter(
+        (p) => p.status === "FINISHED",
+      ),
+    },
+  };
 }
 
 export default function Display({ runs, initialParticipations }: DisplayProps) {

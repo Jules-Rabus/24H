@@ -2,7 +2,7 @@
 
 namespace App\Tests\Functional\Api\Run;
 
-use App\ApiResource\Run\RunApi;
+use App\Api\Run\Resource\Run;
 use App\Factory\RunFactory;
 use App\Factory\UserFactory;
 use App\Tests\Functional\Api\AbstractTestCase;
@@ -17,13 +17,18 @@ final class RunGetTest extends AbstractTestCase
         RunFactory::createMany(3);
 
         $response = $client->request('GET', self::ROUTE, [
-            'headers' => ['Accept' => 'application/json'],
+            'headers' => ['Accept' => 'application/ld+json'],
         ]);
 
         $this->assertResponseIsSuccessful();
-        $this->assertResponseHeaderSame('content-type', 'application/json; charset=utf-8');
-        $this->assertCount(3, $response->toArray());
-        $this->assertMatchesResourceCollectionJsonSchema(RunApi::class);
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertJsonContains([
+            '@context' => '/contexts/Run',
+            '@type' => 'Collection',
+            'totalItems' => 3,
+        ]);
+        $this->assertCount(3, $response->toArray()['member']);
+        $this->assertMatchesResourceCollectionJsonSchema(Run::class);
     }
 
     public function testGetCollectionForbiddenForUser(): void
@@ -40,10 +45,10 @@ final class RunGetTest extends AbstractTestCase
         $run = RunFactory::createOne();
 
         $this->createClientWithCredentials()->request('GET', self::ROUTE.'/'.$run->getId(), [
-            'headers' => ['Accept' => 'application/json'],
+            'headers' => ['Accept' => 'application/ld+json'],
         ]);
 
         $this->assertResponseIsSuccessful();
-        $this->assertMatchesResourceItemJsonSchema(RunApi::class);
+        $this->assertMatchesResourceItemJsonSchema(Run::class);
     }
 }

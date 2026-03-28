@@ -4,7 +4,7 @@ namespace App\State;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
-use App\ApiResource\Participation\ParticipationApi;
+use App\Api\Participation\Resource\Participation as ParticipationResource;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -21,7 +21,7 @@ final class ParticipationFinishedProcessor implements ProcessorInterface
     ) {
     }
 
-    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): ParticipationApi
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): ParticipationResource
     {
         $payload = json_decode($data->rawValue, true, 512, JSON_THROW_ON_ERROR);
         if (!isset($payload['originId'])) {
@@ -58,6 +58,6 @@ final class ParticipationFinishedProcessor implements ProcessorInterface
         $this->em->persist($currentParticipation);
         $this->em->flush();
 
-        return $this->objectMapper->map($currentParticipation, ParticipationApi::class);
+        return $this->objectMapper->map($currentParticipation, ParticipationResource::class);
     }
 }

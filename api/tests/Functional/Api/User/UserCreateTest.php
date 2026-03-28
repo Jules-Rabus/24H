@@ -2,7 +2,7 @@
 
 namespace App\Tests\Functional\Api\User;
 
-use App\ApiResource\User\UserApi;
+use App\Api\User\Resource\User;
 use App\Factory\UserFactory;
 use App\Tests\Functional\Api\AbstractTestCase;
 
@@ -16,8 +16,8 @@ final class UserCreateTest extends AbstractTestCase
 
         $response = $this->createClientWithCredentials()->request('POST', self::ROUTE, [
             'headers' => [
-                'Accept' => 'application/json',
-                'Content-Type' => 'application/json',
+                'Accept' => 'application/ld+json',
+                'Content-Type' => 'application/ld+json',
             ],
             'json' => [
                 'email' => $userData->getEmail(),
@@ -29,12 +29,14 @@ final class UserCreateTest extends AbstractTestCase
         ]);
 
         $this->assertResponseStatusCodeSame(201);
-        $this->assertResponseHeaderSame('content-type', 'application/json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
         $this->assertJsonContains([
+            '@context' => '/contexts/User',
+            '@type' => 'User',
             'email' => $userData->getEmail(),
         ]);
-        $this->assertIsInt($response->toArray()['id']);
-        $this->assertMatchesResourceItemJsonSchema(UserApi::class);
+        $this->assertMatchesRegularExpression('~^/users/\d+$~', $response->toArray()['@id']);
+        $this->assertMatchesResourceItemJsonSchema(User::class);
     }
 
     public function testCreateUserForbiddenForUser(): void
@@ -43,8 +45,8 @@ final class UserCreateTest extends AbstractTestCase
 
         $this->createClientWithCredentials($user)->request('POST', self::ROUTE, [
             'headers' => [
-                'Accept' => 'application/json',
-                'Content-Type' => 'application/json',
+                'Accept' => 'application/ld+json',
+                'Content-Type' => 'application/ld+json',
             ],
             'json' => ['email' => 'new@example.com', 'plainPassword' => 'pass'],
         ]);
@@ -56,8 +58,8 @@ final class UserCreateTest extends AbstractTestCase
     {
         $this->createClientWithCredentials()->request('POST', self::ROUTE, [
             'headers' => [
-                'Accept' => 'application/json',
-                'Content-Type' => 'application/json',
+                'Accept' => 'application/ld+json',
+                'Content-Type' => 'application/ld+json',
             ],
             'json' => [
                 'email' => 'not_a_valid_email',

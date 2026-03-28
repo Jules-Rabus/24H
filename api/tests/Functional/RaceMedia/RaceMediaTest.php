@@ -2,7 +2,6 @@
 
 namespace App\Tests\Functional\RaceMedia;
 
-use App\ApiResource\RaceMedia\RaceMediaApi;
 use App\Entity\RaceMedia;
 use App\Factory\UserFactory;
 use App\Tests\Functional\Api\AbstractTestCase;
@@ -13,6 +12,8 @@ class RaceMediaTest extends AbstractTestCase
     public function testUploadRaceMedia(): void
     {
         $user = UserFactory::createOne(['roles' => ['ROLE_ADMIN']]);
+        $runner = UserFactory::createOne();
+
         $client = $this->createClientWithCredentials($user);
 
         // Create a dummy image file for upload
@@ -31,26 +32,31 @@ class RaceMediaTest extends AbstractTestCase
         $client->request('POST', '/race_medias', [
             'headers' => [
                 'Content-Type' => 'multipart/form-data',
-                'Accept' => 'application/json',
+                'Accept' => 'application/ld+json',
             ],
             'extra' => [
                 'files' => [
                     'file' => $uploadedFile,
                 ],
+                'parameters' => [
+                    'runner' => '/users/'.$runner->getId(),
+                ],
             ],
         ]);
 
         $this->assertResponseStatusCodeSame(201);
+        $this->assertJsonContains([
+            '@context' => '/contexts/RaceMedia',
+            '@type' => 'RaceMedia',
+            'runner' => '/users/'.$runner->getId(),
+        ]);
 
         $response = $client->getResponse();
         $responseData = json_decode($response->getContent(), true);
 
-        $this->assertArrayHasKey('contentUrl', $responseData);
-        $this->assertNotNull($responseData['contentUrl']);
-        $this->assertStringStartsWith('http', $responseData['contentUrl']);
-        $this->assertStringContainsString('.png', $responseData['contentUrl']);
-        $this->assertIsInt($responseData['id']);
-        $this->assertMatchesResourceItemJsonSchema(RaceMediaApi::class);
+        $this->assertArrayHasKey('filePath', $responseData);
+        $this->assertNotNull($responseData['filePath']);
+        $this->assertStringEndsWith('.png', $responseData['filePath']);
 
         // Verify it was persisted
         $this->assertCount(1, $this->getContainer()->get('doctrine')->getRepository(RaceMedia::class)->findAll());
@@ -65,6 +71,7 @@ class RaceMediaTest extends AbstractTestCase
         // Setup some media
         $media = new RaceMedia();
         $media->setFilePath('dummy.png');
+        $media->setRunner($user);
 
         $em = $this->getContainer()->get('doctrine')->getManager();
         $em->persist($media);
@@ -72,15 +79,22 @@ class RaceMediaTest extends AbstractTestCase
 
         $client = $this->createClientWithCredentials($user);
 
-        $response = $client->request('GET', '/race_medias', [
-            'headers' => ['Accept' => 'application/json'],
+        $client->request('GET', '/race_medias', [
+            'headers' => ['Accept' => 'application/ld+json'],
         ]);
 
         $this->assertResponseStatusCodeSame(200);
+        $this->assertJsonContains([
+            '@context' => '/contexts/RaceMediaCollection',
+            '@id' => '/race_medias',
+            '@type' => 'hydra:Collection',
+            'hydra:totalItems' => 1,
+        ]);
 
-        $data = $response->toArray();
-        $this->assertCount(1, $data);
-        $this->assertStringContainsString('dummy.png', $data[0]['contentUrl']);
-        $this->assertMatchesResourceCollectionJsonSchema(RaceMediaApi::class);
+        $response = $client->getResponse();
+        $responseData = json_decode($response->getContent(), true);
+
+        $this->assertCount(1, $responseData['hydra:member']);
+        $this->assertSame('dummy.png', $responseData['hydra:member'][0]['filePath']);
     }
 }

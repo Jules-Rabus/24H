@@ -1,21 +1,30 @@
-import { createSystem, defaultConfig, defineConfig } from "@chakra-ui/react";
+import { createSystem, defaultConfig, defineConfig } from "@chakra-ui/react"
 
 const config = defineConfig({
   theme: {
     tokens: {
       colors: {
         primary: {
-          50: { value: "#e6f6f7" },
-          100: { value: "#b3e4e7" },
-          200: { value: "#80d2d7" },
-          300: { value: "#4dbfc7" },
-          400: { value: "#26b1bb" },
-          500: { value: "#0f929a" },
-          600: { value: "#0c7a81" },
-          700: { value: "#096168" },
-          800: { value: "#06494f" },
-          900: { value: "#033035" },
+          50: { value: "#e3f2fd" },
+          100: { value: "#bbdefb" },
+          200: { value: "#90caf9" },
+          300: { value: "#64b5f6" },
+          400: { value: "#42a5f5" },
+          500: { value: "#2196f3" },
+          600: { value: "#1e88e5" },
+          700: { value: "#1976d2" },
+          800: { value: "#1565c0" },
+          900: { value: "#0d47a1" },
         },
+        surface: { value: "#f9f9ff" },
+        "surface-container-low": { value: "#f1f3ff" },
+        "surface-container-highest": { value: "#dbe2f9" },
+        "on-surface": { value: "#141b2c" },
+        "on-surface-variant": { value: "#434654" },
+      },
+      fonts: {
+        heading: { value: "'Manrope', sans-serif" },
+        body: { value: "'Inter', sans-serif" },
       },
     },
     semanticTokens: {
@@ -23,7 +32,7 @@ const config = defineConfig({
         primary: {
           solid: { value: "{colors.primary.500}" },
           contrast: { value: "white" },
-          fg: { value: "{colors.primary.600}" },
+          fg: { value: "{colors.primary.700}" },
           muted: { value: "{colors.primary.100}" },
           subtle: { value: "{colors.primary.200}" },
           emphasized: { value: "{colors.primary.300}" },
@@ -32,6 +41,6 @@ const config = defineConfig({
       },
     },
   },
-});
+})
 
-export const system = createSystem(defaultConfig, config);
+export const system = createSystem(defaultConfig, config)

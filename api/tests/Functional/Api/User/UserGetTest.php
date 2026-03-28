@@ -2,7 +2,7 @@
 
 namespace App\Tests\Functional\Api\User;
 
-use App\ApiResource\User\UserApi;
+use App\Api\User\Resource\User;
 use App\Factory\UserFactory;
 use App\Tests\Functional\Api\AbstractTestCase;
 
@@ -16,13 +16,19 @@ final class UserGetTest extends AbstractTestCase
         UserFactory::createMany(29);
 
         $response = $client->request('GET', self::ROUTE, [
-            'headers' => ['Accept' => 'application/json'],
+            'headers' => ['Accept' => 'application/ld+json'],
         ]);
 
         $this->assertResponseIsSuccessful();
-        $this->assertResponseHeaderSame('content-type', 'application/json; charset=utf-8');
-        $this->assertCount(30, $response->toArray());
-        $this->assertMatchesResourceCollectionJsonSchema(UserApi::class);
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertJsonContains([
+            '@context' => '/contexts/User',
+            '@id' => '/users',
+            '@type' => 'Collection',
+            'totalItems' => 30,
+        ]);
+        $this->assertCount(30, $response->toArray()['member']);
+        $this->assertMatchesResourceCollectionJsonSchema(User::class);
     }
 
     public function testGetCollectionForbiddenForUser(): void
@@ -30,7 +36,7 @@ final class UserGetTest extends AbstractTestCase
         $user = UserFactory::createOne();
 
         $this->createClientWithCredentials($user)->request('GET', self::ROUTE, [
-            'headers' => ['Accept' => 'application/json'],
+            'headers' => ['Accept' => 'application/ld+json'],
         ]);
 
         $this->assertResponseStatusCodeSame(403);
@@ -42,15 +48,17 @@ final class UserGetTest extends AbstractTestCase
         $iri = '/users/'.$user->getId();
 
         $this->createClientWithCredentials()->request('GET', $iri, [
-            'headers' => ['Accept' => 'application/json'],
+            'headers' => ['Accept' => 'application/ld+json'],
         ]);
 
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains([
-            'id' => $user->getId(),
+            '@context' => '/contexts/User',
+            '@id' => $iri,
+            '@type' => 'User',
             'email' => $user->getEmail(),
         ]);
-        $this->assertMatchesResourceItemJsonSchema(UserApi::class);
+        $this->assertMatchesResourceItemJsonSchema(User::class);
     }
 
     public function testGetUserAsOwner(): void
@@ -59,15 +67,17 @@ final class UserGetTest extends AbstractTestCase
         $iri = '/users/'.$user->getId();
 
         $this->createClientWithCredentials($user)->request('GET', $iri, [
-            'headers' => ['Accept' => 'application/json'],
+            'headers' => ['Accept' => 'application/ld+json'],
         ]);
 
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains([
-            'id' => $user->getId(),
+            '@context' => '/contexts/User',
+            '@id' => $iri,
+            '@type' => 'User',
             'email' => $user->getEmail(),
         ]);
-        $this->assertMatchesResourceItemJsonSchema(UserApi::class);
+        $this->assertMatchesResourceItemJsonSchema(User::class);
     }
 
     public function testGetUserForbiddenForWrongUser(): void

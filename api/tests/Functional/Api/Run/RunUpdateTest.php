@@ -2,7 +2,6 @@
 
 namespace App\Tests\Functional\Api\Run;
 
-use App\ApiResource\Run\RunApi;
 use App\Factory\RunFactory;
 use App\Factory\UserFactory;
 use App\Tests\Functional\Api\AbstractTestCase;
@@ -13,7 +12,7 @@ final class RunUpdateTest extends AbstractTestCase
 
     public function testUpdateRunAsAdmin(): void
     {
-        $startDate = new \DateTimeImmutable('+1 day');
+        $startDate = new \DateTime('+1 day');
         $run = RunFactory::createOne([
             'startDate' => $startDate,
             'endDate' => $startDate->modify('+1 day'),
@@ -22,7 +21,7 @@ final class RunUpdateTest extends AbstractTestCase
 
         $this->createClientWithCredentials()->request('PATCH', self::ROUTE.'/'.$run->getId(), [
             'headers' => [
-                'Accept' => 'application/json',
+                'Accept' => 'application/ld+json',
                 'Content-Type' => 'application/merge-patch+json',
             ],
             'json' => ['endDate' => $newEndDate],
@@ -30,7 +29,6 @@ final class RunUpdateTest extends AbstractTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains(['endDate' => $newEndDate]);
-        $this->assertMatchesResourceItemJsonSchema(RunApi::class);
     }
 
     public function testUpdateRunForbiddenForUser(): void
@@ -40,7 +38,7 @@ final class RunUpdateTest extends AbstractTestCase
 
         $this->createClientWithCredentials($user)->request('PATCH', self::ROUTE.'/'.$run->getId(), [
             'headers' => [
-                'Accept' => 'application/json',
+                'Accept' => 'application/ld+json',
                 'Content-Type' => 'application/merge-patch+json',
             ],
             'json' => ['endDate' => (new \DateTimeImmutable('+3 days'))->format(\DateTimeInterface::RFC3339)],

@@ -1,5 +1,3 @@
-"use client";
-
 import Head from "next/head";
 import React, { useState } from "react";
 import { HydraAdmin, ResourceGuesser } from "@api-platform/admin";

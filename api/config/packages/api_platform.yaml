@@ -7,12 +7,12 @@ api_platform:
         include_type: true
     # Good defaults for REST APIs
     formats:
-        json: [ 'application/json' ]
+        jsonld: [ 'application/ld+json' ]
         multipart: [ 'multipart/form-data' ]
     defaults:
         pagination_items_per_page: 50
         pagination_client_items_per_page: true
-        pagination_client_enabled: false
+        pagination_client_enabled: true
         pagination_enabled: true
         collection:
             pagination:

@@ -5,6 +5,7 @@ import {
   IDetectedBarcode,
 } from "@yudiel/react-qr-scanner";
 import axios from "axios";
+import Link from "next/link";
 
 interface Participation {
   id: number;
@@ -43,6 +44,11 @@ export function getDatamatrixOutline(
 }
 
 export default function Scan() {
+  const [token, setToken] = useState<string | null>(null);
+  useEffect(() => {
+    setToken(localStorage.getItem("token"));
+  }, []);
+
   const [toast, setToast] = useState<Toast | null>(null);
   useEffect(() => {
     if (!toast) return;
@@ -63,13 +69,17 @@ export default function Scan() {
 
   const handleScan = async (result: IDetectedBarcode[]) => {
     if (!result?.length) return;
+    if (!token) {
+      showToast("❌ Vous devez vous connecter (/admin#/login)", "error");
+      return;
+    }
 
     try {
       const { rawValue } = result[0];
       const { data } = await axios.post<Participation>(
         `${process.env.NEXT_PUBLIC_ENTRYPOINT}/participations/finished`,
         { rawValue },
-        { withCredentials: true },
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       const arrivalTime = new Date(
@@ -95,6 +105,19 @@ export default function Scan() {
 
   return (
     <div className="min-h-screen bg-base-200 flex flex-col p-4">
+      {token === "" || token === null ? (
+        <div className="alert shadow-lg mb-4">
+          <div>
+            <span>
+              Vous devez vous connecter sur{" "}
+              <Link href="/admin#/login" className="link link-primary">
+                /login
+              </Link>
+            </span>
+          </div>
+        </div>
+      ) : null}
+
       <div className="card max-w-md shadow-lg bg-base-100 mx-auto">
         <div className="card-body">
           <h2 className="card-title">Scanner QR Code</h2>

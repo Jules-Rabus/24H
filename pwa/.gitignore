@@ -35,9 +35,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# openapi spec snapshot (regenerate with: curl -sk https://localhost/docs.jsonopenapi -o openapi.json)
-openapi.json
-
 /.idea
 
 certificates

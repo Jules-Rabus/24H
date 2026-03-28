@@ -1,14 +1,8 @@
-import "@testing-library/jest-dom";
-import { beforeAll, afterEach, afterAll } from "vitest";
-import { server } from "./src/mocks/server";
-import { client } from "./src/api/generated/client.gen";
+import '@testing-library/jest-dom'
 
-// Point the SDK client to the test base URL (intercepted by MSW)
-client.setConfig({
-  baseURL: "http://localhost",
-  throwOnError: true,
-});
+import { server } from './src/mocks/server'
+import { beforeAll, afterEach, afterAll } from 'vitest'
 
-beforeAll(() => server.listen({ onUnhandledRequest: "warn" }));
-afterEach(() => server.resetHandlers());
-afterAll(() => server.close());
+beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
+afterEach(() => server.resetHandlers())
+afterAll(() => server.close())

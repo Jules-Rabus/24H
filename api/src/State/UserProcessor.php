@@ -4,9 +4,9 @@ namespace App\State;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
-use App\ApiResource\User\UserApi;
-use App\Dto\User\CreateUser;
-use App\Dto\User\UpdateUser;
+use App\Api\User\Dto\CreateUser;
+use App\Api\User\Dto\UpdateUser;
+use App\Api\User\Resource\User as UserResource;
 use App\Entity\Participation;
 use App\Entity\Run;
 use App\Entity\User;
@@ -16,7 +16,7 @@ use Symfony\Component\ObjectMapper\ObjectMapperInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 /**
- * @implements ProcessorInterface<CreateUser|UpdateUser, UserApi>
+ * @implements ProcessorInterface<CreateUser|UpdateUser, UserResource>
  */
 final readonly class UserProcessor implements ProcessorInterface
 {
@@ -36,7 +36,7 @@ final readonly class UserProcessor implements ProcessorInterface
      * @param array<string, mixed> $uriVariables
      * @param array<string, mixed> $context
      */
-    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): UserApi
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): UserResource
     {
         // For PATCH, we get the existing entity from context
         if ($data instanceof UpdateUser) {
@@ -93,7 +93,7 @@ final readonly class UserProcessor implements ProcessorInterface
 
         $entity = $this->processor->process($entity, $operation, $uriVariables, $context);
 
-        return $this->objectMapper->map($entity, UserApi::class);
+        return $this->objectMapper->map($entity, UserResource::class);
     }
 
     private function addParticipation(User $user): void

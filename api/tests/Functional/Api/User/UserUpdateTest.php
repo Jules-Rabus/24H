@@ -2,7 +2,7 @@
 
 namespace App\Tests\Functional\Api\User;
 
-use App\ApiResource\User\UserApi;
+use App\Api\User\Resource\User;
 use App\Factory\UserFactory;
 use App\Tests\Functional\Api\AbstractTestCase;
 
@@ -17,7 +17,7 @@ final class UserUpdateTest extends AbstractTestCase
 
         $this->createClientWithCredentials()->request('PATCH', self::ROUTE.'/'.$user->getId(), [
             'headers' => [
-                'Accept' => 'application/json',
+                'Accept' => 'application/ld+json',
                 'Content-Type' => 'application/merge-patch+json',
             ],
             'json' => ['email' => $newEmail],
@@ -25,9 +25,10 @@ final class UserUpdateTest extends AbstractTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains([
+            '@type' => 'User',
             'email' => $newEmail,
         ]);
-        $this->assertMatchesResourceItemJsonSchema(UserApi::class);
+        $this->assertMatchesResourceItemJsonSchema(User::class);
     }
 
     public function testUpdateUserForbiddenForOwner(): void
@@ -36,7 +37,7 @@ final class UserUpdateTest extends AbstractTestCase
 
         $this->createClientWithCredentials($user)->request('PATCH', self::ROUTE.'/'.$user->getId(), [
             'headers' => [
-                'Accept' => 'application/json',
+                'Accept' => 'application/ld+json',
                 'Content-Type' => 'application/merge-patch+json',
             ],
             'json' => ['email' => 'new@example.com'],
@@ -52,7 +53,7 @@ final class UserUpdateTest extends AbstractTestCase
 
         $this->createClientWithCredentials($wrongUser)->request('PATCH', self::ROUTE.'/'.$user->getId(), [
             'headers' => [
-                'Accept' => 'application/json',
+                'Accept' => 'application/ld+json',
                 'Content-Type' => 'application/merge-patch+json',
             ],
             'json' => ['email' => 'new@example.com'],
