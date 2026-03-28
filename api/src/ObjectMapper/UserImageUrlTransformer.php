@@ -7,6 +7,9 @@ use App\Entity\User;
 use Symfony\Component\ObjectMapper\TransformCallableInterface;
 use Vich\UploaderBundle\Storage\StorageInterface;
 
+/**
+ * @implements TransformCallableInterface<object, object>
+ */
 final class UserImageUrlTransformer implements TransformCallableInterface
 {
     public function __construct(private readonly StorageInterface $storage)

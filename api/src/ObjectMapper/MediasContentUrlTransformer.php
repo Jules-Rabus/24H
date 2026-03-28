@@ -6,6 +6,9 @@ use App\Entity\Medias;
 use Symfony\Component\ObjectMapper\TransformCallableInterface;
 use Vich\UploaderBundle\Storage\StorageInterface;
 
+/**
+ * @implements TransformCallableInterface<object, object>
+ */
 final class MediasContentUrlTransformer implements TransformCallableInterface
 {
     public function __construct(private readonly StorageInterface $storage)

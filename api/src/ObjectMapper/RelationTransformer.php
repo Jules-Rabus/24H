@@ -12,6 +12,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\ObjectMapper\ObjectMapperInterface;
 use Symfony\Component\ObjectMapper\TransformCallableInterface;
 
+/**
+ * @implements TransformCallableInterface<object, object>
+ */
 final readonly class RelationTransformer implements TransformCallableInterface
 {
     public function __construct(
@@ -36,14 +39,14 @@ final readonly class RelationTransformer implements TransformCallableInterface
 
         // Input mapping: DTO (Api Resource) -> Entity
         if ($value instanceof RunApi || $value instanceof RunRef) {
-            if ($value->id) {
+            if (isset($value->id) && $value->id) {
                 return $this->entityManager->find(Run::class, $value->id);
             }
 
             return $this->objectMapper->map($value, Run::class);
         }
         if ($value instanceof UserApi || $value instanceof UserRef) {
-            if ($value->id) {
+            if (isset($value->id) && $value->id) {
                 return $this->entityManager->find(User::class, $value->id);
             }
 
