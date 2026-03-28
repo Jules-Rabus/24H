@@ -13,7 +13,9 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
 #[ApiResource(
     operations: [
         new GetCollection(),
-        new Post(inputFormats: ['multipart' => ['multipart/form-data']])
+        new Post(
+            inputFormats: ['multipart' => ['multipart/form-data']],
+        ),
     ]
 )]
 #[Vich\Uploadable]
