@@ -1,7 +1,9 @@
 import { describe, it, expect } from "vitest";
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { http, HttpResponse } from "msw";
 import { render } from "../test-utils/render";
+import { server } from "../mocks/server";
 import LoginPage from "../../app/login/page";
 
 // next/navigation mock
@@ -33,6 +35,9 @@ describe("LoginPage", () => {
   });
 
   it("affiche une erreur si les credentials sont invalides", async () => {
+    server.use(
+      http.post("*/login", () => new HttpResponse(null, { status: 401 })),
+    );
     const user = userEvent.setup();
     render(<LoginPage />);
 

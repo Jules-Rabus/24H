@@ -1,11 +1,23 @@
-name: CI
+name: Backend CI
 
 on:
   push:
     branches:
       - main
-  pull_request: ~
-  workflow_dispatch: ~
+      - dev
+    paths:
+      - 'api/**'
+      - 'compose.yaml'
+      - 'compose.override.yaml'
+      - '.github/workflows/backend.yml'
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'api/**'
+      - 'compose.yaml'
+      - 'compose.override.yaml'
+      - '.github/workflows/backend.yml'
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -35,9 +47,6 @@ jobs:
             php.cache-from=type=gha,scope=php-${{github.ref}}
             php.cache-from=type=gha,scope=php-refs/heads/main
             php.cache-to=type=gha,scope=php-${{github.ref}},mode=max
-            pwa.cache-from=type=gha,scope=pwa-${{github.ref}}
-            pwa.cache-from=type=gha,scope=pwa-refs/heads/main
-            pwa.cache-to=type=gha,scope=pwa-${{github.ref}},mode=max
       -
         name: Start services
         run: docker compose up php --no-build --wait
@@ -77,54 +86,3 @@ jobs:
       -
         name: Run PHPUnit
         run: docker compose exec -T php bin/phpunit --no-coverage
-
-  pwa-quality:
-    name: PWA Quality
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: pwa
-    steps:
-      -
-        name: Checkout
-        uses: actions/checkout@v4
-      -
-        name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-      -
-        name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-          run_install: false
-      -
-        name: Get pnpm store directory
-        id: pnpm-cache
-        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
-      -
-        name: Cache pnpm store
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('pwa/pnpm-lock.yaml') }}
-          restore-keys: ${{ runner.os }}-pnpm-
-      -
-        name: Install dependencies
-        run: pnpm install --frozen-lockfile
-      -
-        name: Type check
-        run: pnpm run type-check
-      -
-        name: Format check
-        run: pnpm run format:check
-      -
-        name: Lint
-        run: pnpm run lint
-      -
-        name: Unit tests
-        run: pnpm run test
-      -
-        name: Build
-        run: pnpm run build

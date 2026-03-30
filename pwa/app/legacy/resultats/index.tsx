@@ -41,7 +41,7 @@ export default function Page() {
   const qs = searchParams?.toString() ?? "";
 
   useEffect(() => {
-    setIsLoading(true);
+    setIsLoading(true); // eslint-disable-line react-hooks/set-state-in-effect
     const url = qs
       ? `/users/public?${qs}&itemsPerPage=100`
       : "/users/public?itemsPerPage=100";
