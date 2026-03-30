@@ -828,6 +828,8 @@ export default function PublicRaceStatusPage() {
             templateRows="repeat(2, 1fr)"
             gap="2"
             flex="1"
+            h="0"
+            minH="0"
             p="3"
             overflow="hidden"
           >
