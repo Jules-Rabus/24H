@@ -9,6 +9,8 @@ api_platform:
     formats:
         json: [ 'application/json' ]
         multipart: [ 'multipart/form-data' ]
+    error_formats:
+        json: [ 'application/json' ]
     defaults:
         pagination_items_per_page: 50
         pagination_client_items_per_page: true
