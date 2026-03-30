@@ -5,3 +5,4 @@
 node_modules
 /pwa/node_modulese/
 /k8s/defi24h.yaml
+/k8s/defi24h.secrets.yaml
