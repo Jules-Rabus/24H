@@ -28,7 +28,7 @@ use Symfony\Component\ObjectMapper\Attribute\Map;
     operations: [
         new Get(security: 'is_granted("ROLE_ADMIN") or is_granted("USER_VIEW", object)'),
         new Get(
-            uriTemplate: '/users/me',
+            uriTemplate: '/me',
             provider: CurrentUserProvider::class,
             security: "is_granted('ROLE_USER')",
             name: 'me',
