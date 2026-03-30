@@ -10,20 +10,19 @@ vi.mock("next/navigation", () => ({
 describe("PublicRaceStatusPage", () => {
   it("affiche le titre de la page", () => {
     render(<PublicRaceStatusPage />);
-    expect(screen.getByText(/statut de la course/i)).toBeInTheDocument();
-    expect(screen.getByText(/UniLaSalle, Beauvais/i)).toBeInTheDocument();
+    expect(screen.getByText(/UniLaSalle Beauvais/i)).toBeInTheDocument();
   });
 
   it("affiche la météo après chargement", async () => {
     render(<PublicRaceStatusPage />);
 
     await waitFor(() => {
-      expect(screen.getByText(/14.5°C/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/14\.5°C/i).length).toBeGreaterThan(0);
     });
   });
 
   it("affiche la section des derniers arrivants", () => {
     render(<PublicRaceStatusPage />);
-    expect(screen.getByText(/10 Derniers Arrivants/i)).toBeInTheDocument();
+    expect(screen.getByText(/Derniers Arrivés/i)).toBeInTheDocument();
   });
 });

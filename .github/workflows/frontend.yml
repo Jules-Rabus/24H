@@ -1,0 +1,64 @@
+name: Frontend CI
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+    paths:
+      - 'pwa/**'
+      - '.github/workflows/frontend.yml'
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'pwa/**'
+      - '.github/workflows/frontend.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  front:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: pwa
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: false
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
+      - uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pwa/pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-pnpm-
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run lint
+      - run: pnpm run format:check
+      - run: pnpm run type:check
+      - run: pnpm run test
+      - name: Build
+        run: pnpm run build
+      - name: Prepare Standalone Artifact
+        run: |
+          cp -r public .next/standalone/
+          cp -r .next/static .next/standalone/.next/
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pwa
+          include-hidden-files: true
+          path: pwa/.next/standalone
+          retention-days: 7

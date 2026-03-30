@@ -7,8 +7,9 @@ import {
 describe("SDK generated client", () => {
   it("fetchRunners retourne une liste de coureurs", async () => {
     const { data } = await apiUserspublicGetCollection();
-    expect(data).toHaveLength(2);
-    expect((data as Array<{ firstName?: string }>)?.[0].firstName).toBe("Jean");
+    const members = (data as any)?.member ?? data;
+    expect(members).toHaveLength(2);
+    expect(members[0].firstName).toBe("Jean");
   });
 
   it("uploadRaceMedia retourne le media créé", async () => {

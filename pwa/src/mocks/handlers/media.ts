@@ -1,6 +1,10 @@
 import { http, HttpResponse } from "msw";
 
 export const mediaHandlers = [
+  http.get("*/race_medias", () => {
+    return HttpResponse.json([]);
+  }),
+
   http.post("*/race_medias", () => {
     return HttpResponse.json(
       {
