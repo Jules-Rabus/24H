@@ -32,6 +32,9 @@ CMD ["sh", "-c", "pnpm install; pnpm run dev"]
 FROM base AS builder
 
 COPY --link . .
+# Use a unique placeholder during build that will be replaced at runtime
+ENV NEXT_PUBLIC_ENTRYPOINT="http://APP_ENTRYPOINT_PLACEHOLDER"
+ENV NEXT_PUBLIC_MERCURE_HUB_URL="http://APP_ENTRYPOINT_PLACEHOLDER/.well-known/mercure"
 RUN pnpm install && \
 	pnpm run build
 
@@ -44,9 +47,6 @@ ENV NODE_ENV=production
 # Delete the following line in case you want to enable telemetry during runtime.
 ENV NEXT_TELEMETRY_DISABLED=1
 
-#RUN addgroup --gid 1001 nodejs; \
-#	adduser --uid 1001 nextjs
-
 # Set the correct permission for prerender cache
 RUN mkdir .next;
 
@@ -55,12 +55,14 @@ RUN mkdir .next;
 COPY --from=builder --link --chown=1001:1001 /srv/app/.next/standalone ./
 COPY --from=builder --link --chown=1001:1001 /srv/app/.next/static ./.next/static
 COPY --from=builder --link --chown=1001:1001 /srv/app/public ./public
+COPY --from=builder --link --chown=1001:1001 /srv/app/docker-entrypoint.sh ./
 
-#USER nextjs
+RUN chmod +x docker-entrypoint.sh
 
 EXPOSE 3000
 
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
+ENTRYPOINT ["./docker-entrypoint.sh"]
 CMD ["node", "server.js"]
