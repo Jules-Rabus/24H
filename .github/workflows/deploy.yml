@@ -34,7 +34,7 @@ jobs:
           echo "IMAGE_PWA=$(echo $IMAGE_PWA | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
 
       - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.2.2
+        uses: appleboy/ssh-action@v1.2.5
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
@@ -44,8 +44,8 @@ jobs:
           script: |
             set -e
             echo "Deploying tag: ${IMAGE_TAG}"
-            sudo kubectl set image deployment/24h-api api=${IMAGE_API}:${IMAGE_TAG}
-            sudo kubectl set image deployment/24h-pwa pwa=${IMAGE_PWA}:${IMAGE_TAG}
-            sudo kubectl rollout status deployment/24h-api --timeout=120s
-            sudo kubectl rollout status deployment/24h-pwa --timeout=120s
+            sudo KUBECONFIG=/etc/rancher/k3s/k3s.yaml kubectl set image deployment/24h-api api=${IMAGE_API}:${IMAGE_TAG} -n defi24h
+            sudo KUBECONFIG=/etc/rancher/k3s/k3s.yaml kubectl set image deployment/24h-pwa pwa=${IMAGE_PWA}:${IMAGE_TAG} -n defi24h
+            sudo KUBECONFIG=/etc/rancher/k3s/k3s.yaml kubectl rollout status deployment/24h-api -n defi24h --timeout=120s
+            sudo KUBECONFIG=/etc/rancher/k3s/k3s.yaml kubectl rollout status deployment/24h-pwa -n defi24h --timeout=120s
             echo "Deploy complete."
