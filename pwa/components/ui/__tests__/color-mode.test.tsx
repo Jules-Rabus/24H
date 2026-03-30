@@ -9,7 +9,7 @@ import {
   ColorModeIcon,
   ColorModeButton,
   LightMode,
-  DarkMode
+  DarkMode,
 } from "../color-mode";
 
 // Mock next-themes
@@ -23,7 +23,11 @@ vi.mock("next-themes", () => ({
     setTheme: mockSetTheme,
     forcedTheme: mockForcedTheme,
   }),
-  ThemeProvider: ({ children, ...props }: any) => <div data-testid="theme-provider" {...props}>{children}</div>
+  ThemeProvider: ({ children, ...props }: any) => (
+    <div data-testid="theme-provider" {...props}>
+      {children}
+    </div>
+  ),
 }));
 
 describe("ColorMode Components", () => {
@@ -38,7 +42,7 @@ describe("ColorMode Components", () => {
       render(
         <ColorModeProvider attribute="class">
           <div>Test content</div>
-        </ColorModeProvider>
+        </ColorModeProvider>,
       );
       const provider = screen.getByTestId("theme-provider");
       expect(provider).toBeInTheDocument();
@@ -83,13 +87,17 @@ describe("ColorMode Components", () => {
   describe("useColorModeValue hook", () => {
     it("returns light value when light mode", () => {
       mockResolvedTheme = "light";
-      const { result } = renderHook(() => useColorModeValue("light-val", "dark-val"));
+      const { result } = renderHook(() =>
+        useColorModeValue("light-val", "dark-val"),
+      );
       expect(result.current).toBe("light-val");
     });
 
     it("returns dark value when dark mode", () => {
       mockResolvedTheme = "dark";
-      const { result } = renderHook(() => useColorModeValue("light-val", "dark-val"));
+      const { result } = renderHook(() =>
+        useColorModeValue("light-val", "dark-val"),
+      );
       expect(result.current).toBe("dark-val");
     });
   });

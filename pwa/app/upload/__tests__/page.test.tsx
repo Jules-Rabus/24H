@@ -47,7 +47,7 @@ describe("UploadPage", () => {
     server.use(
       http.post("http://localhost/race_medias", () => {
         return HttpResponse.json(mockRaceMediaResponse);
-      })
+      }),
     );
 
     const user = userEvent.setup();
@@ -76,15 +76,19 @@ describe("UploadPage", () => {
     await user.click(screen.getByRole("button", { name: /Tableau de bord/i }));
     expect(mockPush).toHaveBeenCalledWith("/public-race-status");
 
-    await user.click(screen.getByRole("button", { name: /Envoyer une autre photo/i }));
-    expect(screen.getByRole("button", { name: /envoyer la photo/i })).toBeInTheDocument();
+    await user.click(
+      screen.getByRole("button", { name: /Envoyer une autre photo/i }),
+    );
+    expect(
+      screen.getByRole("button", { name: /envoyer la photo/i }),
+    ).toBeInTheDocument();
   });
 
   it("affiche une erreur si la mutation échoue", async () => {
     server.use(
       http.post("http://localhost/race_medias", () => {
         return new HttpResponse(null, { status: 500 });
-      })
+      }),
     );
 
     const user = userEvent.setup();

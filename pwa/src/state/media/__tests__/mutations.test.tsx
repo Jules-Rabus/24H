@@ -4,7 +4,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useUploadRaceMediaMutation } from "../mutations";
 import { server } from "@/mocks/server";
 import { http, HttpResponse } from "msw";
-import { mockRaceMediaResponse, mockRaceMediaWithoutCommentResponse } from "./data";
+import {
+  mockRaceMediaResponse,
+  mockRaceMediaWithoutCommentResponse,
+} from "./data";
 import { client } from "@/api/generated/client.gen";
 
 describe("useUploadRaceMediaMutation", () => {
@@ -20,9 +23,7 @@ describe("useUploadRaceMediaMutation", () => {
   });
 
   const wrapper = ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
 
   it("calls the API with correct body and invalidates queries on success", async () => {
@@ -31,12 +32,14 @@ describe("useUploadRaceMediaMutation", () => {
       http.post("http://localhost/race_medias", async ({ request }) => {
         capturedRequest = request.clone();
         return HttpResponse.json(mockRaceMediaResponse);
-      })
+      }),
     );
 
     const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries");
 
-    const { result } = renderHook(() => useUploadRaceMediaMutation(), { wrapper });
+    const { result } = renderHook(() => useUploadRaceMediaMutation(), {
+      wrapper,
+    });
 
     const formData = new FormData();
     const mockFile = new File(["test"], "test.jpg", { type: "image/jpeg" });
@@ -55,17 +58,21 @@ describe("useUploadRaceMediaMutation", () => {
     expect(mutationResult).toBeDefined();
 
     expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ["race"] });
-    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ["admin", "medias"] });
+    expect(invalidateSpy).toHaveBeenCalledWith({
+      queryKey: ["admin", "medias"],
+    });
   });
 
   it("calls the API without comment if none is provided", async () => {
     server.use(
       http.post("http://localhost/race_medias", () => {
         return HttpResponse.json(mockRaceMediaWithoutCommentResponse);
-      })
+      }),
     );
 
-    const { result } = renderHook(() => useUploadRaceMediaMutation(), { wrapper });
+    const { result } = renderHook(() => useUploadRaceMediaMutation(), {
+      wrapper,
+    });
 
     const formData = new FormData();
     const mockFile = new File(["test2"], "test2.jpg", { type: "image/jpeg" });
@@ -83,13 +90,18 @@ describe("useUploadRaceMediaMutation", () => {
     server.use(
       http.post("http://localhost/race_medias", () => {
         return new HttpResponse(null, { status: 500, statusText: "API ERROR" });
-      })
+      }),
     );
 
-    const { result } = renderHook(() => useUploadRaceMediaMutation(), { wrapper });
+    const { result } = renderHook(() => useUploadRaceMediaMutation(), {
+      wrapper,
+    });
 
     const formData = new FormData();
-    formData.append("file", new File(["test"], "test.jpg", { type: "image/jpeg" }));
+    formData.append(
+      "file",
+      new File(["test"], "test.jpg", { type: "image/jpeg" }),
+    );
 
     await expect(result.current.mutateAsync(formData)).rejects.toThrow();
   });

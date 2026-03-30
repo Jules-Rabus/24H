@@ -9,6 +9,6 @@ export const mockWeatherData = {
     time: [new Date().toISOString()],
     temperature_2m: [14.5],
     precipitation_probability: [0],
-    weather_code: [1]
-  }
+    weather_code: [1],
+  },
 };

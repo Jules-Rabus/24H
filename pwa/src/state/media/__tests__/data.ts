@@ -5,7 +5,7 @@ export const mockRaceMediaResponse = {
   fileUrl: "http://example.com/file.jpg",
   status: "pending",
   comment: "Test comment",
-  createdAt: new Date().toISOString()
+  createdAt: new Date().toISOString(),
 };
 
 export const mockRaceMediaWithoutCommentResponse = {
@@ -15,5 +15,5 @@ export const mockRaceMediaWithoutCommentResponse = {
   fileUrl: "http://example.com/file2.jpg",
   status: "pending",
   comment: null,
-  createdAt: new Date().toISOString()
+  createdAt: new Date().toISOString(),
 };

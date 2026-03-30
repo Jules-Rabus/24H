@@ -9,7 +9,11 @@ export default defineConfig({
     globals: true,
     setupFiles: ["./vitest.setup.ts"],
     exclude: ["node_modules/**", "node_modulese/**", "e2e/**", ".next/**"],
-    include: ["src/**/*.{test,spec}.{ts,tsx}", "app/**/*.{test,spec}.{ts,tsx}", "components/**/*.{test,spec}.{ts,tsx}"],
+    include: [
+      "src/**/*.{test,spec}.{ts,tsx}",
+      "app/**/*.{test,spec}.{ts,tsx}",
+      "components/**/*.{test,spec}.{ts,tsx}",
+    ],
     alias: {
       "@": path.resolve(__dirname, "./src"),
       "~": path.resolve(__dirname, "./"),

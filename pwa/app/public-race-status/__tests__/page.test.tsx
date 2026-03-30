@@ -5,7 +5,12 @@ import { render } from "@/test-utils/render";
 import PublicRaceStatusPage from "../page";
 import { server } from "@/mocks/server";
 import { http, HttpResponse } from "msw";
-import { mockRaceStatusData, mockParticipationsData, mockRunsData, mockMediasData } from "@/state/race/__tests__/data";
+import {
+  mockRaceStatusData,
+  mockParticipationsData,
+  mockRunsData,
+  mockMediasData,
+} from "@/state/race/__tests__/data";
 import { mockWeatherData } from "@/state/weather/__tests__/data";
 
 const mockPush = vi.fn();
@@ -33,7 +38,7 @@ describe("PublicRaceStatusPage", () => {
       }),
       http.get("https://api.open-meteo.com/v1/forecast", () => {
         return HttpResponse.json(mockWeatherData);
-      })
+      }),
     );
   });
 
@@ -62,18 +67,27 @@ describe("PublicRaceStatusPage", () => {
 
   it("gère l'absence de données de participations et courses", async () => {
     server.use(
-      http.get("http://localhost/participations", () => HttpResponse.json({ "hydra:member": [] })),
-      http.get("http://localhost/runs", () => HttpResponse.json({ "hydra:member": [] }))
+      http.get("http://localhost/participations", () =>
+        HttpResponse.json({ "hydra:member": [] }),
+      ),
+      http.get("http://localhost/runs", () =>
+        HttpResponse.json({ "hydra:member": [] }),
+      ),
     );
 
     render(<PublicRaceStatusPage />);
 
-    expect(await screen.findByText(/En attente des arrivées/i)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/En attente des arrivées/i),
+    ).toBeInTheDocument();
   });
 
   it("gère l'absence de météo", async () => {
     server.use(
-      http.get("https://api.open-meteo.com/v1/forecast", () => new HttpResponse(null, { status: 500 }))
+      http.get(
+        "https://api.open-meteo.com/v1/forecast",
+        () => new HttpResponse(null, { status: 500 }),
+      ),
     );
 
     render(<PublicRaceStatusPage />);
