@@ -19,6 +19,7 @@ const NAV_ITEMS = [
   { href: "/admin/participations", label: "Participations", icon: "📋" },
   { href: "/admin/users", label: "Utilisateurs", icon: "👥" },
   { href: "/admin/medias", label: "Médias", icon: "📷" },
+  { href: "/legacy/admin", label: "React Admin", icon: "⚙️" },
 ];
 
 function Sidebar() {
