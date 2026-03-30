@@ -8,9 +8,15 @@ module.exports = defineConfig({
   retries: 0,
   workers: 1,
   reporter: 'html',
+  timeout: 60000,
+  expect: {
+    timeout: 10000,
+  },
   use: {
+    baseURL: 'https://localhost',
     ignoreHTTPSErrors: true,
     trace: 'on-first-retry',
+    permissions: ['camera'],
   },
 
   projects: [

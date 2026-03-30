@@ -6,9 +6,9 @@ test.describe("Workflow Admin - CRUD", () => {
     await page.route("**/me", async (route) => {
       await route.fulfill({
         status: 200,
-        contentType: "application/ld+json",
+        contentType: "application/json",
         body: JSON.stringify({
-          "@id": "/users/1",
+          "id": 1,
           "firstName": "Admin",
           "lastName": "Système",
           "roles": ["ROLE_ADMIN"]
@@ -19,23 +19,25 @@ test.describe("Workflow Admin - CRUD", () => {
 
   test("Gestion des Runs (Création et Liste)", async ({ page }) => {
     // 1. Mock de la liste initiale (vide)
-    await page.route("**/runs*", async (route) => {
-      if (route.request().method() === "GET") {
+    await page.route(url => url.pathname === "/runs", async (route) => {
+      const method = route.request().method();
+      if (method === "GET") {
         await route.fulfill({
           status: 200,
-          contentType: "application/ld+json",
-          body: JSON.stringify({ "member": [], "totalItems": 0 })
+          contentType: "application/json",
+          body: JSON.stringify([])
         });
-      } else if (route.request().method() === "POST") {
+      } else if (method === "POST") {
         await route.fulfill({
           status: 201,
-          contentType: "application/ld+json",
+          contentType: "application/json",
           body: JSON.stringify({ id: 1, startDate: "2026-03-27T10:00", endDate: "2026-03-28T10:00" })
         });
       }
     });
 
     await page.goto("/admin/runs");
+    await page.waitForTimeout(2000); // Wait for hydration
     await expect(page.getByText("Aucun run trouvé")).toBeVisible();
 
     // 2. Création d'un run
@@ -44,19 +46,30 @@ test.describe("Workflow Admin - CRUD", () => {
     await page.locator("input[type=datetime-local]").last().fill("2026-03-28T10:00");
     
     // Mocker la liste mise à jour après création
-    await page.route("**/runs*", async (route) => {
-      if (route.request().method() === "GET") {
-        await route.fulfill({
-          status: 200,
-          contentType: "application/ld+json",
-          body: JSON.stringify({
-            "member": [
-              { "@id": "/runs/1", "id": 1, "startDate": "2026-03-27T10:00:00Z", "endDate": "2026-03-28T10:00:00Z" }
-            ],
-            "totalItems": 1
-          })
-        });
-      }
+    let created = false;
+    await page.route(url => url.pathname === "/runs", async (route) => {
+        if (route.request().method() === "GET" && created) {
+            await route.fulfill({
+                status: 200,
+                contentType: "application/json",
+                body: JSON.stringify([
+                  { "id": 1, "startDate": "2026-03-27T10:00:00Z", "endDate": "2026-03-28T10:00:00Z", "participantsCount": 0 }
+                ])
+              });
+        } else if (route.request().method() === "POST") {
+            created = true;
+            await route.fulfill({
+                status: 201,
+                contentType: "application/json",
+                body: JSON.stringify({ id: 1, startDate: "2026-03-27T10:00", endDate: "2026-03-28T10:00" })
+            });
+        } else {
+            await route.fulfill({
+                status: 200,
+                contentType: "application/json",
+                body: JSON.stringify([])
+            });
+        }
     });
 
     await page.getByRole("button", { name: "Créer" }).click();
@@ -67,47 +80,40 @@ test.describe("Workflow Admin - CRUD", () => {
 
   test("Gestion des Utilisateurs (Recherche et Edition)", async ({ page }) => {
     // Mock liste utilisateurs
-    await page.route("**/users*", async (route) => {
-      if (route.request().url().includes("/me")) return route.continue();
-      
+    await page.route(url => url.pathname === "/users", async (route) => {
       await route.fulfill({
         status: 200,
-        contentType: "application/ld+json",
-        body: JSON.stringify({
-          "member": [
-            { "@id": "/users/2", "id": 2, "firstName": "Jean", "lastName": "Dupont", "email": "jean@test.fr", "roles": ["ROLE_USER"] }
-          ],
-          "totalItems": 1
-        })
+        contentType: "application/json",
+        body: JSON.stringify([
+            { "id": 2, "firstName": "Jean", "lastName": "Dupont", "email": "jean@test.fr", "roles": ["ROLE_USER"], "finishedParticipationsCount": 0 }
+        ])
       });
     });
 
     await page.goto("/admin/users");
+    await page.waitForTimeout(2000); // Wait for hydration
     await expect(page.getByText("Jean Dupont")).toBeVisible();
 
     // Ouverture édition
     await page.getByRole("button", { name: "Modifier" }).click();
     await expect(page.getByRole("heading", { name: "Modifier l'utilisateur" })).toBeVisible();
-    await page.getByPlaceholder("Prénom").fill("Jeanne");
+    await page.getByRole("textbox", { name: "Prénom" }).fill("Jeanne");
 
     // Mock Update
-    await page.route("**/users/2", async (route) => {
+    await page.route(url => url.pathname === "/users/2", async (route) => {
       if (route.request().method() === "PATCH") {
-        await route.fulfill({ status: 200, body: JSON.stringify({ id: 2, firstName: "Jeanne" }) });
+        await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ id: 2, firstName: "Jeanne" }) });
       }
     });
 
     // Mock liste mise à jour
-    await page.route("**/users*", async (route) => {
-      if (route.request().url().includes("/me")) return route.continue();
+    await page.route(url => url.pathname === "/users", async (route) => {
       await route.fulfill({
         status: 200,
-        body: JSON.stringify({
-          "member": [
-            { "@id": "/users/2", "id": 2, "firstName": "Jeanne", "lastName": "Dupont", "email": "jean@test.fr", "roles": ["ROLE_USER"] }
-          ],
-          "totalItems": 1
-        })
+        contentType: "application/json",
+        body: JSON.stringify([
+            { "id": 2, "firstName": "Jeanne", "lastName": "Dupont", "email": "jean@test.fr", "roles": ["ROLE_USER"], "finishedParticipationsCount": 0 }
+        ])
       });
     });
 

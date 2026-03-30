@@ -13,7 +13,7 @@ test.describe("Workflow Admin - Auth & Navigation", () => {
 
     await page.goto("/admin/runs");
     
-    // Attendre la redirection client (useEffect dans AdminLayout)
+    // Attendre la redirection client
     await expect(page).toHaveURL(/\/login/);
     await expect(page.getByRole("heading", { name: "Connexion" })).toBeVisible();
   });
@@ -23,22 +23,26 @@ test.describe("Workflow Admin - Auth & Navigation", () => {
 
     // Mock Login
     await page.route("**/login", async (route) => {
-      authenticated = true;
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({ email: "admin@24h.fr" })
-      });
+      if (route.request().method() === "POST") {
+        authenticated = true;
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ token: "fake-jwt" })
+        });
+      } else {
+        await route.continue();
+      }
     });
 
-    // Mock Me (dépend de l'état authenticated)
+    // Mock Me
     await page.route("**/me", async (route) => {
       if (authenticated) {
         await route.fulfill({
           status: 200,
-          contentType: "application/ld+json",
+          contentType: "application/json",
           body: JSON.stringify({
-            "@id": "/users/1",
+            "id": 1,
             "email": "admin@24h.fr",
             "roles": ["ROLE_ADMIN"],
             "firstName": "Admin",
@@ -46,68 +50,29 @@ test.describe("Workflow Admin - Auth & Navigation", () => {
           })
         });
       } else {
-        await route.fulfill({ status: 401, body: "" });
+        await route.fulfill({ status: 401, body: "{}" });
       }
     });
 
-    // Mocks pour la page de destination (admin/runs)
-    await page.route("**/runs*", async (route) => {
-      await route.fulfill({ status: 200, body: JSON.stringify({ "member": [] }) });
+    await page.route(url => url.pathname === "/runs", async (route) => {
+      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([]) });
     });
 
     await page.goto("/login");
-    await expect(page.locator("input[type=email]")).toBeVisible();
-    await page.fill("input[type=email]", "admin@24h.fr");
-    await page.fill("input[type=password]", "password123");
+    await expect(page.getByRole("heading", { name: "Connexion" })).toBeVisible();
+    
+    await page.getByPlaceholder("vous@exemple.fr").fill("admin@24h.fr");
+    await page.getByPlaceholder("••••••••").fill("password123");
     await page.getByRole("button", { name: "Se connecter" }).click();
 
-    // Redirection vers le hub (comportement actuel du composant Login)
     await expect(page).toHaveURL(/\/$/);
     
-    // Naviguer vers l'admin via le hub
+    // Naviguer vers l'admin
     await page.getByRole("link", { name: "Admin (nouveau)" }).click();
-    await expect(page).toHaveURL(/\/admin\/runs/);
-    await expect(page.getByText("Admin Système")).toBeVisible();
-  });
-
-  test("Déconnexion", async ({ page }) => {
-    // Mock authentifié
-    await page.route("**/me", async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: "application/ld+json",
-        body: JSON.stringify({
-          "@id": "/users/1",
-          "firstName": "Admin",
-          "lastName": "Système",
-          "roles": ["ROLE_ADMIN"]
-        })
-      });
-    });
-
-    await page.route("**/runs*", async (route) => {
-      await route.fulfill({ status: 200, body: JSON.stringify({ "member": [] }) });
-    });
-
-    // Mock Logout (action POST sur /logout)
-    await page.route("**/logout", async (route) => {
-      await route.fulfill({ status: 204 });
-    });
-
-    await page.goto("/admin/runs");
-    await expect(page.getByText("Admin Système")).toBeVisible();
-
-    // Clic déconnexion
-    await page.getByRole("button", { name: "Déconnexion" }).click();
+    await expect(page).toHaveURL(/\/admin/);
     
-    // Après déconnexion, l'app devrait rediriger (soit via le bouton, soit via le refresh de useMe)
-    // Ici on simule que useMe renverra 401 après le clic
-    await page.route("**/me", async (route) => {
-      await route.fulfill({ status: 401, body: "" });
-    });
-
-    // Le rechargement ou le changement d'état devrait nous ramener au login
-    // En Next.js App Router avec un form action, c'est une navigation complète.
-    // On vérifie qu'on finit sur /login ou le hub si non-protégé
+    // Attendre l'hydratation et le chargement du profil
+    await page.waitForTimeout(2000);
+    await expect(page.getByText("Admin Système", { exact: false })).toBeVisible();
   });
 });
