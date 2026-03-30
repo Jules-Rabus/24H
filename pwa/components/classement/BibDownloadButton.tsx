@@ -9,7 +9,7 @@ import {
   Image,
   StyleSheet,
 } from "@react-pdf/renderer";
-import { datamatrix } from "@bwip-js/browser";
+import { qrcode } from "@bwip-js/browser";
 
 type User = {
   id: number;
@@ -33,8 +33,8 @@ const s = StyleSheet.create({
 });
 const generateQr = (data: any) => {
   const canvas = document.createElement("canvas");
-  datamatrix(canvas, {
-    bcid: "datamatrix",
+  qrcode(canvas, {
+    bcid: "qrcode",
     text: JSON.stringify(data),
     scale: 5,
   });
