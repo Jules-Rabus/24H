@@ -1,0 +1,5 @@
+cd pwa
+pnpm run lint
+pnpm run format:check
+pnpm run type:check
+pnpm run test

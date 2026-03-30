@@ -13,7 +13,7 @@ export function useMe() {
   return useQuery({
     queryKey: authKeys.me(),
     queryFn: async () => {
-      const { data } = await apiClient.get<unknown>("/users/me");
+      const { data } = await apiClient.get<unknown>("/me");
       return meSchema.parse(data);
     },
     retry: false,

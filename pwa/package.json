@@ -13,14 +13,13 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "generate-api": "openapi-ts"
+    "generate-api": "openapi-ts",
+    "prepare": "cd .. && (husky pwa/.husky || true)"
   },
   "dependencies": {
     "@api-platform/admin": "^4.0.6",
     "@api-platform/api-doc-parser": "^0.16.8",
     "@bwip-js/browser": "^4.6.0",
-    "embla-carousel": "^8.6.0",
-    "embla-carousel-react": "^8.6.0",
     "@chakra-ui/react": "^3.34.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
@@ -38,6 +37,8 @@
     "@vitejs/plugin-react": "^6.0.1",
     "@yudiel/react-qr-scanner": "^2.3.1",
     "axios": "^1.9.0",
+    "embla-carousel": "^8.6.0",
+    "embla-carousel-react": "^8.6.0",
     "file-saver": "^2.0.5",
     "formik": "^2.4.6",
     "framer-motion": "^12.38.0",
@@ -82,6 +83,7 @@
     "eslint": "^9.26.0",
     "eslint-config-next": "^16.1.6",
     "eslint-config-prettier": "^10.1.2",
+    "husky": "^9.1.7",
     "prettier": "^3.5.3",
     "typescript": "^5.8.3"
   },

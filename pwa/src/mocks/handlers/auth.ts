@@ -19,7 +19,7 @@ export const authHandlers = [
     });
   }),
 
-  http.get("*/users/me", () => {
+  http.get("*/me", () => {
     return HttpResponse.json({
       id: 1,
       email: "admin@example.com",
