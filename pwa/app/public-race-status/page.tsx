@@ -834,7 +834,7 @@ export default function PublicRaceStatusPage() {
                     key={p.id}
                     direction="column"
                     justify="space-between"
-                    p="2.5"
+                    p="3"
                     bg={isFirst ? "rgba(15,146,154,0.10)" : "whiteAlpha.50"}
                     rounded="xl"
                     borderWidth="1px"
@@ -846,94 +846,83 @@ export default function PublicRaceStatusPage() {
                           : "whiteAlpha.50"
                     }
                     overflow="hidden"
+                    gap="2"
                   >
-                    {/* Ligne 1: avatar + nom + badge run */}
-                    <HStack gap="2" justify="space-between" align="flex-start">
-                      <HStack gap="2" align="center" overflow="hidden">
-                        <Avatar.Root
-                          size="sm"
-                          colorPalette={isFirst ? "primary" : "gray"}
-                          variant="subtle"
-                          flexShrink={0}
-                        >
-                          <Avatar.Fallback fontSize="xs">
-                            {initials(firstName, lastName) || "?"}
-                          </Avatar.Fallback>
-                        </Avatar.Root>
-                        <Box overflow="hidden">
-                          <Text
-                            fontSize="sm"
-                            fontWeight="700"
-                            color={isFirst ? "primary.200" : "gray.200"}
-                            lineHeight="1.2"
-                            truncate
-                          >
-                            {displayName}
-                          </Text>
-                          {surname && (
-                            <Text
-                              fontSize="xs"
-                              color="gray.500"
-                              fontStyle="italic"
-                              lineHeight="1"
-                            >
-                              «{surname}»
-                            </Text>
-                          )}
-                        </Box>
-                      </HStack>
+                    {/* Haut : avatar centré + badge run */}
+                    <Flex justify="space-between" align="flex-start">
+                      <Avatar.Root
+                        size="lg"
+                        colorPalette={isFirst ? "primary" : "gray"}
+                        variant="subtle"
+                      >
+                        <Avatar.Fallback fontSize="sm">
+                          {initials(firstName, lastName) || "?"}
+                        </Avatar.Fallback>
+                      </Avatar.Root>
                       {runNum !== null && runNum > 0 && (
                         <Badge
                           size="sm"
                           colorPalette={isFirst ? "primary" : "gray"}
                           variant="subtle"
-                          fontSize="xs"
-                          flexShrink={0}
                         >
                           R{runNum}
                         </Badge>
                       )}
-                    </HStack>
+                    </Flex>
 
-                    {/* Ligne 2: heure arrivée + allure + km total */}
-                    <HStack gap="2" justify="space-between" align="flex-end">
-                      <Box>
+                    {/* Nom + surnom sur toute la largeur */}
+                    <Box>
+                      <Text
+                        fontSize="sm"
+                        fontWeight="800"
+                        color={isFirst ? "primary.200" : "gray.200"}
+                        lineHeight="1.3"
+                        wordBreak="break-word"
+                      >
+                        {displayName}
+                      </Text>
+                      {surname && (
                         <Text
-                          fontSize="10px"
-                          color="gray.600"
-                          textTransform="uppercase"
-                          letterSpacing="0.05em"
+                          fontSize="sm"
+                          color="gray.400"
+                          fontStyle="italic"
+                          lineHeight="1.3"
                         >
-                          Arrivée
+                          «{surname}»
                         </Text>
-                        <Text
-                          fontSize="md"
-                          fontWeight="900"
-                          letterSpacing="tight"
-                          fontVariantNumeric="tabular-nums"
-                          color={isFirst ? "primary.300" : "gray.300"}
-                        >
-                          {p.arrivalTime
-                            ? new Date(p.arrivalTime).toLocaleTimeString(
-                                "fr-FR",
-                                {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                  second: "2-digit",
-                                },
-                              )
-                            : "—"}
-                        </Text>
-                      </Box>
-                      <VStack align="flex-end" gap="0">
+                      )}
+                    </Box>
+
+                    {/* Stats : heure + allure + km */}
+                    <VStack align="stretch" gap="0.5">
+                      <Text
+                        fontSize="md"
+                        fontWeight="900"
+                        letterSpacing="tight"
+                        fontVariantNumeric="tabular-nums"
+                        color={isFirst ? "primary.300" : "gray.300"}
+                        lineHeight="1"
+                      >
+                        {p.arrivalTime
+                          ? new Date(p.arrivalTime).toLocaleTimeString(
+                              "fr-FR",
+                              {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                second: "2-digit",
+                              },
+                            )
+                          : "—"}
+                      </Text>
+                      <HStack gap="2">
                         <Text fontSize="xs" color="gray.400" fontWeight="700">
                           {allureMoyStr(p.totalTime)}
                         </Text>
                         <Text fontSize="xs" color="gray.600">
-                          {totalKm} km total
+                          {totalKm} km
                         </Text>
-                      </VStack>
-                    </HStack>
+                      </HStack>
+                    </VStack>
                   </Flex>
                 );
               })
