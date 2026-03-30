@@ -14,7 +14,6 @@ import {
   Badge,
 } from "@chakra-ui/react";
 import {
-  useCallback,
   useEffect,
   useRef,
   useState,
@@ -47,8 +46,6 @@ import {
   LuDroplets,
   LuThermometer,
   LuQrCode,
-  LuChevronLeft,
-  LuChevronRight,
   LuCamera,
 } from "react-icons/lu";
 
@@ -140,8 +137,6 @@ export default function PublicRaceStatusPage() {
     slidesToScroll: 3,
     align: "start",
   });
-  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
-  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
 
   // Manual autoplay (mediaList.length computed below — use medias count here)
   const autoplayTimer = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -695,38 +690,9 @@ export default function PublicRaceStatusPage() {
                   ))}
                 </Flex>
               </Box>
-              {/* Controls */}
-              <HStack justify="space-between" flexShrink={0} px="1">
-                <Text fontSize="xs" color="gray.600" fontWeight="700">
-                  {mediaList.length} photo{mediaList.length > 1 ? "s" : ""}
-                </Text>
-                <HStack gap="2">
-                  <Box
-                    as="button"
-                    onClick={scrollPrev}
-                    p="1.5"
-                    rounded="full"
-                    bg="whiteAlpha.100"
-                    color="white"
-                    cursor="pointer"
-                    _hover={{ bg: "whiteAlpha.200" }}
-                  >
-                    <Icon as={LuChevronLeft} boxSize="4" />
-                  </Box>
-                  <Box
-                    as="button"
-                    onClick={scrollNext}
-                    p="1.5"
-                    rounded="full"
-                    bg="whiteAlpha.100"
-                    color="white"
-                    cursor="pointer"
-                    _hover={{ bg: "whiteAlpha.200" }}
-                  >
-                    <Icon as={LuChevronRight} boxSize="4" />
-                  </Box>
-                </HStack>
-              </HStack>
+              <Text fontSize="xs" color="gray.600" fontWeight="700" flexShrink={0} px="1">
+                {mediaList.length} photo{mediaList.length > 1 ? "s" : ""}
+              </Text>
             </Flex>
           )}
         </Box>
