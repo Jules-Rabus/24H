@@ -2082,6 +2082,85 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     use_jms_serializer?: bool|Param, // Default: false
  *     token_generator?: scalar|Param|null, // Persistence manager service to handle the token storage. // Default: "coop_tilleuls_forgot_password.token_generator.bin2hex"
  * }
+ * @psalm-type SentryConfig = array{
+ *     dsn?: scalar|Param|null, // If this value is not provided, the SDK will try to read it from the SENTRY_DSN environment variable. If that variable also does not exist, the SDK will not send any events.
+ *     register_error_listener?: bool|Param, // Default: true
+ *     register_error_handler?: bool|Param, // Default: true
+ *     logger?: scalar|Param|null, // The service ID of the PSR-3 logger used to log messages coming from the SDK client. Be aware that setting the same logger of the application may create a circular loop when an event fails to be sent. // Default: null
+ *     options?: array{
+ *         integrations?: mixed, // Default: []
+ *         default_integrations?: bool|Param,
+ *         prefixes?: list<scalar|Param|null>,
+ *         sample_rate?: float|Param, // The sampling factor to apply to events. A value of 0 will deny sending any event, and a value of 1 will send all events.
+ *         enable_tracing?: bool|Param,
+ *         traces_sample_rate?: float|Param, // The sampling factor to apply to transactions. A value of 0 will deny sending any transaction, and a value of 1 will send all transactions.
+ *         traces_sampler?: scalar|Param|null,
+ *         profiles_sample_rate?: float|Param, // The sampling factor to apply to profiles. A value of 0 will deny sending any profiles, and a value of 1 will send all profiles. Profiles are sampled in relation to traces_sample_rate
+ *         enable_logs?: bool|Param,
+ *         enable_metrics?: bool|Param, // Default: true
+ *         attach_stacktrace?: bool|Param,
+ *         attach_metric_code_locations?: bool|Param,
+ *         context_lines?: int|Param,
+ *         environment?: scalar|Param|null, // Default: "%kernel.environment%"
+ *         logger?: scalar|Param|null,
+ *         spotlight?: bool|Param,
+ *         spotlight_url?: scalar|Param|null,
+ *         release?: scalar|Param|null, // Default: "%env(default::SENTRY_RELEASE)%"
+ *         server_name?: scalar|Param|null,
+ *         ignore_exceptions?: list<scalar|Param|null>,
+ *         ignore_transactions?: list<scalar|Param|null>,
+ *         before_send?: scalar|Param|null,
+ *         before_send_transaction?: scalar|Param|null,
+ *         before_send_check_in?: scalar|Param|null,
+ *         before_send_metrics?: scalar|Param|null,
+ *         before_send_log?: scalar|Param|null,
+ *         before_send_metric?: scalar|Param|null,
+ *         trace_propagation_targets?: mixed,
+ *         tags?: array<string, scalar|Param|null>,
+ *         error_types?: scalar|Param|null,
+ *         max_breadcrumbs?: int|Param,
+ *         before_breadcrumb?: mixed,
+ *         in_app_exclude?: list<scalar|Param|null>,
+ *         in_app_include?: list<scalar|Param|null>,
+ *         send_default_pii?: bool|Param,
+ *         max_value_length?: int|Param,
+ *         transport?: scalar|Param|null,
+ *         http_client?: scalar|Param|null,
+ *         http_proxy?: scalar|Param|null,
+ *         http_proxy_authentication?: scalar|Param|null,
+ *         http_connect_timeout?: float|Param, // The maximum number of seconds to wait while trying to connect to a server. It works only when using the default transport.
+ *         http_timeout?: float|Param, // The maximum execution time for the request+response as a whole. It works only when using the default transport.
+ *         http_ssl_verify_peer?: bool|Param,
+ *         http_compression?: bool|Param,
+ *         capture_silenced_errors?: bool|Param,
+ *         max_request_body_size?: "none"|"never"|"small"|"medium"|"always"|Param,
+ *         class_serializers?: array<string, scalar|Param|null>,
+ *     },
+ *     messenger?: bool|array{
+ *         enabled?: bool|Param, // Default: false
+ *         capture_soft_fails?: bool|Param, // Default: true
+ *         isolate_breadcrumbs_by_message?: bool|Param, // Default: false
+ *     },
+ *     tracing?: bool|array{
+ *         enabled?: bool|Param, // Default: true
+ *         dbal?: bool|array{
+ *             enabled?: bool|Param, // Default: true
+ *             connections?: list<scalar|Param|null>,
+ *         },
+ *         twig?: bool|array{
+ *             enabled?: bool|Param, // Default: true
+ *         },
+ *         cache?: bool|array{
+ *             enabled?: bool|Param, // Default: true
+ *         },
+ *         http_client?: bool|array{
+ *             enabled?: bool|Param, // Default: true
+ *         },
+ *         console?: array{
+ *             excluded_commands?: list<scalar|Param|null>,
+ *         },
+ *     },
+ * }
  * @psalm-type ConfigType = array{
  *     imports?: ImportsConfig,
  *     parameters?: ParametersConfig,
@@ -2100,6 +2179,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     vich_uploader?: VichUploaderConfig,
  *     flysystem?: FlysystemConfig,
  *     coop_tilleuls_forgot_password?: CoopTilleulsForgotPasswordConfig,
+ *     sentry?: SentryConfig,
  *     "when@dev"?: array{
  *         imports?: ImportsConfig,
  *         parameters?: ParametersConfig,
@@ -2122,6 +2202,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         zenstruck_foundry?: ZenstruckFoundryConfig,
  *         flysystem?: FlysystemConfig,
  *         coop_tilleuls_forgot_password?: CoopTilleulsForgotPasswordConfig,
+ *         sentry?: SentryConfig,
  *     },
  *     "when@prod"?: array{
  *         imports?: ImportsConfig,
@@ -2141,6 +2222,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         vich_uploader?: VichUploaderConfig,
  *         flysystem?: FlysystemConfig,
  *         coop_tilleuls_forgot_password?: CoopTilleulsForgotPasswordConfig,
+ *         sentry?: SentryConfig,
  *     },
  *     "when@test"?: array{
  *         imports?: ImportsConfig,
@@ -2164,6 +2246,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         dama_doctrine_test?: DamaDoctrineTestConfig,
  *         flysystem?: FlysystemConfig,
  *         coop_tilleuls_forgot_password?: CoopTilleulsForgotPasswordConfig,
+ *         sentry?: SentryConfig,
  *     },
  *     ...<string, ExtensionType|array{ // extra keys must follow the when@%env% pattern or match an extension alias
  *         imports?: ImportsConfig,
