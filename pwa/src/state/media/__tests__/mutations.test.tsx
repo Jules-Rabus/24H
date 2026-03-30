@@ -27,7 +27,7 @@ describe("useUploadRaceMediaMutation", () => {
   );
 
   it("calls the API with correct body and invalidates queries on success", async () => {
-    let capturedRequest: Request | null = null;
+    let capturedRequest: any = null;
     server.use(
       http.post("http://localhost/race_medias", async ({ request }) => {
         capturedRequest = request.clone();
