@@ -137,8 +137,7 @@ export default function UploadPage() {
               </Button>
             </VStack>
           ) : (
-            <Box
-              as="form"
+            <form
               onSubmit={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -159,7 +158,7 @@ export default function UploadPage() {
                         "image/heic",
                         "image/heif",
                       ];
-                      if (!allowed.includes(value.type))
+                      if (!allowed.includes(value?.type ?? ""))
                         return "Format non supporté (JPEG, PNG, GIF, WebP, HEIC)";
                       return undefined;
                     },
@@ -265,7 +264,7 @@ export default function UploadPage() {
                     : "Envoyer la photo"}
                 </Button>
               </Stack>
-            </Box>
+            </form>
           )}
         </VStack>
       </Container>

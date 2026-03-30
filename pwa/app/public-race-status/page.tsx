@@ -12,13 +12,10 @@ import {
   Icon,
   Progress,
   Badge,
+  Skeleton,
+  SkeletonText,
 } from "@chakra-ui/react";
-import {
-  useEffect,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useWeatherQuery } from "@/state/weather/queries";
@@ -124,10 +121,15 @@ function StatCard({
 
 export default function PublicRaceStatusPage() {
   const queryClient = useQueryClient();
-  const { data: weatherData } = useWeatherQuery(LATITUDE, LONGITUDE);
-  const { data: participations } = useParticipationsQuery();
-  const { data: runs } = useRunsQuery();
-  const { data: medias } = useAdminRaceMediasQuery();
+  const { data: weatherData, isLoading: isWeatherLoading } = useWeatherQuery(
+    LATITUDE,
+    LONGITUDE,
+  );
+  const { data: participations, isLoading: isParticipationsLoading } =
+    useParticipationsQuery();
+  const { data: runs, isLoading: isRunsLoading } = useRunsQuery();
+  const { data: medias, isLoading: isMediasLoading } =
+    useAdminRaceMediasQuery();
 
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
 
@@ -371,79 +373,104 @@ export default function PublicRaceStatusPage() {
           overflow="hidden"
         >
           <Grid templateColumns="repeat(5, 1fr)" gap="3" flex="1">
-            <StatCard
-              label="Run en cours"
-              value={
-                <Text
-                  fontSize="md"
-                  fontWeight="900"
-                  color="gray.100"
-                  lineHeight="1.2"
+            {isRunsLoading || isParticipationsLoading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <Flex
+                  key={i}
+                  direction="column"
+                  gap="2"
+                  p="3"
+                  bg="whiteAlpha.50"
+                  rounded="xl"
+                  borderLeftWidth="2px"
+                  borderLeftColor="whiteAlpha.100"
                 >
-                  {currentRun
-                    ? `${new Date(currentRun.startDate!).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })} – ${new Date(currentRun.endDate!).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`
-                    : "—"}
-                </Text>
-              }
-              sub={
-                currentRun ? `Tour ${runIndex} / ${totalRuns}` : "En attente"
-              }
-            />
-            <StatCard
-              label="Finishers / Total"
-              value={
-                <HStack align="baseline" gap="1">
-                  <Text fontSize="3xl" fontWeight="900" color="primary.300">
-                    {finishedCount}
-                  </Text>
-                  <Text fontSize="sm" color="gray.500">
-                    / {totalCount}
-                  </Text>
-                </HStack>
-              }
-              sub={`${finishedCount * 4} km ce run`}
-            />
-            <StatCard
-              label="KM Totaux"
-              value={
-                <HStack align="baseline" gap="1">
-                  <Text fontSize="3xl" fontWeight="900" color="gray.100">
-                    {totalAllKm.toLocaleString("fr-FR")}
-                  </Text>
-                  <Text fontSize="sm" color="gray.500">
-                    km
-                  </Text>
-                </HStack>
-              }
-            />
-            <StatCard
-              label="Coureurs"
-              value={
-                <HStack align="baseline" gap="1">
-                  <Text fontSize="3xl" fontWeight="900" color="gray.100">
-                    {activeRacers}
-                  </Text>
-                  <Text fontSize="sm" color="gray.500">
-                    coureurs
-                  </Text>
-                </HStack>
-              }
-            />
-            <StatCard
-              label="Prochain départ"
-              value={
-                <Text
-                  fontSize="2xl"
-                  fontWeight="900"
-                  color={nextRun && !currentRun ? "primary.300" : "gray.100"}
-                  fontVariantNumeric="tabular-nums"
-                >
-                  {nextRun
-                    ? `${String(nextH).padStart(2, "0")}:${String(nextM).padStart(2, "0")}:${String(nextS).padStart(2, "0")}`
-                    : "—"}
-                </Text>
-              }
-            />
+                  <Skeleton h="3" w="60%" rounded="md" />
+                  <Skeleton h="8" w="80%" rounded="md" />
+                  <Skeleton h="3" w="50%" rounded="md" />
+                </Flex>
+              ))
+            ) : (
+              <>
+                <StatCard
+                  label="Run en cours"
+                  value={
+                    <Text
+                      fontSize="md"
+                      fontWeight="900"
+                      color="gray.100"
+                      lineHeight="1.2"
+                    >
+                      {currentRun
+                        ? `${new Date(currentRun.startDate!).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })} – ${new Date(currentRun.endDate!).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`
+                        : "—"}
+                    </Text>
+                  }
+                  sub={
+                    currentRun
+                      ? `Tour ${runIndex} / ${totalRuns}`
+                      : "En attente"
+                  }
+                />
+                <StatCard
+                  label="Finishers / Total"
+                  value={
+                    <HStack align="baseline" gap="1">
+                      <Text fontSize="3xl" fontWeight="900" color="primary.300">
+                        {finishedCount}
+                      </Text>
+                      <Text fontSize="sm" color="gray.500">
+                        / {totalCount}
+                      </Text>
+                    </HStack>
+                  }
+                  sub={`${finishedCount * 4} km ce run`}
+                />
+                <StatCard
+                  label="KM Totaux"
+                  value={
+                    <HStack align="baseline" gap="1">
+                      <Text fontSize="3xl" fontWeight="900" color="gray.100">
+                        {totalAllKm.toLocaleString("fr-FR")}
+                      </Text>
+                      <Text fontSize="sm" color="gray.500">
+                        km
+                      </Text>
+                    </HStack>
+                  }
+                />
+                <StatCard
+                  label="Coureurs"
+                  value={
+                    <HStack align="baseline" gap="1">
+                      <Text fontSize="3xl" fontWeight="900" color="gray.100">
+                        {activeRacers}
+                      </Text>
+                      <Text fontSize="sm" color="gray.500">
+                        coureurs
+                      </Text>
+                    </HStack>
+                  }
+                />
+                <StatCard
+                  label="Prochain départ"
+                  value={
+                    <Text
+                      fontSize="2xl"
+                      fontWeight="900"
+                      color={
+                        nextRun && !currentRun ? "primary.300" : "gray.100"
+                      }
+                      fontVariantNumeric="tabular-nums"
+                    >
+                      {nextRun
+                        ? `${String(nextH).padStart(2, "0")}:${String(nextM).padStart(2, "0")}:${String(nextS).padStart(2, "0")}`
+                        : "—"}
+                    </Text>
+                  }
+                />
+              </>
+            )}
           </Grid>
 
           {/* Progress */}
@@ -486,89 +513,118 @@ export default function PublicRaceStatusPage() {
             bg="whiteAlpha.50"
             rounded="xl"
           >
-            <Box>
-              <Text
-                fontSize="xs"
-                fontWeight="700"
-                letterSpacing="0.12em"
-                textTransform="uppercase"
-                color="gray.500"
-                mb="1"
-              >
-                Météo actuelle
-              </Text>
-              <HStack gap="3" align="baseline">
-                <Text
-                  fontSize="4xl"
-                  fontWeight="900"
-                  color="gray.100"
-                  lineHeight="1"
-                >
-                  {currentTemp}°C
-                </Text>
-                <Icon as={WeatherIcon} boxSize="8" color="primary.300" />
-              </HStack>
-            </Box>
-            <Grid templateColumns="1fr 1fr" gap="2">
-              {apparentTemp !== undefined && (
-                <HStack gap="1.5" p="2" bg="whiteAlpha.50" rounded="lg">
-                  <Icon as={LuThermometer} boxSize="4" color="gray.400" />
-                  <Box>
+            {isWeatherLoading ? (
+              <Flex direction="column" gap="2" flex="1">
+                <Skeleton h="3" w="40%" rounded="md" />
+                <Skeleton h="10" w="60%" rounded="md" />
+              </Flex>
+            ) : (
+              <>
+                <Box>
+                  <Text
+                    fontSize="xs"
+                    fontWeight="700"
+                    letterSpacing="0.12em"
+                    textTransform="uppercase"
+                    color="gray.500"
+                    mb="1"
+                  >
+                    Météo actuelle
+                  </Text>
+                  <HStack gap="3" align="baseline">
                     <Text
-                      fontSize="10px"
-                      color="gray.500"
-                      textTransform="uppercase"
-                      letterSpacing="wider"
+                      fontSize="4xl"
+                      fontWeight="900"
+                      color="gray.100"
+                      lineHeight="1"
                     >
-                      Ressenti
+                      {currentTemp}°C
                     </Text>
-                    <Text fontSize="sm" fontWeight="800" color="gray.200">
-                      {apparentTemp}°C
-                    </Text>
-                  </Box>
-                </HStack>
-              )}
-              {windSpeed !== undefined && (
-                <HStack gap="1.5" p="2" bg="whiteAlpha.50" rounded="lg">
-                  <Icon as={LuWind} boxSize="4" color="gray.400" />
-                  <Box>
-                    <Text
-                      fontSize="10px"
-                      color="gray.500"
-                      textTransform="uppercase"
-                      letterSpacing="wider"
-                    >
-                      Vent
-                    </Text>
-                    <Text fontSize="sm" fontWeight="800" color="gray.200">
-                      {windSpeed} km/h
-                    </Text>
-                  </Box>
-                </HStack>
-              )}
-              {humidity !== undefined && (
-                <HStack gap="1.5" p="2" bg="whiteAlpha.50" rounded="lg">
-                  <Icon as={LuDroplets} boxSize="4" color="gray.400" />
-                  <Box>
-                    <Text
-                      fontSize="10px"
-                      color="gray.500"
-                      textTransform="uppercase"
-                      letterSpacing="wider"
-                    >
-                      Humidité
-                    </Text>
-                    <Text fontSize="sm" fontWeight="800" color="gray.200">
-                      {humidity}%
-                    </Text>
-                  </Box>
-                </HStack>
-              )}
-            </Grid>
+                    <Icon as={WeatherIcon} boxSize="8" color="primary.300" />
+                  </HStack>
+                </Box>
+                <Grid templateColumns="1fr 1fr" gap="2">
+                  {apparentTemp !== undefined && (
+                    <HStack gap="1.5" p="2" bg="whiteAlpha.50" rounded="lg">
+                      <Icon as={LuThermometer} boxSize="4" color="gray.400" />
+                      <Box>
+                        <Text
+                          fontSize="10px"
+                          color="gray.500"
+                          textTransform="uppercase"
+                          letterSpacing="wider"
+                        >
+                          Ressenti
+                        </Text>
+                        <Text fontSize="sm" fontWeight="800" color="gray.200">
+                          {apparentTemp}°C
+                        </Text>
+                      </Box>
+                    </HStack>
+                  )}
+                  {windSpeed !== undefined && (
+                    <HStack gap="1.5" p="2" bg="whiteAlpha.50" rounded="lg">
+                      <Icon as={LuWind} boxSize="4" color="gray.400" />
+                      <Box>
+                        <Text
+                          fontSize="10px"
+                          color="gray.500"
+                          textTransform="uppercase"
+                          letterSpacing="wider"
+                        >
+                          Vent
+                        </Text>
+                        <Text fontSize="sm" fontWeight="800" color="gray.200">
+                          {windSpeed} km/h
+                        </Text>
+                      </Box>
+                    </HStack>
+                  )}
+                  {humidity !== undefined && (
+                    <HStack gap="1.5" p="2" bg="whiteAlpha.50" rounded="lg">
+                      <Icon as={LuDroplets} boxSize="4" color="gray.400" />
+                      <Box>
+                        <Text
+                          fontSize="10px"
+                          color="gray.500"
+                          textTransform="uppercase"
+                          letterSpacing="wider"
+                        >
+                          Humidité
+                        </Text>
+                        <Text fontSize="sm" fontWeight="800" color="gray.200">
+                          {humidity}%
+                        </Text>
+                      </Box>
+                    </HStack>
+                  )}
+                </Grid>
+              </>
+            )}
           </Flex>
 
           {/* Prévisions horaires */}
-          {hourlyForecast.length > 0 && (
+          {isWeatherLoading ? (
+            <HStack gap="1.5" flex="1" align="stretch">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Flex
+                  key={i}
+                  direction="column"
+                  align="center"
+                  justify="space-between"
+                  flex="1"
+                  p="2"
+                  bg="whiteAlpha.50"
+                  rounded="lg"
+                  gap="2"
+                >
+                  <Skeleton h="3" w="full" rounded="md" />
+                  <Skeleton h="5" w="5" rounded="full" />
+                  <Skeleton h="5" w="8" rounded="md" />
+                </Flex>
+              ))}
+            </HStack>
+          ) : hourlyForecast.length > 0 ? (
             <HStack gap="1.5" flex="1" align="stretch">
               {hourlyForecast.map((h, i) => {
                 const HIcon = getWeatherIcon(h.code);
@@ -607,7 +663,7 @@ export default function PublicRaceStatusPage() {
                 );
               })}
             </HStack>
-          )}
+          ) : null}
         </Flex>
       </Grid>
 
@@ -628,7 +684,13 @@ export default function PublicRaceStatusPage() {
           bg="gray.900"
           p="3"
         >
-          {mediaList.length === 0 ? (
+          {isMediasLoading ? (
+            <Flex h="full" gap="2">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Skeleton key={i} flex="1" rounded="xl" />
+              ))}
+            </Flex>
+          ) : mediaList.length === 0 ? (
             <Flex
               direction="column"
               align="center"
@@ -690,7 +752,13 @@ export default function PublicRaceStatusPage() {
                   ))}
                 </Flex>
               </Box>
-              <Text fontSize="xs" color="gray.600" fontWeight="700" flexShrink={0} px="1">
+              <Text
+                fontSize="xs"
+                color="gray.600"
+                fontWeight="700"
+                flexShrink={0}
+                px="1"
+              >
                 {mediaList.length} photo{mediaList.length > 1 ? "s" : ""}
               </Text>
             </Flex>
@@ -799,7 +867,24 @@ export default function PublicRaceStatusPage() {
             p="3"
             overflow="hidden"
           >
-            {lastArrivals.length === 0 ? (
+            {isParticipationsLoading ? (
+              Array.from({ length: 10 }).map((_, i) => (
+                <Flex
+                  key={i}
+                  direction="column"
+                  justify="space-between"
+                  p="3"
+                  bg="whiteAlpha.50"
+                  rounded="xl"
+                  gap="2"
+                  overflow="hidden"
+                >
+                  <Skeleton h="10" w="10" rounded="full" flexShrink={0} />
+                  <SkeletonText noOfLines={2} gap="1" />
+                  <Skeleton h="4" w="full" rounded="md" />
+                </Flex>
+              ))
+            ) : lastArrivals.length === 0 ? (
               <Flex
                 align="center"
                 justify="center"
