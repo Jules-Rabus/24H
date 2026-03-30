@@ -972,6 +972,7 @@ export default function PublicRaceStatusPage() {
                           color="gray.400"
                           fontStyle="italic"
                           lineHeight="1.3"
+                          mt="1"
                         >
                           «{surname}»
                         </Text>

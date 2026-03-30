@@ -38,7 +38,7 @@ import {
   Image,
 } from "@react-pdf/renderer";
 
-import { datamatrix } from "@bwip-js/browser";
+import { qrcode } from "@bwip-js/browser";
 
 const bibStyles = StyleSheet.create({
   page: {
@@ -77,8 +77,8 @@ const BibDocument = ({ user }: { user: any }) => {
 
 const generateQr = (data: any) => {
   const canvas = document.createElement("canvas");
-  datamatrix(canvas, {
-    bcid: "datamatrix",
+  qrcode(canvas, {
+    bcid: "qrcode",
     text: JSON.stringify(data),
     scale: 7,
   });
@@ -118,6 +118,7 @@ export const UsersList = (props: any) => (
     <FieldGuesser source="surname" label="Surnom" />
     <FieldGuesser source="email" label="Email" />
     <FieldGuesser source="organization" label="Organisation" />
+    <PdfDownloadLinkButtonWrapper />
   </ListGuesser>
 );
 
