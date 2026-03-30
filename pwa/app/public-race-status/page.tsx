@@ -24,7 +24,10 @@ import {
   useRunsQuery,
   raceKeys,
 } from "@/state/race/queries";
-import { useAdminRaceMediasQuery } from "@/state/admin/medias/queries";
+import {
+  useAdminRaceMediasQuery,
+  adminMediaKeys,
+} from "@/state/admin/medias/queries";
 import {
   BarChart,
   Bar,
@@ -164,10 +167,13 @@ export default function PublicRaceStatusPage() {
     if (!hubUrl || !entrypoint) return;
     const url = new URL(hubUrl);
     url.searchParams.append("topic", `${entrypoint}/participations/{id}`);
+    url.searchParams.append("topic", `${entrypoint}/race_medias/{id}`);
     const es = new EventSource(url.toString(), { withCredentials: true });
     es.onmessage = (e) => {
       try {
         const data = JSON.parse(e.data);
+
+        // Nouvelle arrivée
         if (data.status === "FINISHED") {
           queryClient.setQueryData(
             raceKeys.participations(),
@@ -188,6 +194,15 @@ export default function PublicRaceStatusPage() {
             },
           );
           queryClient.invalidateQueries({ queryKey: raceKeys.runs() });
+        }
+
+        // Nouveau média
+        if (data.contentUrl !== undefined) {
+          queryClient.setQueryData(adminMediaKeys.list(), (old: unknown) => {
+            const arr = Array.isArray(old) ? old : [];
+            if (arr.find((m: { id?: number }) => m.id === data.id)) return arr;
+            return [data, ...arr];
+          });
         }
       } catch {}
     };
