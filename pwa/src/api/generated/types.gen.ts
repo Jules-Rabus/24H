@@ -40,42 +40,6 @@ export type ConstraintViolation = {
 };
 
 /**
- * Unprocessable entity
- */
-export type ConstraintViolationJsonld = {
-  status?: number;
-  violations?: Array<{
-    /**
-     * The property path of the violation
-     */
-    propertyPath: string;
-    /**
-     * The message associated with the violation
-     */
-    message: string;
-    /**
-     * The code of the violation
-     */
-    code?: string;
-    /**
-     * An extra hint to understand the violation
-     */
-    hint?: string;
-    /**
-     * The serialized payload of the violation
-     */
-    payload?: {
-      [key: string]: unknown;
-    };
-  }>;
-  readonly detail?: string;
-  readonly description?: string;
-  readonly type?: string;
-  readonly title?: string | null;
-  readonly instance?: string | null;
-};
-
-/**
  * A representation of common errors.
  */
 export type Error = {
@@ -96,30 +60,6 @@ export type Error = {
    * A URI reference that identifies the problem type
    */
   readonly type?: string;
-};
-
-/**
- * A representation of common errors.
- */
-export type ErrorJsonld = {
-  /**
-   * A short, human-readable summary of the problem.
-   */
-  readonly title?: string | null;
-  /**
-   * A human-readable explanation specific to this occurrence of the problem.
-   */
-  readonly detail?: string | null;
-  status?: number | null;
-  /**
-   * A URI reference that identifies the specific occurrence of the problem. It may or may not yield further information if dereferenced.
-   */
-  readonly instance?: string | null;
-  /**
-   * A URI reference that identifies the problem type
-   */
-  readonly type?: string;
-  readonly description?: string | null;
 };
 
 export type Medias = {
@@ -441,47 +381,9 @@ export type ConstraintViolationWritable = {
 };
 
 /**
- * Unprocessable entity
- */
-export type ConstraintViolationJsonldWritable = {
-  status?: number;
-  violations?: Array<{
-    /**
-     * The property path of the violation
-     */
-    propertyPath: string;
-    /**
-     * The message associated with the violation
-     */
-    message: string;
-    /**
-     * The code of the violation
-     */
-    code?: string;
-    /**
-     * An extra hint to understand the violation
-     */
-    hint?: string;
-    /**
-     * The serialized payload of the violation
-     */
-    payload?: {
-      [key: string]: unknown;
-    };
-  }>;
-};
-
-/**
  * A representation of common errors.
  */
 export type ErrorWritable = {
-  status?: number | null;
-};
-
-/**
- * A representation of common errors.
- */
-export type ErrorJsonldWritable = {
   status?: number | null;
 };
 
@@ -660,7 +562,7 @@ export type ApiMediasGetCollectionErrors = {
   /**
    * Forbidden
    */
-  403: ErrorJsonld;
+  403: Error;
 };
 
 export type ApiMediasGetCollectionError =
@@ -692,11 +594,11 @@ export type ApiMediasIdDeleteErrors = {
   /**
    * Forbidden
    */
-  403: ErrorJsonld;
+  403: Error;
   /**
    * Not found
    */
-  404: ErrorJsonld;
+  404: Error;
 };
 
 export type ApiMediasIdDeleteError =
@@ -728,7 +630,7 @@ export type ApiMediasIdGetErrors = {
   /**
    * Not found
    */
-  404: ErrorJsonld;
+  404: Error;
 };
 
 export type ApiMediasIdGetError =
@@ -765,15 +667,15 @@ export type ApiUsersUserIdimagePostErrors = {
   /**
    * Invalid input
    */
-  400: ErrorJsonld;
+  400: Error;
   /**
    * Forbidden
    */
-  403: ErrorJsonld;
+  403: Error;
   /**
    * An error occurred
    */
-  422: ConstraintViolationJsonld;
+  422: ConstraintViolation;
 };
 
 export type ApiUsersUserIdimagePostError =
@@ -837,7 +739,7 @@ export type ApiParticipationsGetCollectionErrors = {
   /**
    * Forbidden
    */
-  403: ErrorJsonld;
+  403: Error;
 };
 
 export type ApiParticipationsGetCollectionError =
@@ -867,15 +769,15 @@ export type ApiParticipationsPostErrors = {
   /**
    * Invalid input
    */
-  400: ErrorJsonld;
+  400: Error;
   /**
    * Forbidden
    */
-  403: ErrorJsonld;
+  403: Error;
   /**
    * An error occurred
    */
-  422: ConstraintViolationJsonld;
+  422: ConstraintViolation;
 };
 
 export type ApiParticipationsPostError =
@@ -905,15 +807,15 @@ export type ApiParticipationsfinishedPostErrors = {
   /**
    * Invalid input
    */
-  400: ErrorJsonld;
+  400: Error;
   /**
    * Forbidden
    */
-  403: ErrorJsonld;
+  403: Error;
   /**
    * An error occurred
    */
-  422: ConstraintViolationJsonld;
+  422: ConstraintViolation;
 };
 
 export type ApiParticipationsfinishedPostError =
@@ -945,11 +847,11 @@ export type ApiParticipationsIdDeleteErrors = {
   /**
    * Forbidden
    */
-  403: ErrorJsonld;
+  403: Error;
   /**
    * Not found
    */
-  404: ErrorJsonld;
+  404: Error;
 };
 
 export type ApiParticipationsIdDeleteError =
@@ -981,11 +883,11 @@ export type ApiParticipationsIdGetErrors = {
   /**
    * Forbidden
    */
-  403: ErrorJsonld;
+  403: Error;
   /**
    * Not found
    */
-  404: ErrorJsonld;
+  404: Error;
 };
 
 export type ApiParticipationsIdGetError =
@@ -1020,19 +922,19 @@ export type ApiParticipationsIdPatchErrors = {
   /**
    * Invalid input
    */
-  400: ErrorJsonld;
+  400: Error;
   /**
    * Forbidden
    */
-  403: ErrorJsonld;
+  403: Error;
   /**
    * Not found
    */
-  404: ErrorJsonld;
+  404: Error;
   /**
    * An error occurred
    */
-  422: ConstraintViolationJsonld;
+  422: ConstraintViolation;
 };
 
 export type ApiParticipationsIdPatchError =
@@ -1095,15 +997,15 @@ export type ApiRaceMediasPostErrors = {
   /**
    * Invalid input
    */
-  400: ErrorJsonld;
+  400: Error;
   /**
    * Forbidden
    */
-  403: ErrorJsonld;
+  403: Error;
   /**
    * An error occurred
    */
-  422: ConstraintViolationJsonld;
+  422: ConstraintViolation;
 };
 
 export type ApiRaceMediasPostError =
@@ -1135,11 +1037,11 @@ export type ApiRaceMediasIdDeleteErrors = {
   /**
    * Forbidden
    */
-  403: ErrorJsonld;
+  403: Error;
   /**
    * Not found
    */
-  404: ErrorJsonld;
+  404: Error;
 };
 
 export type ApiRaceMediasIdDeleteError =
@@ -1171,7 +1073,7 @@ export type ApiRaceMediasIdGetErrors = {
   /**
    * Not found
    */
-  404: ErrorJsonld;
+  404: Error;
 };
 
 export type ApiRaceMediasIdGetError =
@@ -1220,7 +1122,7 @@ export type ApiRunsGetCollectionErrors = {
   /**
    * Forbidden
    */
-  403: ErrorJsonld;
+  403: Error;
 };
 
 export type ApiRunsGetCollectionError =
@@ -1250,15 +1152,15 @@ export type ApiRunsPostErrors = {
   /**
    * Invalid input
    */
-  400: ErrorJsonld;
+  400: Error;
   /**
    * Forbidden
    */
-  403: ErrorJsonld;
+  403: Error;
   /**
    * An error occurred
    */
-  422: ConstraintViolationJsonld;
+  422: ConstraintViolation;
 };
 
 export type ApiRunsPostError = ApiRunsPostErrors[keyof ApiRunsPostErrors];
@@ -1289,11 +1191,11 @@ export type ApiRunsIdDeleteErrors = {
   /**
    * Forbidden
    */
-  403: ErrorJsonld;
+  403: Error;
   /**
    * Not found
    */
-  404: ErrorJsonld;
+  404: Error;
 };
 
 export type ApiRunsIdDeleteError =
@@ -1325,11 +1227,11 @@ export type ApiRunsIdGetErrors = {
   /**
    * Forbidden
    */
-  403: ErrorJsonld;
+  403: Error;
   /**
    * Not found
    */
-  404: ErrorJsonld;
+  404: Error;
 };
 
 export type ApiRunsIdGetError = ApiRunsIdGetErrors[keyof ApiRunsIdGetErrors];
@@ -1363,19 +1265,19 @@ export type ApiRunsIdPatchErrors = {
   /**
    * Invalid input
    */
-  400: ErrorJsonld;
+  400: Error;
   /**
    * Forbidden
    */
-  403: ErrorJsonld;
+  403: Error;
   /**
    * Not found
    */
-  404: ErrorJsonld;
+  404: Error;
   /**
    * An error occurred
    */
-  422: ConstraintViolationJsonld;
+  422: ConstraintViolation;
 };
 
 export type ApiRunsIdPatchError =
@@ -1405,11 +1307,11 @@ export type LogoutErrors = {
   /**
    * Invalid input
    */
-  400: ErrorJsonld;
+  400: Error;
   /**
    * An error occurred
    */
-  422: ConstraintViolationJsonld;
+  422: ConstraintViolation;
 };
 
 export type LogoutError = LogoutErrors[keyof LogoutErrors];
@@ -1422,6 +1324,35 @@ export type LogoutResponses = {
 };
 
 export type LogoutResponse = LogoutResponses[keyof LogoutResponses];
+
+export type MeData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/me";
+};
+
+export type MeErrors = {
+  /**
+   * Forbidden
+   */
+  403: Error;
+  /**
+   * Not found
+   */
+  404: Error;
+};
+
+export type MeError = MeErrors[keyof MeErrors];
+
+export type MeResponses = {
+  /**
+   * User resource
+   */
+  200: User;
+};
+
+export type MeResponse = MeResponses[keyof MeResponses];
 
 export type ApiUsersGetCollectionData = {
   body?: never;
@@ -1456,7 +1387,7 @@ export type ApiUsersGetCollectionErrors = {
   /**
    * Forbidden
    */
-  403: ErrorJsonld;
+  403: Error;
 };
 
 export type ApiUsersGetCollectionError =
@@ -1486,15 +1417,15 @@ export type ApiUsersPostErrors = {
   /**
    * Invalid input
    */
-  400: ErrorJsonld;
+  400: Error;
   /**
    * Forbidden
    */
-  403: ErrorJsonld;
+  403: Error;
   /**
    * An error occurred
    */
-  422: ConstraintViolationJsonld;
+  422: ConstraintViolation;
 };
 
 export type ApiUsersPostError = ApiUsersPostErrors[keyof ApiUsersPostErrors];
@@ -1508,35 +1439,6 @@ export type ApiUsersPostResponses = {
 
 export type ApiUsersPostResponse =
   ApiUsersPostResponses[keyof ApiUsersPostResponses];
-
-export type MeData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: "/users/me";
-};
-
-export type MeErrors = {
-  /**
-   * Forbidden
-   */
-  403: ErrorJsonld;
-  /**
-   * Not found
-   */
-  404: ErrorJsonld;
-};
-
-export type MeError = MeErrors[keyof MeErrors];
-
-export type MeResponses = {
-  /**
-   * User resource
-   */
-  200: User;
-};
-
-export type MeResponse = MeResponses[keyof MeResponses];
 
 export type ApiUserspublicGetCollectionData = {
   body?: never;
@@ -1593,7 +1495,7 @@ export type ApiUserspublicIdGetErrors = {
   /**
    * Not found
    */
-  404: ErrorJsonld;
+  404: Error;
 };
 
 export type ApiUserspublicIdGetError =
@@ -1625,11 +1527,11 @@ export type ApiUsersIdDeleteErrors = {
   /**
    * Forbidden
    */
-  403: ErrorJsonld;
+  403: Error;
   /**
    * Not found
    */
-  404: ErrorJsonld;
+  404: Error;
 };
 
 export type ApiUsersIdDeleteError =
@@ -1661,11 +1563,11 @@ export type ApiUsersIdGetErrors = {
   /**
    * Forbidden
    */
-  403: ErrorJsonld;
+  403: Error;
   /**
    * Not found
    */
-  404: ErrorJsonld;
+  404: Error;
 };
 
 export type ApiUsersIdGetError = ApiUsersIdGetErrors[keyof ApiUsersIdGetErrors];
@@ -1699,19 +1601,19 @@ export type ApiUsersIdPatchErrors = {
   /**
    * Invalid input
    */
-  400: ErrorJsonld;
+  400: Error;
   /**
    * Forbidden
    */
-  403: ErrorJsonld;
+  403: Error;
   /**
    * Not found
    */
-  404: ErrorJsonld;
+  404: Error;
   /**
    * An error occurred
    */
-  422: ConstraintViolationJsonld;
+  422: ConstraintViolation;
 };
 
 export type ApiUsersIdPatchError =

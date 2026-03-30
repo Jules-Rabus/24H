@@ -32,7 +32,7 @@ export const RedirectToLogin = () => {
   const [isAuth, setIsAuth] = React.useState<boolean | null>(null);
 
   React.useEffect(() => {
-    fetch(`${ENTRYPOINT}/users/me`, { credentials: "include" })
+    fetch(`${ENTRYPOINT}/me`, { credentials: "include" })
       .then((r) => {
         if (r.ok) {
           setIsAuth(true);
@@ -105,7 +105,7 @@ export const authProvider = {
   },
 
   checkAuth: async () => {
-    const response = await fetch(`${ENTRYPOINT}/users/me`, {
+    const response = await fetch(`${ENTRYPOINT}/me`, {
       credentials: "include",
     });
     if (!response.ok) return Promise.reject();

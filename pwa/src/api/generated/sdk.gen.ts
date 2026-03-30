@@ -577,6 +577,20 @@ export const logout = <ThrowOnError extends boolean = false>(
   });
 
 /**
+ * Retrieves a User resource.
+ *
+ * Retrieves a User resource.
+ */
+export const me = <ThrowOnError extends boolean = false>(
+  options?: Options<MeData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<MeResponses, MeErrors, ThrowOnError>({
+    responseType: "json",
+    url: "/me",
+    ...options,
+  });
+
+/**
  * Retrieves the collection of User resources.
  *
  * Retrieves the collection of User resources.
@@ -614,20 +628,6 @@ export const apiUsersPost = <ThrowOnError extends boolean = false>(
       "Content-Type": "application/json",
       ...options.headers,
     },
-  });
-
-/**
- * Retrieves a User resource.
- *
- * Retrieves a User resource.
- */
-export const me = <ThrowOnError extends boolean = false>(
-  options?: Options<MeData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<MeResponses, MeErrors, ThrowOnError>({
-    responseType: "json",
-    url: "/users/me",
-    ...options,
   });
 
 /**
