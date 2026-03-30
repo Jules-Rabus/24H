@@ -6,26 +6,18 @@ import {
   Heading,
   HStack,
   Icon,
-  Input,
   Text,
   VStack,
   Badge,
-  Button,
 } from "@chakra-ui/react";
-import { useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Scanner,
   IDetectedBarcode,
   IScannerProps,
 } from "@yudiel/react-qr-scanner";
 import axios from "axios";
-import {
-  LuScanLine,
-  LuCircleCheck,
-  LuCircleAlert,
-  LuX,
-  LuHash,
-} from "react-icons/lu";
+import { LuScanLine, LuCircleCheck, LuCircleAlert, LuX } from "react-icons/lu";
 
 interface Participation {
   id: number;
@@ -43,9 +35,9 @@ interface Toast {
   id: number;
 }
 
-const SCAN_FORMATS: IScannerProps["formats"] = ["qr_code"];
+const SCAN_FORMATS: IScannerProps["formats"] = ["data_matrix"];
 
-function getQrOutline(
+function getDatamatrixOutline(
   detectedCodes: IDetectedBarcode[],
   ctx: CanvasRenderingContext2D,
 ) {
@@ -67,8 +59,6 @@ export default function ScannerUI() {
   const [lastArrivals, setLastArrivals] = useState<
     Array<{ name: string; time: string; totalTime?: number }>
   >([]);
-  const [dossard, setDossard] = useState("");
-  const dossardRef = useRef<HTMLInputElement>(null);
 
   const addToast = (message: string, type: ToastType) => {
     const id = Date.now();
@@ -79,45 +69,27 @@ export default function ScannerUI() {
     );
   };
 
-  const processRawValue = async (rawValue: string) => {
-    const { data } = await axios.post<Participation>(
-      `${process.env.NEXT_PUBLIC_ENTRYPOINT}/participations/finished`,
-      { rawValue },
-      { withCredentials: true },
-    );
-    const arrivalTime = new Date(data.arrivalTime ?? Date.now());
-    const timeStr = arrivalTime.toLocaleTimeString("fr-FR", {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
-    const name = `${data.user.firstName} ${data.user.lastName}`;
-    addToast(`Arrivée de ${name} à ${timeStr}`, "success");
-    setLastArrivals((prev) => [
-      { name, time: timeStr, totalTime: data.totalTime },
-      ...prev.slice(0, 9),
-    ]);
-  };
-
   const handleScan = async (result: IDetectedBarcode[]) => {
     if (!result?.length) return;
     try {
-      await processRawValue(result[0].rawValue);
-    } catch (err: unknown) {
-      const msg =
-        (err as { response?: { data?: { description?: string } } })?.response
-          ?.data?.description ?? "Erreur inconnue";
-      addToast(msg, "error");
-    }
-  };
-
-  const handleDossardSubmit = async () => {
-    const num = parseInt(dossard, 10);
-    if (!num || num <= 0) return;
-    try {
-      await processRawValue(JSON.stringify({ originId: num }));
-      setDossard("");
-      dossardRef.current?.focus();
+      const { rawValue } = result[0];
+      const { data } = await axios.post<Participation>(
+        `${process.env.NEXT_PUBLIC_ENTRYPOINT}/participations/finished`,
+        { rawValue },
+        { withCredentials: true },
+      );
+      const arrivalTime = new Date(data.arrivalTime ?? Date.now());
+      const timeStr = arrivalTime.toLocaleTimeString("fr-FR", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+      const name = `${data.user.firstName} ${data.user.lastName}`;
+      addToast(`Arrivée de ${name} à ${timeStr}`, "success");
+      setLastArrivals((prev) => [
+        { name, time: timeStr, totalTime: data.totalTime },
+        ...prev.slice(0, 9),
+      ]);
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { description?: string } } })?.response
@@ -127,12 +99,12 @@ export default function ScannerUI() {
   };
 
   return (
-    <Flex direction="column" h="100dvh" color="gray.100" overflow="hidden">
+    <Flex direction="column" h="100vh" color="gray.100">
       {/* Header */}
       <Flex
         align="center"
         justify="space-between"
-        px="4"
+        px="6"
         py="3"
         flexShrink={0}
         borderBottomWidth="1px"
@@ -157,19 +129,18 @@ export default function ScannerUI() {
           fontSize="9px"
           fontWeight="700"
         >
-          QR Code
+          DataMatrix
         </Badge>
       </Flex>
 
-      {/* Main — colonne sur mobile, ligne sur desktop */}
+      {/* Main */}
       <Flex
         flex="1"
         overflow="hidden"
         direction={{ base: "column", md: "row" }}
-        minH={0}
       >
-        {/* Caméra */}
-        <Box flex="1" overflow="hidden" position="relative" bg="black" minH={0}>
+        {/* Camera */}
+        <Box flex="1" overflow="hidden" position="relative" bg="black">
           <Scanner
             formats={SCAN_FORMATS}
             scanDelay={4000}
@@ -181,7 +152,7 @@ export default function ScannerUI() {
               zoom: false,
               finder: true,
               onOff: true,
-              tracker: getQrOutline,
+              tracker: getDatamatrixOutline,
             }}
             styles={{
               container: { width: "100%", height: "100%" },
@@ -193,20 +164,17 @@ export default function ScannerUI() {
         <Flex
           direction="column"
           w={{ base: "full", md: "280px" }}
-          maxH={{ base: "180px", md: "none" }}
           flexShrink={0}
           bg="gray.900"
-          borderLeftWidth={{ base: "0", md: "1px" }}
-          borderTopWidth={{ base: "1px", md: "0" }}
+          borderLeftWidth="1px"
           borderColor="whiteAlpha.100"
           overflow="hidden"
         >
           <Box
             px="4"
-            py="2"
+            py="3"
             borderBottomWidth="1px"
             borderColor="whiteAlpha.100"
-            flexShrink={0}
           >
             <Text
               fontSize="9px"
@@ -226,7 +194,6 @@ export default function ScannerUI() {
                 flex="1"
                 color="gray.600"
                 fontSize="xs"
-                py="3"
               >
                 Aucune arrivée enregistrée
               </Flex>
@@ -235,7 +202,7 @@ export default function ScannerUI() {
                 <HStack
                   key={i}
                   px="4"
-                  py="2"
+                  py="3"
                   borderBottomWidth="1px"
                   borderColor="whiteAlpha.50"
                   bg={i === 0 ? "rgba(15,146,154,0.08)" : "transparent"}
@@ -270,46 +237,6 @@ export default function ScannerUI() {
           </VStack>
         </Flex>
       </Flex>
-
-      {/* Barre saisie manuelle — fixe en bas */}
-      <HStack
-        flexShrink={0}
-        px="4"
-        py="3"
-        gap="2"
-        borderTopWidth="1px"
-        borderColor="whiteAlpha.100"
-        bg="gray.900"
-      >
-        <Icon as={LuHash} boxSize="4" color="gray.500" flexShrink={0} />
-        <Input
-          ref={dossardRef}
-          type="number"
-          inputMode="numeric"
-          placeholder="N° dossard"
-          value={dossard}
-          onChange={(e) => setDossard(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleDossardSubmit()}
-          size="sm"
-          bg="whiteAlpha.100"
-          border="1px solid"
-          borderColor="whiteAlpha.200"
-          color="gray.100"
-          _placeholder={{ color: "gray.500" }}
-          rounded="lg"
-          flex="1"
-        />
-        <Button
-          size="sm"
-          colorPalette="primary"
-          variant="solid"
-          onClick={handleDossardSubmit}
-          disabled={!dossard || parseInt(dossard, 10) <= 0}
-          flexShrink={0}
-        >
-          Valider
-        </Button>
-      </HStack>
 
       {/* Toasts */}
       <Box
