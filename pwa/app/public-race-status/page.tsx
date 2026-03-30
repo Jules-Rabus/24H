@@ -766,7 +766,7 @@ export default function PublicRaceStatusPage() {
           <Box bg="white" p="2" rounded="xl">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="https://api.qrserver.com/v1/create-qr-code/?size=130x130&data=http://localhost:3000/upload"
+              src={`https://api.qrserver.com/v1/create-qr-code/?size=130x130&data=${process.env.NEXT_PUBLIC_ENTRYPOINT}/upload`}
               alt="QR Code upload"
               width={110}
               height={110}
