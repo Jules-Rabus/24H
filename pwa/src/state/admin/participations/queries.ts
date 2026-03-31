@@ -75,6 +75,20 @@ export function useAdminParticipationsQuery(
   });
 }
 
+export function useAdminUserParticipationsQuery(userId: number) {
+  return useQuery({
+    queryKey: adminParticipationKeys.list({ "user.id": String(userId) }),
+    queryFn: async () => {
+      const { data } = await apiParticipationsGetCollection({
+        query: { "user.id": userId, itemsPerPage: 200 },
+      });
+      const member = z.array(participationSchema).parse(data);
+      return { member, totalItems: member.length };
+    },
+    enabled: !!userId,
+  });
+}
+
 export function useAdminRunParticipationsQuery(runId: number) {
   return useQuery({
     queryKey: adminParticipationKeys.list({ "run.id": String(runId) }),

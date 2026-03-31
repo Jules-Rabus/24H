@@ -38,12 +38,17 @@ import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
 import { useAdminUserQuery, type AdminUser } from "@/state/admin/users/queries";
 import {
+  useAdminUserParticipationsQuery,
+  type AdminParticipation,
+} from "@/state/admin/participations/queries";
+import {
   useUpdateUserMutation,
   useDeleteUserMutation,
   useUploadUserImageMutation,
 } from "@/state/admin/users/mutations";
 import { ConfirmDialog } from "@/components/admin/ui/ConfirmDialog";
 import { StatCard } from "@/components/admin/ui/StatCard";
+import { DataTable, type Column } from "@/components/admin/ui/DataTable";
 
 // ---------------------------------------------------------------------------
 // UserForm (inline, edit only on this detail page)
@@ -259,6 +264,8 @@ export default function UserDetailPage({
   const router = useRouter();
 
   const { data: user, isLoading } = useAdminUserQuery(userId);
+  const { data: participationsData, isLoading: isLoadingParticipations } =
+    useAdminUserParticipationsQuery(userId);
   const uploadImageMutation = useUploadUserImageMutation();
   const deleteUserMutation = useDeleteUserMutation();
 
@@ -310,6 +317,84 @@ export default function UserDetailPage({
   const imageUrl = user.image
     ? `${process.env.NEXT_PUBLIC_ENTRYPOINT ?? ""}${user.image}`
     : null;
+
+  const participationColumns: Column<AdminParticipation>[] = [
+    {
+      key: "run",
+      header: "Run",
+      render: (row) =>
+        row.run?.id ? (
+          <Link href={`/admin/runs/${row.run.id}`}>
+            <Text
+              fontWeight="medium"
+              color="primary.fg"
+              _hover={{ textDecoration: "underline" }}
+              cursor="pointer"
+            >
+              Run #{row.run.id}
+            </Text>
+          </Link>
+        ) : (
+          <Text>-</Text>
+        ),
+      width: "100px",
+    },
+    {
+      key: "runDate",
+      header: "Date du run",
+      render: (row) =>
+        row.run?.startDate ? (
+          <Text fontSize="sm">
+            {new Date(row.run.startDate).toLocaleString("fr-FR", {
+              dateStyle: "short",
+              timeStyle: "short",
+            })}
+          </Text>
+        ) : (
+          <Text color="fg.muted">-</Text>
+        ),
+    },
+    {
+      key: "arrivalTime",
+      header: "Heure d'arrivée",
+      render: (row) =>
+        row.arrivalTime ? (
+          <Text fontSize="sm">
+            {new Date(row.arrivalTime).toLocaleString("fr-FR", {
+              dateStyle: "short",
+              timeStyle: "short",
+            })}
+          </Text>
+        ) : (
+          <Text color="fg.muted">-</Text>
+        ),
+    },
+    {
+      key: "totalTime",
+      header: "Temps total",
+      render: (row) => (
+        <Text fontFamily="mono" fontSize="sm">
+          {formatTime(row.totalTime)}
+        </Text>
+      ),
+      width: "120px",
+    },
+    {
+      key: "status",
+      header: "Statut",
+      render: (row) =>
+        row.status === "FINISHED" ? (
+          <Badge colorPalette="green" size="sm">
+            Terminé
+          </Badge>
+        ) : (
+          <Badge colorPalette="orange" size="sm">
+            En cours
+          </Badge>
+        ),
+      width: "110px",
+    },
+  ];
 
   return (
     <VStack align="stretch" gap="6">
@@ -506,43 +591,32 @@ export default function UserDetailPage({
         </Card.Body>
       </Card.Root>
 
-      {/* Participations */}
-      {user.participations && user.participations.length > 0 && (
-        <Card.Root variant="outline" shadow="sm" borderColor="border.subtle">
-          <Card.Body p="6">
-            <Text
-              fontSize="xs"
-              color="fg.muted"
-              textTransform="uppercase"
-              letterSpacing="wider"
-              fontWeight="semibold"
-              mb="4"
-            >
-              Participations ({user.participations.length})
-            </Text>
-            <VStack align="stretch" gap="1">
-              {user.participations.map((partId) => (
-                <HStack
-                  key={partId}
-                  px="3"
-                  py="2"
-                  rounded="md"
-                  bg="bg.subtle"
-                  fontSize="sm"
-                  justify="space-between"
-                >
-                  <Text color="fg.muted" fontFamily="mono" fontSize="xs">
-                    Participation #{partId}
-                  </Text>
-                  <Badge colorPalette="gray" size="sm">
-                    #{partId}
-                  </Badge>
-                </HStack>
-              ))}
-            </VStack>
-          </Card.Body>
-        </Card.Root>
-      )}
+      {/* Participations table */}
+      <Card.Root variant="outline" shadow="sm" borderColor="border.subtle">
+        <Card.Body p="6">
+          <Text
+            fontSize="xs"
+            color="fg.muted"
+            textTransform="uppercase"
+            letterSpacing="wider"
+            fontWeight="semibold"
+            mb="4"
+          >
+            Participations ({participationsData?.totalItems ?? 0})
+          </Text>
+          <DataTable<AdminParticipation>
+            columns={participationColumns}
+            data={participationsData?.member ?? []}
+            isLoading={isLoadingParticipations}
+            keyExtractor={(row) => row.id ?? Math.random()}
+            page={1}
+            totalItems={participationsData?.totalItems ?? 0}
+            itemsPerPage={200}
+            onPageChange={() => {}}
+            emptyMessage="Aucune participation"
+          />
+        </Card.Body>
+      </Card.Root>
 
       {/* Edit dialog */}
       <Dialog.Root
