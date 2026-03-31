@@ -2,8 +2,12 @@ services:
   php:
     image: ${IMAGES_PREFIX:-}app-php
     depends_on:
-      - database
-      - rustfs
+      database:
+        condition: service_healthy
+      rustfs:
+        condition: service_healthy
+      rustfs-init:
+        condition: service_completed_successfully
     restart: unless-stopped
     environment:
       PWA_UPSTREAM: pwa:3000
