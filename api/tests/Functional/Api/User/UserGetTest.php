@@ -3,6 +3,8 @@
 namespace App\Tests\Functional\Api\User;
 
 use App\ApiResource\User\UserApi;
+use App\Factory\MediasFactory;
+use App\Factory\ParticipationFactory;
 use App\Factory\UserFactory;
 use App\Tests\Functional\Api\AbstractTestCase;
 
@@ -68,6 +70,37 @@ final class UserGetTest extends AbstractTestCase
             'email' => $user->getEmail(),
         ]);
         $this->assertMatchesResourceItemJsonSchema(UserApi::class);
+    }
+
+    public function testGetUserWithImageReturnsUrl(): void
+    {
+        $media = MediasFactory::createOne(['runner' => null]);
+        $user = UserFactory::createOne(['image' => $media]);
+
+        $response = $this->createClientWithCredentials()->request('GET', '/users/'.$user->getId(), [
+            'headers' => ['Accept' => 'application/json'],
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $data = $response->toArray();
+        $this->assertArrayHasKey('image', $data);
+        $this->assertIsString($data['image']);
+    }
+
+    public function testGetUserWithParticipationsReturnsIds(): void
+    {
+        $user = UserFactory::createOne();
+        $participation = ParticipationFactory::createOne(['user' => $user]);
+
+        $response = $this->createClientWithCredentials()->request('GET', '/users/'.$user->getId(), [
+            'headers' => ['Accept' => 'application/json'],
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $data = $response->toArray();
+        $this->assertArrayHasKey('participations', $data);
+        $this->assertIsArray($data['participations']);
+        $this->assertContains($participation->getId(), $data['participations']);
     }
 
     public function testGetUserForbiddenForWrongUser(): void

@@ -2,10 +2,23 @@ import { useQuery } from "@tanstack/react-query";
 import { apiParticipationsGetCollection } from "@/api/generated/sdk.gen";
 import { z } from "zod";
 
+const runRefSchema = z.object({
+  id: z.number().nullish(),
+  startDate: z.string().nullish(),
+  endDate: z.string().nullish(),
+});
+
+const userRefSchema = z.object({
+  id: z.number().nullish(),
+  firstName: z.string().nullish(),
+  lastName: z.string().nullish(),
+  surname: z.string().nullish(),
+});
+
 const participationSchema = z.object({
   id: z.number().optional(),
-  run: z.string().nullish(),
-  user: z.string().nullish(),
+  run: runRefSchema.nullish(),
+  user: userRefSchema.nullish(),
   arrivalTime: z.string().nullish(),
   totalTime: z.number().nullish(),
   status: z.string().optional(),
@@ -59,5 +72,19 @@ export function useAdminParticipationsQuery(
       const member = z.array(participationSchema).parse(data);
       return { member, totalItems: member.length };
     },
+  });
+}
+
+export function useAdminRunParticipationsQuery(runId: number) {
+  return useQuery({
+    queryKey: adminParticipationKeys.list({ "run.id": String(runId) }),
+    queryFn: async () => {
+      const { data } = await apiParticipationsGetCollection({
+        query: { "run.id": runId, itemsPerPage: 200 },
+      });
+      const member = z.array(participationSchema).parse(data);
+      return { member, totalItems: member.length };
+    },
+    enabled: !!runId,
   });
 }

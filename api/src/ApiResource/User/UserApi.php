@@ -19,6 +19,7 @@ use App\Dto\User\UpdateUser;
 use App\Dto\User\UserCollection;
 use App\Entity\User;
 use App\ObjectMapper\ParticipationCollectionTransformer;
+use App\ObjectMapper\UserImageUrlTransformer;
 use App\State\User\CurrentUserProvider;
 use App\State\UserProcessor;
 use Symfony\Component\ObjectMapper\Attribute\Map;
@@ -99,6 +100,7 @@ final class UserApi
     #[Map(transform: ParticipationCollectionTransformer::class)]
     public array $participations = [];
 
+    #[Map(transform: UserImageUrlTransformer::class)]
     public ?string $image = null;
 
     public ?\DateTimeInterface $createdAt = null;
@@ -111,9 +113,4 @@ final class UserApi
 
     #[Map(source: 'finishedParticipationsCount')]
     public int $finishedParticipationsCount = 0;
-
-    public function getUserIdentifier(): string
-    {
-        return (string) $this->email;
-    }
 }

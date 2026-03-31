@@ -29,6 +29,34 @@ const config = defineConfig({
           emphasized: { value: "{colors.primary.300}" },
           focusRing: { value: "{colors.primary.500}" },
         },
+        "sidebar.bg": {
+          value: { _light: "{colors.gray.50}", _dark: "{colors.gray.900}" },
+        },
+        "sidebar.active": {
+          value: {
+            _light: "{colors.primary.50}",
+            _dark: "{colors.primary.900}",
+          },
+        },
+        "sidebar.activeBorder": { value: "{colors.primary.500}" },
+        "card.bg": {
+          value: { _light: "white", _dark: "{colors.gray.800}" },
+        },
+        "card.border": {
+          value: { _light: "{colors.gray.200}", _dark: "{colors.gray.700}" },
+        },
+        "stat.green": {
+          value: { _light: "#16a34a", _dark: "#4ade80" },
+        },
+        "stat.orange": {
+          value: { _light: "#ea580c", _dark: "#fb923c" },
+        },
+        "stat.red": {
+          value: { _light: "#dc2626", _dark: "#f87171" },
+        },
+        "stat.blue": {
+          value: { _light: "#2563eb", _dark: "#60a5fa" },
+        },
       },
     },
   },

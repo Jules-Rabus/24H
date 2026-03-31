@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import {
   Badge,
   Box,
@@ -17,11 +18,15 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
+import { LuEye, LuPencil, LuTrash2, LuX } from "react-icons/lu";
+import { useForm } from "@tanstack/react-form";
+import { z } from "zod";
 import {
   useAdminUsersQuery,
   type AdminUser,
   type UserFilters,
 } from "@/state/admin/users/queries";
+import { useDebounce } from "@/hooks/useDebounce";
 import { type SortState } from "@/components/admin/ui/DataTable";
 import {
   useCreateUserMutation,
@@ -30,6 +35,11 @@ import {
 } from "@/state/admin/users/mutations";
 import { DataTable, type Column } from "@/components/admin/ui/DataTable";
 import { ConfirmDialog } from "@/components/admin/ui/ConfirmDialog";
+
+const BulkBibDownloadButton = dynamic(
+  () => import("@/components/classement/BulkBibDownloadButton"),
+  { ssr: false },
+);
 
 // ---------------------------------------------------------------------------
 // UserForm — used for both create and edit
@@ -45,127 +55,191 @@ function UserForm({
   const createMutation = useCreateUserMutation();
   const updateMutation = useUpdateUserMutation();
 
-  const [form, setForm] = useState({
-    firstName: user?.firstName ?? "",
-    lastName: user?.lastName ?? "",
-    surname: user?.surname ?? "",
-    email: user?.email ?? "",
-    plainPassword: "",
-    organization: user?.organization ?? "",
-    isAdmin: user?.roles?.includes("ROLE_ADMIN") ?? false,
-  });
-
   const isLoading = createMutation.isPending || updateMutation.isPending;
 
-  const handleChange = (field: keyof typeof form, value: string | boolean) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-  };
+  const form = useForm({
+    defaultValues: {
+      firstName: user?.firstName ?? "",
+      lastName: user?.lastName ?? "",
+      surname: user?.surname ?? "",
+      email: user?.email ?? "",
+      plainPassword: "",
+      organization: user?.organization ?? "",
+      isAdmin: user?.roles?.includes("ROLE_ADMIN") ?? false,
+    },
+    onSubmit: async ({ value }) => {
+      const roles: string[] = value.isAdmin
+        ? ["ROLE_USER", "ROLE_ADMIN"]
+        : ["ROLE_USER"];
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const roles: string[] = form.isAdmin
-      ? ["ROLE_USER", "ROLE_ADMIN"]
-      : ["ROLE_USER"];
+      const body = {
+        firstName: value.firstName,
+        lastName: value.lastName,
+        surname: value.surname || null,
+        email: value.email || null,
+        organization: value.organization || null,
+        roles,
+        ...(value.plainPassword ? { plainPassword: value.plainPassword } : {}),
+      };
 
-    const body = {
-      firstName: form.firstName,
-      lastName: form.lastName,
-      surname: form.surname || null,
-      email: form.email || null,
-      organization: form.organization || null,
-      roles,
-      ...(form.plainPassword ? { plainPassword: form.plainPassword } : {}),
-    };
-
-    if (user?.id) {
-      await updateMutation.mutateAsync({ id: user.id, body });
-    } else {
-      await createMutation.mutateAsync({
-        ...body,
-        plainPassword: form.plainPassword || null,
-      });
-    }
-    onClose();
-  };
+      if (user?.id) {
+        await updateMutation.mutateAsync({ id: user.id, body });
+      } else {
+        await createMutation.mutateAsync({
+          ...body,
+          plainPassword: value.plainPassword || null,
+        });
+      }
+      onClose();
+    },
+  });
 
   return (
-    <Box as="form" onSubmit={handleSubmit}>
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        form.handleSubmit();
+      }}
+    >
       <Dialog.Body>
         <VStack gap="4">
-          <Field.Root required>
-            <Field.Label>Prénom</Field.Label>
-            <Input
-              value={form.firstName}
-              onChange={(e) => handleChange("firstName", e.target.value)}
-              placeholder="Prénom"
-              required
-            />
-          </Field.Root>
+          <form.Field
+            name="firstName"
+            validators={{
+              onChange: ({ value }) => {
+                const r = z.string().min(1, "Prénom requis").safeParse(value);
+                return r.success ? undefined : r.error.issues[0].message;
+              },
+            }}
+          >
+            {(field) => (
+              <Field.Root required invalid={!!field.state.meta.errors.length}>
+                <Field.Label>Prénom</Field.Label>
+                <Input
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                  placeholder="Prénom"
+                />
+                <Field.ErrorText>{field.state.meta.errors[0]}</Field.ErrorText>
+              </Field.Root>
+            )}
+          </form.Field>
 
-          <Field.Root required>
-            <Field.Label>Nom</Field.Label>
-            <Input
-              value={form.lastName}
-              onChange={(e) => handleChange("lastName", e.target.value)}
-              placeholder="Nom"
-              required
-            />
-          </Field.Root>
+          <form.Field
+            name="lastName"
+            validators={{
+              onChange: ({ value }) => {
+                const r = z.string().min(1, "Nom requis").safeParse(value);
+                return r.success ? undefined : r.error.issues[0].message;
+              },
+            }}
+          >
+            {(field) => (
+              <Field.Root required invalid={!!field.state.meta.errors.length}>
+                <Field.Label>Nom</Field.Label>
+                <Input
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                  placeholder="Nom"
+                />
+                <Field.ErrorText>{field.state.meta.errors[0]}</Field.ErrorText>
+              </Field.Root>
+            )}
+          </form.Field>
 
-          <Field.Root>
-            <Field.Label>Surnom</Field.Label>
-            <Input
-              value={form.surname ?? ""}
-              onChange={(e) => handleChange("surname", e.target.value)}
-              placeholder="Surnom (optionnel)"
-            />
-          </Field.Root>
+          <form.Field name="surname">
+            {(field) => (
+              <Field.Root>
+                <Field.Label>Surnom</Field.Label>
+                <Input
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                  placeholder="Surnom (optionnel)"
+                />
+              </Field.Root>
+            )}
+          </form.Field>
 
-          <Field.Root>
-            <Field.Label>Email</Field.Label>
-            <Input
-              type="email"
-              value={form.email ?? ""}
-              onChange={(e) => handleChange("email", e.target.value)}
-              placeholder="email@exemple.fr"
-            />
-          </Field.Root>
+          <form.Field
+            name="email"
+            validators={{
+              onChange: ({ value }) => {
+                if (!value) return undefined;
+                const r = z.string().email("Email invalide").safeParse(value);
+                return r.success ? undefined : r.error.issues[0].message;
+              },
+            }}
+          >
+            {(field) => (
+              <Field.Root invalid={!!field.state.meta.errors.length}>
+                <Field.Label>Email</Field.Label>
+                <Input
+                  type="email"
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                  placeholder="email@exemple.fr"
+                />
+                <Field.ErrorText>{field.state.meta.errors[0]}</Field.ErrorText>
+              </Field.Root>
+            )}
+          </form.Field>
 
-          {!user && (
-            <Field.Root>
-              <Field.Label>Mot de passe</Field.Label>
-              <Input
-                type="password"
-                value={form.plainPassword}
-                onChange={(e) => handleChange("plainPassword", e.target.value)}
-                placeholder="Mot de passe"
-              />
-            </Field.Root>
-          )}
+          <form.Field name="plainPassword">
+            {(field) => (
+              <Field.Root>
+                <Field.Label>
+                  {user ? "Nouveau mot de passe" : "Mot de passe"}
+                </Field.Label>
+                <Input
+                  type="password"
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                  placeholder={
+                    user ? "Laisser vide pour ne pas changer" : "Mot de passe"
+                  }
+                />
+              </Field.Root>
+            )}
+          </form.Field>
 
-          <Field.Root>
-            <Field.Label>Organisation</Field.Label>
-            <Input
-              value={form.organization ?? ""}
-              onChange={(e) => handleChange("organization", e.target.value)}
-              placeholder="Organisation (optionnel)"
-            />
-          </Field.Root>
+          <form.Field name="organization">
+            {(field) => (
+              <Field.Root>
+                <Field.Label>Organisation</Field.Label>
+                <Input
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                  placeholder="Organisation (optionnel)"
+                />
+              </Field.Root>
+            )}
+          </form.Field>
 
-          <Field.Root>
-            <HStack gap="3">
-              <Checkbox.Root
-                checked={form.isAdmin}
-                onCheckedChange={({ checked }) =>
-                  handleChange("isAdmin", !!checked)
-                }
-              >
-                <Checkbox.HiddenInput />
-                <Checkbox.Control />
-                <Checkbox.Label>Administrateur</Checkbox.Label>
-              </Checkbox.Root>
-            </HStack>
-          </Field.Root>
+          <form.Field name="isAdmin">
+            {(field) => (
+              <Field.Root>
+                <HStack gap="3">
+                  <Checkbox.Root
+                    checked={field.state.value}
+                    onCheckedChange={({ checked }) =>
+                      field.handleChange(!!checked)
+                    }
+                  >
+                    <Checkbox.HiddenInput />
+                    <Checkbox.Control />
+                    <Checkbox.Label>Administrateur</Checkbox.Label>
+                  </Checkbox.Root>
+                </HStack>
+              </Field.Root>
+            )}
+          </form.Field>
         </VStack>
       </Dialog.Body>
 
@@ -182,7 +256,7 @@ function UserForm({
           {user ? "Modifier" : "Créer"}
         </Button>
       </Dialog.Footer>
-    </Box>
+    </form>
   );
 }
 
@@ -193,25 +267,35 @@ function UserForm({
 const ITEMS_PER_PAGE = 30;
 
 export default function AdminUsersPage() {
-  const [filters, setFilters] = useState<UserFilters>({
-    page: 1,
-    itemsPerPage: ITEMS_PER_PAGE,
-  });
+  const [page, setPage] = useState(1);
+  const [selectedIds, setSelectedIds] = useState<Set<string | number>>(
+    new Set(),
+  );
   const [search, setSearch] = useState({
     firstName: "",
     lastName: "",
     email: "",
+    dossard: "",
   });
   const [sort, setSort] = useState<SortState>({
     field: "lastName",
     dir: "asc",
   });
 
-  const { data, isLoading } = useAdminUsersQuery({
-    ...filters,
+  const debouncedSearch = useDebounce(search, 300);
+
+  const filters: UserFilters = {
+    page,
+    itemsPerPage: ITEMS_PER_PAGE,
+    firstName: debouncedSearch.firstName || undefined,
+    lastName: debouncedSearch.lastName || undefined,
+    email: debouncedSearch.email || undefined,
+    id: debouncedSearch.dossard ? Number(debouncedSearch.dossard) : undefined,
     orderField: sort.field,
     orderDir: sort.dir,
-  });
+  };
+
+  const { data, isLoading } = useAdminUsersQuery(filters);
 
   const [formOpen, setFormOpen] = useState(false);
   const [editUser, setEditUser] = useState<AdminUser | undefined>(undefined);
@@ -220,17 +304,6 @@ export default function AdminUsersPage() {
   );
 
   const deleteMutation = useDeleteUserMutation();
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setFilters({
-      page: 1,
-      itemsPerPage: ITEMS_PER_PAGE,
-      firstName: search.firstName || undefined,
-      lastName: search.lastName || undefined,
-      email: search.email || undefined,
-    });
-  };
 
   const handleCloseForm = () => {
     setFormOpen(false);
@@ -308,7 +381,7 @@ export default function AdminUsersPage() {
         <HStack gap="1">
           <Link href={`/admin/users/${u.id}`}>
             <IconButton size="sm" variant="ghost" aria-label="Détail">
-              👁️
+              <LuEye />
             </IconButton>
           </Link>
           <IconButton
@@ -320,7 +393,7 @@ export default function AdminUsersPage() {
               setFormOpen(true);
             }}
           >
-            ✏️
+            <LuPencil />
           </IconButton>
           <IconButton
             size="sm"
@@ -329,7 +402,7 @@ export default function AdminUsersPage() {
             aria-label="Supprimer"
             onClick={() => setDeleteUser(u)}
           >
-            🗑️
+            <LuTrash2 />
           </IconButton>
         </HStack>
       ),
@@ -339,30 +412,60 @@ export default function AdminUsersPage() {
   return (
     <VStack align="stretch" gap="6">
       {/* Page header */}
-      <HStack justify="space-between" align="center">
+      <HStack justify="space-between" align="center" flexWrap="wrap" gap="3">
         <Heading size="lg">Utilisateurs</Heading>
-        <Button
-          colorPalette="primary"
-          onClick={() => {
-            setEditUser(undefined);
-            setFormOpen(true);
-          }}
-        >
-          + Créer un utilisateur
-        </Button>
+        <HStack gap="2">
+          {selectedIds.size > 0 && (
+            <BulkBibDownloadButton
+              users={(data?.member ?? [])
+                .filter(
+                  (u) =>
+                    u.id != null &&
+                    selectedIds.has(u.id) &&
+                    u.firstName &&
+                    u.lastName,
+                )
+                .map((u) => ({
+                  id: u.id!,
+                  firstName: u.firstName!,
+                  lastName: u.lastName!,
+                  surname: u.surname,
+                }))}
+            />
+          )}
+          <Button
+            colorPalette="primary"
+            onClick={() => {
+              setEditUser(undefined);
+              setFormOpen(true);
+            }}
+          >
+            + Créer un utilisateur
+          </Button>
+        </HStack>
       </HStack>
 
-      {/* Search bar */}
+      {/* Search bar — debounced, no submit button */}
       <Box
-        as="form"
-        onSubmit={handleSearch}
-        bg="white"
+        bg="bg.panel"
         borderWidth="1px"
         borderColor="border.subtle"
         rounded="lg"
         p="4"
       >
         <HStack gap="3" flexWrap="wrap">
+          <Field.Root flex="1" minW="120px">
+            <Field.Label fontSize="sm">Dossard</Field.Label>
+            <Input
+              size="sm"
+              placeholder="N°…"
+              value={search.dossard}
+              onChange={(e) =>
+                setSearch((s) => ({ ...s, dossard: e.target.value }))
+              }
+            />
+          </Field.Root>
+
           <Field.Root flex="1" minW="160px">
             <Field.Label fontSize="sm">Prénom</Field.Label>
             <Input
@@ -400,19 +503,18 @@ export default function AdminUsersPage() {
           </Field.Root>
 
           <Box pt="6">
-            <Button type="submit" size="sm" colorPalette="primary">
-              Rechercher
-            </Button>
-          </Box>
-
-          <Box pt="6">
             <Button
               type="button"
               size="sm"
               variant="outline"
               onClick={() => {
-                setSearch({ firstName: "", lastName: "", email: "" });
-                setFilters({ page: 1, itemsPerPage: ITEMS_PER_PAGE });
+                setSearch({
+                  firstName: "",
+                  lastName: "",
+                  email: "",
+                  dossard: "",
+                });
+                setPage(1);
               }}
             >
               Réinitialiser
@@ -427,16 +529,19 @@ export default function AdminUsersPage() {
         data={data?.member ?? []}
         isLoading={isLoading}
         keyExtractor={(u) => u.id ?? Math.random()}
-        page={filters.page ?? 1}
+        page={page}
         totalItems={data?.totalItems ?? 0}
         itemsPerPage={ITEMS_PER_PAGE}
-        onPageChange={(page) => setFilters((f) => ({ ...f, page }))}
+        onPageChange={setPage}
         emptyMessage="Aucun utilisateur trouvé"
         sort={sort}
         onSortChange={(s) => {
           setSort(s);
-          setFilters((f) => ({ ...f, page: 1 }));
+          setPage(1);
         }}
+        selectable
+        selectedKeys={selectedIds}
+        onSelectionChange={setSelectedIds}
       />
 
       {/* Create / Edit dialog */}
@@ -461,7 +566,7 @@ export default function AdminUsersPage() {
                     right="3"
                     type="button"
                   >
-                    ✕
+                    <LuX />
                   </Button>
                 </Dialog.CloseTrigger>
               </Dialog.Header>

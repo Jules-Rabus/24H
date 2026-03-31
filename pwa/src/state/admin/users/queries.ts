@@ -10,8 +10,11 @@ const adminUserSchema = z.object({
   email: z.string().nullish(),
   roles: z.array(z.string()).optional(),
   organization: z.string().nullish(),
-  participations: z.array(z.string()).optional(),
+  participations: z.array(z.number()).optional(),
   finishedParticipationsCount: z.number().optional(),
+  totalTime: z.number().nullish(),
+  bestTime: z.number().nullish(),
+  averageTime: z.number().nullish(),
   image: z.string().nullish(),
   createdAt: z.string().optional(),
   updatedAt: z.string().optional(),
@@ -27,6 +30,7 @@ export const adminUserKeys = {
 };
 
 export interface UserFilters {
+  id?: number;
   firstName?: string;
   lastName?: string;
   surname?: string;

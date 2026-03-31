@@ -6,6 +6,7 @@ export const meSchema = z.object({
   firstName: z.string().optional(),
   lastName: z.string().optional(),
   roles: z.array(z.string()).optional(),
+  image: z.string().nullable().optional(),
 });
 
 export type Me = z.infer<typeof meSchema>;

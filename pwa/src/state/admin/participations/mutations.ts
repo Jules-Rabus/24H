@@ -1,9 +1,22 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
+  apiParticipationsPost,
   apiParticipationsIdPatch,
   apiParticipationsIdDelete,
 } from "@/api/generated/sdk.gen";
 import { adminParticipationKeys } from "./queries";
+
+export function useCreateParticipationMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (body: { user: string; run: string }) => {
+      const { data } = await apiParticipationsPost({ body });
+      return data;
+    },
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: adminParticipationKeys.all }),
+  });
+}
 
 export function useUpdateParticipationMutation() {
   const queryClient = useQueryClient();

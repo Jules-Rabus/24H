@@ -15,8 +15,8 @@ import {
 } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
 import { useAdminRaceMediasQuery } from "@/state/admin/medias/queries";
-import { ColorModeButton } from "../../components/ui/color-mode";
-import { LuArrowLeft, LuImages, LuCamera } from "react-icons/lu";
+import { LuImages, LuCamera } from "react-icons/lu";
+import { PublicNav } from "@/components/public/PublicNav";
 
 export default function GalleryPage() {
   const router = useRouter();
@@ -25,37 +25,30 @@ export default function GalleryPage() {
 
   return (
     <Box bg="bg.canvas" minH="100vh" colorPalette="primary">
-      {/* Header */}
+      <PublicNav />
+
+      {/* Sub-header */}
       <Box
-        as="header"
-        bg="bg.panel"
+        bg="card.bg"
         borderBottomWidth="1px"
-        borderColor="border.subtle"
+        borderColor="card.border"
         mb="8"
       >
         <Container maxW="container.xl" py="4">
           <HStack justify="space-between">
-            <HStack gap="3">
-              <Button variant="ghost" size="sm" onClick={() => router.back()}>
-                <LuArrowLeft /> Retour
-              </Button>
-              <HStack gap="2">
-                <Icon as={LuImages} color="colorPalette.fg" boxSize="5" />
-                <Heading size="md" fontWeight="black" letterSpacing="tighter">
-                  Galerie Photos
-                </Heading>
-              </HStack>
-            </HStack>
             <HStack gap="2">
-              <Button
-                size="sm"
-                colorPalette="primary"
-                onClick={() => router.push("/upload")}
-              >
-                <LuCamera /> Ajouter une photo
-              </Button>
-              <ColorModeButton />
+              <Icon as={LuImages} color="primary.fg" boxSize="5" />
+              <Heading size="md" fontWeight="black" letterSpacing="tighter">
+                Galerie Photos
+              </Heading>
             </HStack>
+            <Button
+              size="sm"
+              colorPalette="primary"
+              onClick={() => router.push("/upload")}
+            >
+              <LuCamera /> Ajouter une photo
+            </Button>
           </HStack>
         </Container>
       </Box>
@@ -112,7 +105,7 @@ export default function GalleryPage() {
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={media.filePath ?? ""}
+                    src={media.contentUrl ?? ""}
                     alt="Photo de la course"
                     style={{
                       width: "100%",

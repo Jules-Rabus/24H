@@ -1,10 +1,12 @@
 "use client";
 
 import {
+  Avatar,
   Box,
   Button,
   Flex,
   HStack,
+  Separator,
   Spinner,
   Text,
   VStack,
@@ -12,42 +14,104 @@ import {
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { useMe } from "@/state/auth/queries";
+import {
+  LuLogOut,
+  LuTimer,
+  LuClipboardList,
+  LuUsers,
+  LuImage,
+  LuSettings,
+  LuSun,
+  LuMoon,
+  LuMonitor,
+} from "react-icons/lu";
+import { useMe, type Me } from "@/state/auth/queries";
+import { useTheme } from "next-themes";
+import { ClientOnly, Skeleton } from "@chakra-ui/react";
+import { apiClient } from "@/api/client";
 
 const NAV_ITEMS = [
-  { href: "/admin/runs", label: "Runs", icon: "🏃" },
-  { href: "/admin/participations", label: "Participations", icon: "📋" },
-  { href: "/admin/users", label: "Utilisateurs", icon: "👥" },
-  { href: "/admin/medias", label: "Médias", icon: "📷" },
-  { href: "/legacy/admin", label: "React Admin", icon: "⚙️" },
+  { href: "/admin/runs", label: "Runs", icon: LuTimer },
+  {
+    href: "/admin/participations",
+    label: "Participations",
+    icon: LuClipboardList,
+  },
+  { href: "/admin/users", label: "Utilisateurs", icon: LuUsers },
+  { href: "/admin/medias", label: "Médias", icon: LuImage },
+  { href: "/legacy/admin", label: "React Admin", icon: LuSettings },
 ];
 
-function Sidebar() {
-  const pathname = usePathname();
+function ThemeSwitcher() {
+  const { theme, setTheme } = useTheme();
+  const modes = [
+    { value: "light", icon: LuSun, label: "Clair" },
+    { value: "dark", icon: LuMoon, label: "Sombre" },
+    { value: "system", icon: LuMonitor, label: "Système" },
+  ] as const;
+
   return (
-    <Box
+    <HStack bg="bg.subtle" rounded="md" p="1" gap="0" w="full" justify="center">
+      {modes.map((m) => {
+        const Icon = m.icon;
+        const isActive = theme === m.value;
+        return (
+          <Button
+            key={m.value}
+            size="xs"
+            variant={isActive ? "solid" : "ghost"}
+            colorPalette={isActive ? "primary" : undefined}
+            onClick={() => setTheme(m.value)}
+            flex="1"
+            title={m.label}
+          >
+            <Icon />
+          </Button>
+        );
+      })}
+    </HStack>
+  );
+}
+
+function Sidebar({ me }: { me: Me }) {
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const initials =
+    (me.firstName?.charAt(0) ?? "") + (me.lastName?.charAt(0) ?? "");
+
+  const handleLogout = async () => {
+    await apiClient.post("/logout").catch(() => {});
+    router.replace("/login");
+  };
+
+  return (
+    <Flex
       as="nav"
-      bg="white"
-      borderRight="1px solid"
-      borderColor="border.subtle"
-      w="240px"
+      direction="column"
+      bg="sidebar.bg"
+      borderRight="2px solid"
+      borderColor="card.border"
+      shadow="md"
+      w="260px"
       minH="100vh"
-      py="6"
+      py="5"
       px="3"
       flexShrink={0}
     >
-      <VStack align="stretch" gap="1">
-        <Box px="3" mb="6">
-          <Text fontWeight="bold" fontSize="lg" color="primary.fg">
-            24H Race
-          </Text>
-          <Text fontSize="xs" color="fg.muted">
-            Administration
-          </Text>
-        </Box>
+      <Box px="3" mb="6">
+        <Text fontWeight="bold" fontSize="lg" color="primary.fg">
+          24H Race
+        </Text>
+        <Text fontSize="xs" color="fg.muted">
+          Administration
+        </Text>
+      </Box>
 
+      <VStack align="stretch" gap="1" flex="1">
         {NAV_ITEMS.map((item) => {
           const isActive = pathname.startsWith(item.href);
+          const Icon = item.icon;
           return (
             <Link
               key={item.href}
@@ -58,23 +122,24 @@ function Sidebar() {
                 px="3"
                 py="2"
                 rounded="md"
-                bg={isActive ? "colorPalette.muted" : "transparent"}
-                color={isActive ? "colorPalette.fg" : "fg.muted"}
-                colorPalette="primary"
+                bg={isActive ? "sidebar.active" : "transparent"}
+                color={isActive ? "primary.fg" : "fg.muted"}
+                borderLeft={isActive ? "3px solid" : "3px solid transparent"}
+                borderColor={isActive ? "sidebar.activeBorder" : "transparent"}
                 fontWeight={isActive ? "semibold" : "normal"}
                 fontSize="sm"
                 _hover={{ bg: "bg.subtle", color: "fg" }}
-                transition="all 0.1s"
+                transition="all 0.15s"
                 gap="3"
               >
-                <Text>{item.icon}</Text>
+                <Icon />
                 <Text>{item.label}</Text>
               </HStack>
             </Link>
           );
         })}
 
-        <Box mt="auto" pt="6" px="3">
+        <Box pt="4" px="3">
           <Link href="/" style={{ textDecoration: "none" }}>
             <Text fontSize="xs" color="fg.muted" _hover={{ color: "fg" }}>
               ← Retour au hub
@@ -82,7 +147,43 @@ function Sidebar() {
           </Link>
         </Box>
       </VStack>
-    </Box>
+
+      <Separator />
+
+      <Box pt="4" px="1">
+        <HStack gap="3" px="2" mb="3">
+          <Avatar.Root size="sm" colorPalette="primary">
+            {me.image ? <Avatar.Image src={me.image} alt={initials} /> : null}
+            <Avatar.Fallback>{initials}</Avatar.Fallback>
+          </Avatar.Root>
+          <Box flex="1" minW="0">
+            <Text fontSize="sm" fontWeight="semibold" truncate>
+              {me.firstName} {me.lastName}
+            </Text>
+            <Text fontSize="xs" color="fg.muted" truncate>
+              {me.email}
+            </Text>
+          </Box>
+        </HStack>
+
+        <VStack gap="3" px="2">
+          <ClientOnly fallback={<Skeleton height="8" w="full" rounded="md" />}>
+            <ThemeSwitcher />
+          </ClientOnly>
+          <Button
+            variant="ghost"
+            size="sm"
+            w="full"
+            color="fg.muted"
+            _hover={{ color: "fg", bg: "bg.subtle" }}
+            onClick={handleLogout}
+          >
+            <LuLogOut />
+            Déconnexion
+          </Button>
+        </VStack>
+      </Box>
+    </Flex>
   );
 }
 
@@ -108,38 +209,9 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <Flex minH="100vh" bg="bg.subtle">
-      <Sidebar />
-      <Box flex="1" overflow="auto">
-        <Box
-          as="header"
-          bg="white"
-          borderBottom="1px solid"
-          borderColor="border.subtle"
-          px="6"
-          py="3"
-        >
-          <HStack justify="space-between">
-            <Text fontSize="sm" color="fg.muted">
-              Connecté en tant que{" "}
-              <Text as="span" fontWeight="semibold" color="fg">
-                {me.firstName} {me.lastName}
-              </Text>
-            </Text>
-            <form action="/logout" method="post">
-              <Button
-                type="submit"
-                variant="ghost"
-                size="sm"
-                colorPalette="primary"
-              >
-                Déconnexion
-              </Button>
-            </form>
-          </HStack>
-        </Box>
-        <Box as="main" p="6">
-          {children}
-        </Box>
+      <Sidebar me={me} />
+      <Box flex="1" overflow="auto" as="main" p="6">
+        {children}
       </Box>
     </Flex>
   );

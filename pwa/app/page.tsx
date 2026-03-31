@@ -212,7 +212,7 @@ export default function HubPage() {
       </Box>
 
       {/* Services section */}
-      <Box bg="white" py="8">
+      <Box bg="bg.panel" py="8">
         <Container maxW="6xl" px={{ base: "4", md: "20" }}>
           <Box ml={{ base: "0", lg: "auto" }} w={{ base: "full", lg: "3/5" }}>
             <Heading
@@ -271,7 +271,7 @@ export default function HubPage() {
         top="50%"
         right="-1"
         transform="translateY(-50%)"
-        bg="white"
+        bg="bg.panel"
         boxShadow="md"
         px="0.5"
         py="4"

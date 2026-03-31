@@ -1,14 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { apiRaceMediasGetCollection } from "@/api/generated/sdk.gen";
 import { z } from "zod";
-import { raceMediaSchema } from "@/state/media/schemas";
+import { raceMediaSchema, type RaceMedia } from "@/state/media/schemas";
 
-export type AdminRaceMedia = {
-  id?: number | null;
-  filePath?: string | null;
-  comment?: string | null;
-  createdAt?: string | null;
-};
+export type AdminRaceMedia = RaceMedia;
 
 export const adminMediaKeys = {
   all: ["admin", "medias"] as const,

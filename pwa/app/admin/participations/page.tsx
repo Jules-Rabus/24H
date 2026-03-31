@@ -12,12 +12,15 @@ import {
   Input,
   Portal,
   Select,
-  Stack,
   Text,
   VStack,
   IconButton,
   createListCollection,
 } from "@chakra-ui/react";
+import { LuPencil, LuTrash2, LuX } from "react-icons/lu";
+import { useForm } from "@tanstack/react-form";
+import { z } from "zod";
+import { useDebounce } from "@/hooks/useDebounce";
 import {
   useAdminParticipationsQuery,
   type AdminParticipation,
@@ -25,6 +28,7 @@ import {
 } from "@/state/admin/participations/queries";
 import { type SortState } from "@/components/admin/ui/DataTable";
 import {
+  useCreateParticipationMutation,
   useUpdateParticipationMutation,
   useDeleteParticipationMutation,
 } from "@/state/admin/participations/mutations";
@@ -42,9 +46,112 @@ function formatTime(seconds: number | null | undefined): string {
   return `${m}m ${s.toString().padStart(2, "0")}s`;
 }
 
-function iriToId(iri: string | null | undefined): string {
-  if (!iri) return "-";
-  return iri.split("/").at(-1) ?? "-";
+// ---------------------------------------------------------------------------
+// Create dialog
+// ---------------------------------------------------------------------------
+
+function CreateParticipationDialog({ onClose }: { onClose: () => void }) {
+  const createMutation = useCreateParticipationMutation();
+
+  const form = useForm({
+    defaultValues: {
+      userId: "",
+      runId: "",
+    },
+    onSubmit: async ({ value }) => {
+      await createMutation.mutateAsync({
+        user: `/users/${value.userId}`,
+        run: `/runs/${value.runId}`,
+      });
+      onClose();
+    },
+  });
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        form.handleSubmit();
+      }}
+    >
+      <Dialog.Body>
+        <VStack gap="4">
+          <form.Field
+            name="userId"
+            validators={{
+              onChange: ({ value }) => {
+                const r = z
+                  .string()
+                  .min(1, "ID du coureur requis")
+                  .regex(/^\d+$/, "Doit être un nombre")
+                  .safeParse(value);
+                return r.success ? undefined : r.error.issues[0].message;
+              },
+            }}
+          >
+            {(field) => (
+              <Field.Root required invalid={!!field.state.meta.errors.length}>
+                <Field.Label>ID du coureur</Field.Label>
+                <Input
+                  type="number"
+                  placeholder="Ex : 12"
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                />
+                <Field.ErrorText>{field.state.meta.errors[0]}</Field.ErrorText>
+              </Field.Root>
+            )}
+          </form.Field>
+          <form.Field
+            name="runId"
+            validators={{
+              onChange: ({ value }) => {
+                const r = z
+                  .string()
+                  .min(1, "ID du run requis")
+                  .regex(/^\d+$/, "Doit être un nombre")
+                  .safeParse(value);
+                return r.success ? undefined : r.error.issues[0].message;
+              },
+            }}
+          >
+            {(field) => (
+              <Field.Root required invalid={!!field.state.meta.errors.length}>
+                <Field.Label>ID du run</Field.Label>
+                <Input
+                  type="number"
+                  placeholder="Ex : 3"
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                />
+                <Field.ErrorText>{field.state.meta.errors[0]}</Field.ErrorText>
+              </Field.Root>
+            )}
+          </form.Field>
+        </VStack>
+      </Dialog.Body>
+      <Dialog.Footer gap="3">
+        <Button
+          variant="outline"
+          onClick={onClose}
+          type="button"
+          disabled={createMutation.isPending}
+        >
+          Annuler
+        </Button>
+        <Button
+          type="submit"
+          colorPalette="primary"
+          loading={createMutation.isPending}
+        >
+          Créer
+        </Button>
+      </Dialog.Footer>
+    </form>
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -59,36 +166,50 @@ function EditParticipationDialog({
   onClose: () => void;
 }) {
   const updateMutation = useUpdateParticipationMutation();
-  const [arrivalTime, setArrivalTime] = useState(
-    participation.arrivalTime
-      ? new Date(participation.arrivalTime).toISOString().slice(0, 16)
-      : "",
-  );
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!participation.id) return;
-    await updateMutation.mutateAsync({
-      id: participation.id,
-      arrivalTime: arrivalTime ? new Date(arrivalTime).toISOString() : null,
-    });
-    onClose();
-  };
+  const form = useForm({
+    defaultValues: {
+      arrivalTime: participation.arrivalTime
+        ? new Date(participation.arrivalTime).toISOString().slice(0, 16)
+        : "",
+    },
+    onSubmit: async ({ value }) => {
+      if (!participation.id) return;
+      await updateMutation.mutateAsync({
+        id: participation.id,
+        arrivalTime: value.arrivalTime
+          ? new Date(value.arrivalTime).toISOString()
+          : null,
+      });
+      onClose();
+    },
+  });
 
   return (
-    <Box as="form" onSubmit={handleSubmit}>
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        form.handleSubmit();
+      }}
+    >
       <Dialog.Body>
-        <Field.Root>
-          <Field.Label>Heure d&apos;arrivée</Field.Label>
-          <Input
-            type="datetime-local"
-            value={arrivalTime}
-            onChange={(e) => setArrivalTime(e.target.value)}
-          />
-          <Field.HelperText>
-            Laisser vide pour remettre en IN_PROGRESS
-          </Field.HelperText>
-        </Field.Root>
+        <form.Field name="arrivalTime">
+          {(field) => (
+            <Field.Root>
+              <Field.Label>Heure d&apos;arrivée</Field.Label>
+              <Input
+                type="datetime-local"
+                value={field.state.value}
+                onChange={(e) => field.handleChange(e.target.value)}
+                onBlur={field.handleBlur}
+              />
+              <Field.HelperText>
+                Laisser vide pour remettre en IN_PROGRESS
+              </Field.HelperText>
+            </Field.Root>
+          )}
+        </form.Field>
       </Dialog.Body>
       <Dialog.Footer gap="3">
         <Button variant="outline" onClick={onClose} type="button">
@@ -102,7 +223,7 @@ function EditParticipationDialog({
           Enregistrer
         </Button>
       </Dialog.Footer>
-    </Box>
+    </form>
   );
 }
 
@@ -111,51 +232,40 @@ function EditParticipationDialog({
 // ---------------------------------------------------------------------------
 
 export default function ParticipationsPage() {
-  const [filters, setFilters] = useState<ParticipationFilters>({
-    page: 1,
-    itemsPerPage: 30,
-  });
+  const [page, setPage] = useState(1);
   const [sort, setSort] = useState<SortState>({ field: "run.id", dir: "asc" });
-  const [statusFilter, setStatusFilter] = useState("");
-  const [firstNameInput, setFirstNameInput] = useState("");
-  const [lastNameInput, setLastNameInput] = useState("");
-  const [dossardInput, setDossardInput] = useState("");
+  const [search, setSearch] = useState({
+    firstName: "",
+    lastName: "",
+    dossard: "",
+    status: "",
+  });
 
+  const debouncedSearch = useDebounce(search, 300);
+
+  const filters: ParticipationFilters = {
+    page,
+    itemsPerPage: 30,
+    orderField: sort.field,
+    orderDir: sort.dir,
+    "user.firstName": debouncedSearch.firstName || undefined,
+    "user.lastName": debouncedSearch.lastName || undefined,
+    "user.surname": debouncedSearch.dossard || undefined,
+  };
+
+  const [createOpen, setCreateOpen] = useState(false);
   const [editParticipation, setEditParticipation] =
     useState<AdminParticipation | null>(null);
   const [deleteParticipation, setDeleteParticipation] =
     useState<AdminParticipation | null>(null);
 
-  const { data, isLoading } = useAdminParticipationsQuery({
-    ...filters,
-    orderField: sort.field,
-    orderDir: sort.dir,
-  });
+  const { data, isLoading } = useAdminParticipationsQuery(filters);
   const deleteMutation = useDeleteParticipationMutation();
 
   // Client-side status filter (API does not support status filtering)
-  const filtered = statusFilter
-    ? (data?.member ?? []).filter((p) => p.status === statusFilter)
+  const filtered = search.status
+    ? (data?.member ?? []).filter((p) => p.status === search.status)
     : (data?.member ?? []);
-
-  // Apply API-side filters on search
-  const applyFilters = () => {
-    setFilters({
-      page: 1,
-      itemsPerPage: 30,
-      ...(firstNameInput ? { "user.firstName": firstNameInput } : {}),
-      ...(lastNameInput ? { "user.lastName": lastNameInput } : {}),
-      ...(dossardInput ? { "user.surname": dossardInput } : {}),
-    });
-  };
-
-  const resetFilters = () => {
-    setFirstNameInput("");
-    setLastNameInput("");
-    setDossardInput("");
-    setStatusFilter("");
-    setFilters({ page: 1, itemsPerPage: 30 });
-  };
 
   // ------------------------------------------------------------------
   // Table columns
@@ -164,15 +274,24 @@ export default function ParticipationsPage() {
     {
       key: "run",
       header: "Run",
-      render: (row) => <Text fontWeight="medium">Run #{iriToId(row.run)}</Text>,
+      render: (row) => (
+        <Text fontWeight="medium">Run #{row.run?.id ?? "-"}</Text>
+      ),
       width: "110px",
       sortField: "run.id",
     },
     {
       key: "user",
       header: "Coureur",
-      render: (row) => <Text>User #{iriToId(row.user)}</Text>,
-      width: "120px",
+      render: (row) => (
+        <Text>
+          {row.user
+            ? `${row.user.firstName ?? ""} ${row.user.lastName ?? ""}`.trim() ||
+              `#${row.user.id}`
+            : "-"}
+        </Text>
+      ),
+      width: "160px",
       sortField: "user.lastName",
     },
     {
@@ -225,7 +344,7 @@ export default function ParticipationsPage() {
             title="Modifier l'heure d'arrivée"
             onClick={() => setEditParticipation(row)}
           >
-            ✏️
+            <LuPencil />
           </IconButton>
           <IconButton
             aria-label="Supprimer"
@@ -235,7 +354,7 @@ export default function ParticipationsPage() {
             title="Supprimer la participation"
             onClick={() => setDeleteParticipation(row)}
           >
-            🗑️
+            <LuTrash2 />
           </IconButton>
         </HStack>
       ),
@@ -257,17 +376,28 @@ export default function ParticipationsPage() {
   return (
     <Box p={{ base: "4", md: "8" }} maxW="7xl" mx="auto">
       {/* Page header */}
-      <VStack align="start" gap="1" mb="6">
-        <Heading size="xl" fontWeight="bold">
-          Participations
-        </Heading>
-        <Text color="fg.muted" fontSize="sm">
-          {data?.totalItems ?? 0} participation
-          {(data?.totalItems ?? 0) !== 1 ? "s" : ""} au total
-        </Text>
-      </VStack>
+      <HStack
+        justify="space-between"
+        align="center"
+        mb="6"
+        flexWrap="wrap"
+        gap="3"
+      >
+        <VStack align="start" gap="1">
+          <Heading size="xl" fontWeight="bold">
+            Participations
+          </Heading>
+          <Text color="fg.muted" fontSize="sm">
+            {data?.totalItems ?? 0} participation
+            {(data?.totalItems ?? 0) !== 1 ? "s" : ""} au total
+          </Text>
+        </VStack>
+        <Button colorPalette="primary" onClick={() => setCreateOpen(true)}>
+          + Nouvelle participation
+        </Button>
+      </HStack>
 
-      {/* Filters */}
+      {/* Filters — debounced, no submit button */}
       <Box
         p="4"
         mb="6"
@@ -276,80 +406,92 @@ export default function ParticipationsPage() {
         rounded="lg"
         bg="bg.subtle"
       >
-        <Stack gap="4">
-          <HStack gap="3" flexWrap="wrap">
-            {/* First name */}
-            <Field.Root flex="1" minW="160px">
-              <Field.Label fontSize="sm">Prénom</Field.Label>
-              <Input
-                size="sm"
-                placeholder="Prénom du coureur"
-                value={firstNameInput}
-                onChange={(e) => setFirstNameInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && applyFilters()}
-              />
-            </Field.Root>
+        <HStack gap="3" flexWrap="wrap">
+          {/* First name */}
+          <Field.Root flex="1" minW="160px">
+            <Field.Label fontSize="sm">Prénom</Field.Label>
+            <Input
+              size="sm"
+              placeholder="Prénom du coureur"
+              value={search.firstName}
+              onChange={(e) =>
+                setSearch((s) => ({ ...s, firstName: e.target.value }))
+              }
+            />
+          </Field.Root>
 
-            {/* Last name */}
-            <Field.Root flex="1" minW="160px">
-              <Field.Label fontSize="sm">Nom</Field.Label>
-              <Input
-                size="sm"
-                placeholder="Nom du coureur"
-                value={lastNameInput}
-                onChange={(e) => setLastNameInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && applyFilters()}
-              />
-            </Field.Root>
+          {/* Last name */}
+          <Field.Root flex="1" minW="160px">
+            <Field.Label fontSize="sm">Nom</Field.Label>
+            <Input
+              size="sm"
+              placeholder="Nom du coureur"
+              value={search.lastName}
+              onChange={(e) =>
+                setSearch((s) => ({ ...s, lastName: e.target.value }))
+              }
+            />
+          </Field.Root>
 
-            {/* Dossard (user.id / user.surname) */}
-            <Field.Root flex="1" minW="140px">
-              <Field.Label fontSize="sm">N° dossard</Field.Label>
-              <Input
-                size="sm"
-                placeholder="Ex : 42"
-                value={dossardInput}
-                onChange={(e) => setDossardInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && applyFilters()}
-              />
-            </Field.Root>
+          {/* Dossard */}
+          <Field.Root flex="1" minW="140px">
+            <Field.Label fontSize="sm">N° dossard</Field.Label>
+            <Input
+              size="sm"
+              placeholder="Ex : 42"
+              value={search.dossard}
+              onChange={(e) =>
+                setSearch((s) => ({ ...s, dossard: e.target.value }))
+              }
+            />
+          </Field.Root>
 
-            {/* Status — client-side filter */}
-            <Field.Root flex="1" minW="160px">
-              <Field.Label fontSize="sm">Statut</Field.Label>
-              <Select.Root
-                size="sm"
-                collection={statusCollection}
-                value={[statusFilter]}
-                onValueChange={({ value }) => setStatusFilter(value[0] ?? "")}
-              >
-                <Select.Trigger>
-                  <Select.ValueText placeholder="Tous les statuts" />
-                </Select.Trigger>
-                <Portal>
-                  <Select.Positioner>
-                    <Select.Content>
-                      {statusCollection.items.map((item) => (
-                        <Select.Item key={item.value} item={item}>
-                          {item.label}
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select.Positioner>
-                </Portal>
-              </Select.Root>
-            </Field.Root>
-          </HStack>
+          {/* Status — client-side filter */}
+          <Field.Root flex="1" minW="160px">
+            <Field.Label fontSize="sm">Statut</Field.Label>
+            <Select.Root
+              size="sm"
+              collection={statusCollection}
+              value={[search.status]}
+              onValueChange={({ value }) =>
+                setSearch((s) => ({ ...s, status: value[0] ?? "" }))
+              }
+            >
+              <Select.Trigger>
+                <Select.ValueText placeholder="Tous les statuts" />
+              </Select.Trigger>
+              <Portal>
+                <Select.Positioner>
+                  <Select.Content>
+                    {statusCollection.items.map((item) => (
+                      <Select.Item key={item.value} item={item}>
+                        {item.label}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select.Positioner>
+              </Portal>
+            </Select.Root>
+          </Field.Root>
 
-          <HStack gap="2" justify="flex-end">
-            <Button size="sm" variant="outline" onClick={resetFilters}>
+          <Box pt="6">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                setSearch({
+                  firstName: "",
+                  lastName: "",
+                  dossard: "",
+                  status: "",
+                });
+                setPage(1);
+              }}
+            >
               Réinitialiser
             </Button>
-            <Button size="sm" colorPalette="primary" onClick={applyFilters}>
-              Rechercher
-            </Button>
-          </HStack>
-        </Stack>
+          </Box>
+        </HStack>
       </Box>
 
       {/* Table */}
@@ -358,17 +500,51 @@ export default function ParticipationsPage() {
         data={filtered}
         isLoading={isLoading}
         keyExtractor={(row) => row.id ?? Math.random()}
-        page={filters.page ?? 1}
+        page={page}
         totalItems={data?.totalItems ?? 0}
-        itemsPerPage={filters.itemsPerPage ?? 30}
-        onPageChange={(p) => setFilters((prev) => ({ ...prev, page: p }))}
+        itemsPerPage={30}
+        onPageChange={setPage}
         emptyMessage="Aucune participation trouvée"
         sort={sort}
         onSortChange={(s) => {
           setSort(s);
-          setFilters((f) => ({ ...f, page: 1 }));
+          setPage(1);
         }}
       />
+
+      {/* Create dialog */}
+      <Dialog.Root
+        open={createOpen}
+        onOpenChange={({ open }) => !open && setCreateOpen(false)}
+      >
+        <Portal>
+          <Dialog.Backdrop />
+          <Dialog.Positioner>
+            <Dialog.Content maxW="md">
+              <Dialog.Header>
+                <Dialog.Title>Nouvelle participation</Dialog.Title>
+                <Dialog.CloseTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    position="absolute"
+                    top="3"
+                    right="3"
+                    type="button"
+                  >
+                    <LuX />
+                  </Button>
+                </Dialog.CloseTrigger>
+              </Dialog.Header>
+              {createOpen && (
+                <CreateParticipationDialog
+                  onClose={() => setCreateOpen(false)}
+                />
+              )}
+            </Dialog.Content>
+          </Dialog.Positioner>
+        </Portal>
+      </Dialog.Root>
 
       {/* Edit dialog */}
       <Dialog.Root
@@ -392,7 +568,7 @@ export default function ParticipationsPage() {
                     top="3"
                     right="3"
                   >
-                    ✕
+                    <LuX />
                   </Button>
                 </Dialog.CloseTrigger>
               </Dialog.Header>

@@ -1,6 +1,7 @@
 "use client";
 
 import { Button, Dialog, Portal, Text } from "@chakra-ui/react";
+import { LuX } from "react-icons/lu";
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -35,7 +36,7 @@ export function ConfirmDialog({
                   top="3"
                   right="3"
                 >
-                  ✕
+                  <LuX />
                 </Button>
               </Dialog.CloseTrigger>
             </Dialog.Header>

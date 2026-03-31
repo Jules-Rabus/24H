@@ -25,6 +25,6 @@ final class UserVoter extends Voter
         }
 
         /** @var UserApi $subject */
-        return $subject->getUserIdentifier() === $currentUser->getUserIdentifier();
+        return (string) $subject->email === $currentUser->getUserIdentifier();
     }
 }

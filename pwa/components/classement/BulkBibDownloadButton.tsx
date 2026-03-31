@@ -45,36 +45,39 @@ const generateQr = (userId: number) => {
   return canvas.toDataURL("image/png");
 };
 
-export default function BibDownloadButton({ user }: { user: BibUser }) {
-  const qr = generateQr(user.id);
-  const displayName = user.surname || `${user.firstName} ${user.lastName}`;
+export default function BulkBibDownloadButton({ users }: { users: BibUser[] }) {
+  if (users.length === 0) return null;
 
   const doc = (
     <Document>
-      <Page size="A5" orientation="landscape" style={s.page}>
-        <View style={s.bib}>
-          <Text style={s.number}>{user.id}</Text>
-          <Text style={s.name}>{displayName}</Text>
-          <Image style={s.qr} src={qr} />
-        </View>
-      </Page>
+      {users.map((user) => {
+        const qr = generateQr(user.id);
+        const displayName =
+          user.surname || `${user.firstName} ${user.lastName}`;
+        return (
+          <Page key={user.id} size="A5" orientation="landscape" style={s.page}>
+            <View style={s.bib}>
+              <Text style={s.number}>{user.id}</Text>
+              <Text style={s.name}>{displayName}</Text>
+              <Image style={s.qr} src={qr} />
+            </View>
+          </Page>
+        );
+      })}
     </Document>
   );
 
   return (
-    <PDFDownloadLink
-      document={doc}
-      fileName={`dossard-${user.id}-${user.firstName}-${user.lastName}.pdf`}
-    >
+    <PDFDownloadLink document={doc} fileName="dossards-bulk.pdf">
       {({ loading }) => (
         <Button
           size="sm"
           variant="outline"
           colorPalette="primary"
           loading={loading}
-          loadingText="Chargement…"
+          loadingText="Génération…"
         >
-          <LuDownload /> Dossard PDF
+          <LuDownload /> Dossards ({users.length})
         </Button>
       )}
     </PDFDownloadLink>

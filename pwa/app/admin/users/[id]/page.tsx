@@ -3,6 +3,7 @@
 import { use, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import {
   Badge,
   Box,
@@ -17,6 +18,24 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
+import {
+  LuPencil,
+  LuTrash2,
+  LuX,
+  LuUser,
+  LuCamera,
+  LuTrophy,
+  LuMapPin,
+  LuTimer,
+  LuGauge,
+} from "react-icons/lu";
+
+const BibDownloadButton = dynamic(
+  () => import("@/components/classement/BibDownloadButton"),
+  { ssr: false },
+);
+import { useForm } from "@tanstack/react-form";
+import { z } from "zod";
 import { useAdminUserQuery, type AdminUser } from "@/state/admin/users/queries";
 import {
   useUpdateUserMutation,
@@ -24,6 +43,7 @@ import {
   useUploadUserImageMutation,
 } from "@/state/admin/users/mutations";
 import { ConfirmDialog } from "@/components/admin/ui/ConfirmDialog";
+import { StatCard } from "@/components/admin/ui/StatCard";
 
 // ---------------------------------------------------------------------------
 // UserForm (inline, edit only on this detail page)
@@ -34,107 +54,164 @@ import { Checkbox, Field, Input } from "@chakra-ui/react";
 function UserForm({ user, onClose }: { user: AdminUser; onClose: () => void }) {
   const updateMutation = useUpdateUserMutation();
 
-  const [form, setForm] = useState({
-    firstName: user.firstName ?? "",
-    lastName: user.lastName ?? "",
-    surname: user.surname ?? "",
-    email: user.email ?? "",
-    organization: user.organization ?? "",
-    isAdmin: user.roles?.includes("ROLE_ADMIN") ?? false,
-  });
-
   const isLoading = updateMutation.isPending;
 
-  const handleChange = (field: keyof typeof form, value: string | boolean) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-  };
+  const form = useForm({
+    defaultValues: {
+      firstName: user.firstName ?? "",
+      lastName: user.lastName ?? "",
+      surname: user.surname ?? "",
+      email: user.email ?? "",
+      organization: user.organization ?? "",
+      isAdmin: user.roles?.includes("ROLE_ADMIN") ?? false,
+    },
+    onSubmit: async ({ value }) => {
+      const roles: string[] = value.isAdmin
+        ? ["ROLE_USER", "ROLE_ADMIN"]
+        : ["ROLE_USER"];
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const roles: string[] = form.isAdmin
-      ? ["ROLE_USER", "ROLE_ADMIN"]
-      : ["ROLE_USER"];
-
-    await updateMutation.mutateAsync({
-      id: user.id!,
-      body: {
-        firstName: form.firstName,
-        lastName: form.lastName,
-        surname: form.surname || null,
-        email: form.email || null,
-        organization: form.organization || null,
-        roles,
-      },
-    });
-    onClose();
-  };
+      await updateMutation.mutateAsync({
+        id: user.id!,
+        body: {
+          firstName: value.firstName,
+          lastName: value.lastName,
+          surname: value.surname || null,
+          email: value.email || null,
+          organization: value.organization || null,
+          roles,
+        },
+      });
+      onClose();
+    },
+  });
 
   return (
-    <Box as="form" onSubmit={handleSubmit}>
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        form.handleSubmit();
+      }}
+    >
       <Dialog.Body>
         <VStack gap="4">
-          <Field.Root required>
-            <Field.Label>Prénom</Field.Label>
-            <Input
-              value={form.firstName}
-              onChange={(e) => handleChange("firstName", e.target.value)}
-              placeholder="Prénom"
-              required
-            />
-          </Field.Root>
+          <form.Field
+            name="firstName"
+            validators={{
+              onChange: ({ value }) => {
+                const r = z.string().min(1, "Prénom requis").safeParse(value);
+                return r.success ? undefined : r.error.issues[0].message;
+              },
+            }}
+          >
+            {(field) => (
+              <Field.Root required invalid={!!field.state.meta.errors.length}>
+                <Field.Label>Prénom</Field.Label>
+                <Input
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                  placeholder="Prénom"
+                />
+                <Field.ErrorText>{field.state.meta.errors[0]}</Field.ErrorText>
+              </Field.Root>
+            )}
+          </form.Field>
 
-          <Field.Root required>
-            <Field.Label>Nom</Field.Label>
-            <Input
-              value={form.lastName}
-              onChange={(e) => handleChange("lastName", e.target.value)}
-              placeholder="Nom"
-              required
-            />
-          </Field.Root>
+          <form.Field
+            name="lastName"
+            validators={{
+              onChange: ({ value }) => {
+                const r = z.string().min(1, "Nom requis").safeParse(value);
+                return r.success ? undefined : r.error.issues[0].message;
+              },
+            }}
+          >
+            {(field) => (
+              <Field.Root required invalid={!!field.state.meta.errors.length}>
+                <Field.Label>Nom</Field.Label>
+                <Input
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                  placeholder="Nom"
+                />
+                <Field.ErrorText>{field.state.meta.errors[0]}</Field.ErrorText>
+              </Field.Root>
+            )}
+          </form.Field>
 
-          <Field.Root>
-            <Field.Label>Surnom</Field.Label>
-            <Input
-              value={form.surname ?? ""}
-              onChange={(e) => handleChange("surname", e.target.value)}
-              placeholder="Surnom (optionnel)"
-            />
-          </Field.Root>
+          <form.Field name="surname">
+            {(field) => (
+              <Field.Root>
+                <Field.Label>Surnom</Field.Label>
+                <Input
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                  placeholder="Surnom (optionnel)"
+                />
+              </Field.Root>
+            )}
+          </form.Field>
 
-          <Field.Root>
-            <Field.Label>Email</Field.Label>
-            <Input
-              type="email"
-              value={form.email ?? ""}
-              onChange={(e) => handleChange("email", e.target.value)}
-              placeholder="email@exemple.fr"
-            />
-          </Field.Root>
+          <form.Field
+            name="email"
+            validators={{
+              onChange: ({ value }) => {
+                if (!value) return undefined;
+                const r = z.string().email("Email invalide").safeParse(value);
+                return r.success ? undefined : r.error.issues[0].message;
+              },
+            }}
+          >
+            {(field) => (
+              <Field.Root invalid={!!field.state.meta.errors.length}>
+                <Field.Label>Email</Field.Label>
+                <Input
+                  type="email"
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                  placeholder="email@exemple.fr"
+                />
+                <Field.ErrorText>{field.state.meta.errors[0]}</Field.ErrorText>
+              </Field.Root>
+            )}
+          </form.Field>
 
-          <Field.Root>
-            <Field.Label>Organisation</Field.Label>
-            <Input
-              value={form.organization ?? ""}
-              onChange={(e) => handleChange("organization", e.target.value)}
-              placeholder="Organisation (optionnel)"
-            />
-          </Field.Root>
+          <form.Field name="organization">
+            {(field) => (
+              <Field.Root>
+                <Field.Label>Organisation</Field.Label>
+                <Input
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                  placeholder="Organisation (optionnel)"
+                />
+              </Field.Root>
+            )}
+          </form.Field>
 
-          <Field.Root>
-            <HStack gap="3">
-              <Checkbox.Root
-                checked={form.isAdmin}
-                onCheckedChange={({ checked }) =>
-                  handleChange("isAdmin", !!checked)
-                }
-              >
-                <Checkbox.HiddenInput />
-                <Checkbox.Control />
-                <Checkbox.Label>Administrateur</Checkbox.Label>
-              </Checkbox.Root>
-            </HStack>
-          </Field.Root>
+          <form.Field name="isAdmin">
+            {(field) => (
+              <Field.Root>
+                <HStack gap="3">
+                  <Checkbox.Root
+                    checked={field.state.value}
+                    onCheckedChange={({ checked }) =>
+                      field.handleChange(!!checked)
+                    }
+                  >
+                    <Checkbox.HiddenInput />
+                    <Checkbox.Control />
+                    <Checkbox.Label>Administrateur</Checkbox.Label>
+                  </Checkbox.Root>
+                </HStack>
+              </Field.Root>
+            )}
+          </form.Field>
         </VStack>
       </Dialog.Body>
 
@@ -151,34 +228,21 @@ function UserForm({ user, onClose }: { user: AdminUser; onClose: () => void }) {
           Modifier
         </Button>
       </Dialog.Footer>
-    </Box>
+    </form>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Stat Card helper
+// Time formatting helper
 // ---------------------------------------------------------------------------
 
-function StatCard({ label, value }: { label: string; value: React.ReactNode }) {
-  return (
-    <Card.Root variant="outline" shadow="sm" borderColor="border.subtle">
-      <Card.Body p="5">
-        <Text
-          fontSize="xs"
-          color="fg.muted"
-          textTransform="uppercase"
-          letterSpacing="wider"
-          fontWeight="semibold"
-          mb="1"
-        >
-          {label}
-        </Text>
-        <Text fontSize="2xl" fontWeight="bold">
-          {value}
-        </Text>
-      </Card.Body>
-    </Card.Root>
-  );
+function formatTime(seconds: number | null | undefined): string {
+  if (!seconds) return "-";
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  if (h > 0) return `${h}h ${m.toString().padStart(2, "0")}m`;
+  return `${m}m ${s.toString().padStart(2, "0")}s`;
 }
 
 // ---------------------------------------------------------------------------
@@ -242,10 +306,9 @@ export default function UserDetailPage({
   const finishedRuns = user.finishedParticipationsCount ?? 0;
   const distance = finishedRuns * 4;
 
-  // Build image URL from IRI: "/api/medias/3" → extract "3" → build URL
-  const imageId = user.image?.split("/").at(-1);
-  const imageUrl = imageId
-    ? `${process.env.NEXT_PUBLIC_ENTRYPOINT ?? ""}/medias/${imageId}/file`
+  // image is a VichUploader resolved URI (e.g. "/media/images/photo.jpg")
+  const imageUrl = user.image
+    ? `${process.env.NEXT_PUBLIC_ENTRYPOINT ?? ""}${user.image}`
     : null;
 
   return (
@@ -304,14 +367,24 @@ export default function UserDetailPage({
               </Text>
             </VStack>
 
-            <HStack gap="2">
+            <HStack gap="2" flexWrap="wrap">
+              {user.id && user.firstName && user.lastName && (
+                <BibDownloadButton
+                  user={{
+                    id: user.id,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    surname: user.surname,
+                  }}
+                />
+              )}
               <Button
                 colorPalette="primary"
                 variant="outline"
                 size="sm"
                 onClick={() => setEditOpen(true)}
               >
-                ✏️ Modifier
+                <LuPencil /> Modifier
               </Button>
               <Button
                 colorPalette="red"
@@ -319,7 +392,7 @@ export default function UserDetailPage({
                 size="sm"
                 onClick={() => setDeleteOpen(true)}
               >
-                🗑️ Supprimer
+                <LuTrash2 /> Supprimer
               </Button>
             </HStack>
           </HStack>
@@ -327,9 +400,31 @@ export default function UserDetailPage({
       </Card.Root>
 
       {/* Stats */}
-      <SimpleGrid columns={{ base: 1, sm: 2 }} gap="4">
-        <StatCard label="Runs terminés" value={finishedRuns} />
-        <StatCard label="Distance totale" value={`${distance} km`} />
+      <SimpleGrid columns={{ base: 1, sm: 2, lg: 4 }} gap="4">
+        <StatCard
+          label="Runs terminés"
+          value={finishedRuns}
+          icon={LuTrophy}
+          color="stat.green"
+        />
+        <StatCard
+          label="Distance totale"
+          value={`${distance} km`}
+          icon={LuMapPin}
+          color="stat.blue"
+        />
+        <StatCard
+          label="Meilleur temps"
+          value={formatTime(user.bestTime)}
+          icon={LuTimer}
+          color="stat.orange"
+        />
+        <StatCard
+          label="Allure moyenne"
+          value={formatTime(user.averageTime)}
+          icon={LuGauge}
+          color="primary.500"
+        />
       </SimpleGrid>
 
       {/* Image section */}
@@ -374,7 +469,7 @@ export default function UserDetailPage({
                 alignItems="center"
                 justifyContent="center"
               >
-                <Text fontSize="3xl">👤</Text>
+                <LuUser size={32} />
               </Box>
             )}
 
@@ -399,7 +494,7 @@ export default function UserDetailPage({
                 loadingText="Envoi…"
                 onClick={() => fileInputRef.current?.click()}
               >
-                📷 Changer l'image
+                <LuCamera /> Changer l'image
               </Button>
             </VStack>
           </HStack>
@@ -421,27 +516,24 @@ export default function UserDetailPage({
               Participations ({user.participations.length})
             </Text>
             <VStack align="stretch" gap="1">
-              {user.participations.map((iri) => {
-                const partId = iri.split("/").at(-1);
-                return (
-                  <HStack
-                    key={iri}
-                    px="3"
-                    py="2"
-                    rounded="md"
-                    bg="bg.subtle"
-                    fontSize="sm"
-                    justify="space-between"
-                  >
-                    <Text color="fg.muted" fontFamily="mono" fontSize="xs">
-                      {iri}
-                    </Text>
-                    <Badge colorPalette="gray" size="sm">
-                      #{partId}
-                    </Badge>
-                  </HStack>
-                );
-              })}
+              {user.participations.map((partId) => (
+                <HStack
+                  key={partId}
+                  px="3"
+                  py="2"
+                  rounded="md"
+                  bg="bg.subtle"
+                  fontSize="sm"
+                  justify="space-between"
+                >
+                  <Text color="fg.muted" fontFamily="mono" fontSize="xs">
+                    Participation #{partId}
+                  </Text>
+                  <Badge colorPalette="gray" size="sm">
+                    #{partId}
+                  </Badge>
+                </HStack>
+              ))}
             </VStack>
           </Card.Body>
         </Card.Root>
@@ -467,7 +559,7 @@ export default function UserDetailPage({
                     right="3"
                     type="button"
                   >
-                    ✕
+                    <LuX />
                   </Button>
                 </Dialog.CloseTrigger>
               </Dialog.Header>
