@@ -2,6 +2,7 @@
 
 namespace App\Tests\Functional\Api\Login;
 
+use App\Factory\ParticipationFactory;
 use App\Factory\UserFactory;
 use App\Tests\Functional\Api\AbstractTestCase;
 
@@ -16,6 +17,8 @@ final class MeTest extends AbstractTestCase
             'password' => '$3cr3t',
             'roles' => ['ROLE_USER'],
         ]);
+        // Create a participation with a Run to trigger circular reference if not handled
+        ParticipationFactory::new()->create(['user' => $user]);
 
         $client = $this->createClientWithCredentials($user);
 
