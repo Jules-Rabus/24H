@@ -26,6 +26,9 @@ import {
   LuUsers,
   LuPlay,
   LuCircleCheck,
+  LuTimer,
+  LuGauge,
+  LuZap,
 } from "react-icons/lu";
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
@@ -41,6 +44,19 @@ import {
 import { DataTable, type Column } from "@/components/admin/ui/DataTable";
 import { ConfirmDialog } from "@/components/admin/ui/ConfirmDialog";
 import { StatCard } from "@/components/admin/ui/StatCard";
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function formatTime(seconds: number | null | undefined): string {
+  if (!seconds) return "-";
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  if (h > 0) return `${h}h ${m.toString().padStart(2, "0")}m`;
+  return `${m}m ${s.toString().padStart(2, "0")}s`;
+}
 
 // ---------------------------------------------------------------------------
 // EditArrivalTimeForm — inline dialog to edit a participation's arrivalTime
@@ -155,6 +171,19 @@ export default function RunDetailPage({
 
   const participations = participationsData?.member ?? [];
 
+  // Computed stats from finished participations
+  const finishedTimes = participations
+    .filter((p) => p.totalTime != null && p.status === "FINISHED")
+    .map((p) => p.totalTime!);
+  const fastestTime =
+    finishedTimes.length > 0 ? Math.min(...finishedTimes) : null;
+  const averageTime =
+    finishedTimes.length > 0
+      ? Math.round(
+          finishedTimes.reduce((a, b) => a + b, 0) / finishedTimes.length,
+        )
+      : null;
+
   // Helpers
   const formatDate = (iso?: string | null) =>
     iso ? new Date(iso).toLocaleString("fr-FR") : "-";
@@ -207,16 +236,32 @@ export default function RunDetailPage({
     {
       key: "user",
       header: "Participant",
-      render: (p) => (
-        <VStack align="flex-start" gap="0">
-          <Text fontWeight="medium">{formatUserName(p)}</Text>
-          {p.user?.surname && (
-            <Text fontSize="xs" color="fg.muted">
-              {p.user.surname}
-            </Text>
-          )}
-        </VStack>
-      ),
+      render: (p) => {
+        const name = formatUserName(p);
+        return (
+          <VStack align="flex-start" gap="0">
+            {p.user?.id ? (
+              <Link href={`/admin/users/${p.user.id}`}>
+                <Text
+                  fontWeight="medium"
+                  color="primary.fg"
+                  _hover={{ textDecoration: "underline" }}
+                  cursor="pointer"
+                >
+                  {name}
+                </Text>
+              </Link>
+            ) : (
+              <Text fontWeight="medium">{name}</Text>
+            )}
+            {p.user?.surname && (
+              <Text fontSize="xs" color="fg.muted">
+                {p.user.surname}
+              </Text>
+            )}
+          </VStack>
+        );
+      },
     },
     {
       key: "status",
@@ -337,7 +382,7 @@ export default function RunDetailPage({
       </Card.Root>
 
       {/* Stats */}
-      <SimpleGrid columns={{ base: 1, sm: 3 }} gap="4">
+      <SimpleGrid columns={{ base: 2, sm: 3, lg: 6 }} gap="4">
         <StatCard
           label="Participants"
           value={run.participantsCount ?? 0}
@@ -355,12 +400,40 @@ export default function RunDetailPage({
           index={1}
         />
         <StatCard
-          label="Termines"
+          label="Terminés"
           value={run.finishedParticipantsCount ?? 0}
           icon={LuCircleCheck}
           color="stat.green"
           loading={runLoading}
           index={2}
+        />
+        <StatCard
+          label="Plus rapide"
+          value={formatTime(fastestTime)}
+          icon={LuZap}
+          color="stat.green"
+          loading={participationsLoading}
+          index={3}
+        />
+        <StatCard
+          label="Temps moyen"
+          value={formatTime(averageTime)}
+          icon={LuTimer}
+          color="stat.orange"
+          loading={participationsLoading}
+          index={4}
+        />
+        <StatCard
+          label="Allure moy."
+          value={
+            averageTime
+              ? `${Math.floor(averageTime / 60)}:${String(averageTime % 60).padStart(2, "0")}/tour`
+              : "-"
+          }
+          icon={LuGauge}
+          color="primary.500"
+          loading={participationsLoading}
+          index={5}
         />
       </SimpleGrid>
 

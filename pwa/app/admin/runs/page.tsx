@@ -22,6 +22,7 @@ import {
   LuPencil,
   LuTrash2,
   LuX,
+  LuEye,
   LuTimer,
   LuUsers,
   LuPlay,
@@ -414,9 +415,21 @@ export default function AdminRunsPage() {
     {
       key: "actions",
       header: "",
-      width: "100px",
+      width: "140px",
       render: (r) => (
         <HStack gap="1">
+          {r.id && (
+            <Link href={`/admin/runs/${r.id}`}>
+              <IconButton
+                size="sm"
+                variant="ghost"
+                aria-label="Voir le détail"
+                title="Voir le détail"
+              >
+                <LuEye />
+              </IconButton>
+            </Link>
+          )}
           <IconButton
             size="sm"
             variant="ghost"

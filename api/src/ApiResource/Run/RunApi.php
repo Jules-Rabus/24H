@@ -17,6 +17,7 @@ use App\Dto\Run\CreateRun;
 use App\Dto\Run\RunCollection;
 use App\Dto\Run\UpdateRun;
 use App\Entity\Run;
+use App\ObjectMapper\ParticipationCollectionTransformer;
 use Symfony\Component\ObjectMapper\Attribute\Map;
 
 #[ApiResource(
@@ -47,8 +48,9 @@ final class RunApi
 
     public \DateTimeInterface $endDate;
 
-    /** @var iterable<string> */
-    public iterable $participations = [];
+    /** @var list<int> */
+    #[Map(transform: ParticipationCollectionTransformer::class)]
+    public array $participations = [];
 
     #[Map(source: 'participantsCount')]
     public int $participantsCount = 0;
