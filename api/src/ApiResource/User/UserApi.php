@@ -18,15 +18,18 @@ use App\Dto\User\CreateUser;
 use App\Dto\User\UpdateUser;
 use App\Dto\User\UserCollection;
 use App\Entity\User;
+use App\ObjectMapper\ParticipationCollectionTransformer;
 use App\State\User\CurrentUserProvider;
 use App\State\UserProcessor;
 use Symfony\Component\ObjectMapper\Attribute\Map;
 
 #[ApiResource(
     shortName: 'User',
-    stateOptions: new Options(entityClass: User::class),
     operations: [
-        new Get(security: 'is_granted("ROLE_ADMIN") or is_granted("USER_VIEW", object)'),
+        new Get(
+            requirements: ['id' => '\d+'],
+            security: 'is_granted("ROLE_ADMIN") or is_granted("USER_VIEW", object)',
+        ),
         new Get(
             uriTemplate: '/me',
             provider: CurrentUserProvider::class,
@@ -64,6 +67,7 @@ use Symfony\Component\ObjectMapper\Attribute\Map;
         ),
         new Delete(security: 'is_granted("ROLE_ADMIN")'),
     ],
+    stateOptions: new Options(entityClass: User::class),
 )]
 #[Map(source: User::class)]
 #[ApiFilter(SearchFilter::class, properties: ['id' => 'exact', 'firstName' => 'istart', 'lastName' => 'istart', 'surname' => 'istart', 'email' => 'istart', 'organization' => 'istart'])]
@@ -91,8 +95,9 @@ final class UserApi
     #[ApiProperty(iris: ['https://schema.org/Organization'])]
     public ?string $organization = null;
 
-    /** @var iterable<string> */
-    public iterable $participations = [];
+    /** @var list<int> */
+    #[Map(transform: ParticipationCollectionTransformer::class)]
+    public array $participations = [];
 
     public ?string $image = null;
 
@@ -100,9 +105,9 @@ final class UserApi
 
     public ?\DateTimeInterface $updatedAt = null;
 
-    /** @var iterable<string> */
-    #[Map(source: 'finishedParticipations')]
-    public iterable $finishedParticipations = [];
+    /** @var list<int> */
+    #[Map(source: 'finishedParticipations', transform: ParticipationCollectionTransformer::class)]
+    public array $finishedParticipations = [];
 
     #[Map(source: 'finishedParticipationsCount')]
     public int $finishedParticipationsCount = 0;

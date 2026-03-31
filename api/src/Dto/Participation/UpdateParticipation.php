@@ -8,5 +8,5 @@ use Symfony\Component\ObjectMapper\Attribute\Map;
 #[Map(target: Participation::class)]
 final class UpdateParticipation
 {
-    public ?\DateTimeInterface $arrivalTime;
+    public ?\DateTime $arrivalTime;
 }

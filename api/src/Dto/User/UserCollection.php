@@ -3,6 +3,7 @@
 namespace App\Dto\User;
 
 use App\Entity\User;
+use App\ObjectMapper\ParticipationCollectionTransformer;
 use Symfony\Component\ObjectMapper\Attribute\Map;
 
 #[Map(source: User::class)]
@@ -22,7 +23,8 @@ final class UserCollection
 
     public ?string $image = null;
 
-    /** @var list<string> */
+    /** @var list<int> */
+    #[Map(transform: ParticipationCollectionTransformer::class)]
     public array $participations = [];
 
     #[Map(source: 'finishedParticipationsCount')]
