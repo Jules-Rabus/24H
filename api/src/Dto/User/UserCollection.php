@@ -22,7 +22,7 @@ final class UserCollection
 
     public ?string $image = null;
 
-    /** @var list<string> */
+    /** @var list<\App\Dto\Participation\ParticipationRef> */
     public array $participations = [];
 
     #[Map(source: 'finishedParticipationsCount')]

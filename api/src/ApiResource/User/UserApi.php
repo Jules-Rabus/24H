@@ -91,7 +91,7 @@ final class UserApi
     #[ApiProperty(iris: ['https://schema.org/Organization'])]
     public ?string $organization = null;
 
-    /** @var iterable<string> */
+    /** @var list<\App\Dto\Participation\ParticipationRef> */
     public iterable $participations = [];
 
     public ?string $image = null;
@@ -100,7 +100,7 @@ final class UserApi
 
     public ?\DateTimeInterface $updatedAt = null;
 
-    /** @var iterable<string> */
+    /** @var list<\App\Dto\Participation\ParticipationRef> */
     #[Map(source: 'finishedParticipations')]
     public iterable $finishedParticipations = [];
 

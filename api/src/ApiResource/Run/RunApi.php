@@ -47,7 +47,7 @@ final class RunApi
 
     public \DateTimeInterface $endDate;
 
-    /** @var iterable<string> */
+    /** @var list<\App\Dto\Participation\ParticipationRef> */
     public iterable $participations = [];
 
     #[Map(source: 'participantsCount')]

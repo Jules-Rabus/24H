@@ -2,10 +2,13 @@
 
 namespace App\ObjectMapper;
 
+use App\ApiResource\Participation\ParticipationApi;
 use App\ApiResource\Run\RunApi;
 use App\ApiResource\User\UserApi;
+use App\Dto\Participation\ParticipationRef;
 use App\Dto\Run\RunRef;
 use App\Dto\User\UserRef;
+use App\Entity\Participation;
 use App\Entity\Run;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
@@ -36,6 +39,9 @@ final readonly class RelationTransformer implements TransformCallableInterface
         if ($value instanceof User) {
             return $this->objectMapper->map($value, UserRef::class);
         }
+        if ($value instanceof Participation) {
+            return $this->objectMapper->map($value, ParticipationRef::class);
+        }
 
         // Input mapping: DTO (Api Resource) -> Entity
         if ($value instanceof RunApi || $value instanceof RunRef) {
@@ -51,6 +57,13 @@ final readonly class RelationTransformer implements TransformCallableInterface
             }
 
             return $this->objectMapper->map($value, User::class);
+        }
+        if ($value instanceof ParticipationApi || $value instanceof ParticipationRef) {
+            if (isset($value->id) && $value->id) {
+                return $this->entityManager->find(Participation::class, $value->id);
+            }
+
+            return $this->objectMapper->map($value, Participation::class);
         }
 
         return $value;
