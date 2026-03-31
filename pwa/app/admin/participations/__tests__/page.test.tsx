@@ -19,7 +19,10 @@ vi.mock("@/state/admin/participations/queries", async (importOriginal) => {
 import { useAdminParticipationsQuery } from "@/state/admin/participations/queries";
 
 vi.mock("@/state/admin/participations/mutations", () => ({
-  useDeleteParticipationMutation: () => ({ mutateAsync: vi.fn(), isPending: false }),
+  useDeleteParticipationMutation: () => ({
+    mutateAsync: vi.fn(),
+    isPending: false,
+  }),
 }));
 
 describe("ParticipationsAdminPage", () => {
@@ -31,9 +34,15 @@ describe("ParticipationsAdminPage", () => {
     (useAdminParticipationsQuery as any).mockReturnValue({
       data: {
         member: [
-          { "@id": "/participations/1", id: 1, run: "/runs/1", user: "/users/1", status: "FINISHED" },
+          {
+            "@id": "/participations/1",
+            id: 1,
+            run: "/runs/1",
+            user: "/users/1",
+            status: "FINISHED",
+          },
         ],
-        totalItems: 1
+        totalItems: 1,
       },
       isLoading: false,
     });
@@ -63,7 +72,9 @@ describe("ParticipationsAdminPage", () => {
     await user.click(screen.getByRole("button", { name: "Rechercher" }));
 
     await waitFor(() => {
-      expect(mockQuery).toHaveBeenCalledWith(expect.objectContaining({ "user.firstName": "Jean" }));
+      expect(mockQuery).toHaveBeenCalledWith(
+        expect.objectContaining({ "user.firstName": "Jean" }),
+      );
     });
   });
 });

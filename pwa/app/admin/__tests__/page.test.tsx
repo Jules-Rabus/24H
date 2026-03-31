@@ -1,5 +1,4 @@
 import { describe, it, expect, vi } from "vitest";
-import { render } from "@testing-library/react";
 import AdminPage from "../page";
 import * as navigation from "next/navigation";
 
@@ -9,7 +8,8 @@ vi.mock("next/navigation", () => ({
 
 describe("AdminPage root", () => {
   it("redirects to /admin/runs", () => {
-    render(<AdminPage />);
+    // AdminPage just calls `redirect` directly, no need to render it as JSX since it returns `never` or `void`.
+    AdminPage();
     expect(navigation.redirect).toHaveBeenCalledWith("/admin/runs");
   });
 });

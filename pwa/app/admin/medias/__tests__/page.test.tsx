@@ -18,12 +18,24 @@ vi.mock("@/state/admin/medias/queries", async (importOriginal) => {
 import { useAdminRaceMediasQuery } from "@/state/admin/medias/queries";
 
 vi.mock("@/state/media/mutations", () => ({
-  useUploadRaceMediaMutation: () => ({ mutateAsync: vi.fn(), isPending: false }),
+  useUploadRaceMediaMutation: () => ({
+    mutateAsync: vi.fn(),
+    isPending: false,
+  }),
 }));
 vi.mock("@/state/admin/medias/mutations", () => ({
-  useDeleteRaceMediaMutation: () => ({ mutateAsync: vi.fn(), isPending: false }),
-  useUpdateRaceMediaStatusMutation: () => ({ mutateAsync: vi.fn(), isPending: false }),
-  useUploadRaceMediaMutation: () => ({ mutateAsync: vi.fn(), isPending: false }),
+  useDeleteRaceMediaMutation: () => ({
+    mutateAsync: vi.fn(),
+    isPending: false,
+  }),
+  useUpdateRaceMediaStatusMutation: () => ({
+    mutateAsync: vi.fn(),
+    isPending: false,
+  }),
+  useUploadRaceMediaMutation: () => ({
+    mutateAsync: vi.fn(),
+    isPending: false,
+  }),
 }));
 
 describe("MediaAdminPage", () => {
@@ -43,7 +55,9 @@ describe("MediaAdminPage", () => {
 
     await waitFor(() => {
       // Depending on how empty state is rendered, let's just assert the camera button is there
-      expect(screen.getByRole("button", { name: /Ajouter une photo/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /Ajouter une photo/i }),
+      ).toBeInTheDocument();
     });
   });
 });

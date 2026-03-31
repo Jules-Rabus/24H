@@ -5,12 +5,16 @@ import AdminLayout from "../layout";
 const mockPush = vi.fn();
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: mockPush }),
-  usePathname: () => "/admin/runs"
+  usePathname: () => "/admin/runs",
 }));
 
 // Mock `useMe` to resolve user authentication
 vi.mock("@/state/auth/queries", () => ({
-  useMe: () => ({ data: { id: "1", role: "ADMIN" }, isLoading: false, isError: false }),
+  useMe: () => ({
+    data: { id: "1", role: "ADMIN" },
+    isLoading: false,
+    isError: false,
+  }),
 }));
 
 describe("AdminLayout", () => {
@@ -18,7 +22,7 @@ describe("AdminLayout", () => {
     render(
       <AdminLayout>
         <div>Admin Content Area</div>
-      </AdminLayout>
+      </AdminLayout>,
     );
     expect(screen.getByText("Admin Content Area")).toBeInTheDocument();
   });

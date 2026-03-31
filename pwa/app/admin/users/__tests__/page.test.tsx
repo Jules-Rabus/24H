@@ -26,10 +26,25 @@ describe("UsersAdminPage", () => {
     (useAdminUsersQuery as any).mockReturnValue({
       data: {
         member: [
-          { "@id": "/users/1", id: 1, email: "admin@test.com", firstName: "Admin", lastName: "Test", role: "ADMIN" },
-          { "@id": "/users/2", id: 2, email: "runner@test.com", firstName: "Runner", lastName: "Test", role: "RUNNER", surname: "42" }
+          {
+            "@id": "/users/1",
+            id: 1,
+            email: "admin@test.com",
+            firstName: "Admin",
+            lastName: "Test",
+            role: "ADMIN",
+          },
+          {
+            "@id": "/users/2",
+            id: 2,
+            email: "runner@test.com",
+            firstName: "Runner",
+            lastName: "Test",
+            role: "RUNNER",
+            surname: "42",
+          },
         ],
-        totalItems: 2
+        totalItems: 2,
       },
       isLoading: false,
     });

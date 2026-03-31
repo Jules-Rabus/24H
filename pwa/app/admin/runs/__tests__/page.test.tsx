@@ -32,8 +32,19 @@ describe("RunsAdminPage", () => {
   it("renders page header and table correctly", async () => {
     (useAdminRunsQuery as any).mockReturnValue({
       data: [
-        { "@id": "/runs/1", id: 1, name: "Run 1", startDate: "2023-01-01T10:00:00Z" },
-        { "@id": "/runs/2", id: 2, name: "Run 2", startDate: "2023-01-02T10:00:00Z", endDate: "2023-01-02T12:00:00Z" }
+        {
+          "@id": "/runs/1",
+          id: 1,
+          name: "Run 1",
+          startDate: "2023-01-01T10:00:00Z",
+        },
+        {
+          "@id": "/runs/2",
+          id: 2,
+          name: "Run 2",
+          startDate: "2023-01-02T10:00:00Z",
+          endDate: "2023-01-02T12:00:00Z",
+        },
       ],
       isLoading: false,
     });
