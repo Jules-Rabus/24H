@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import {
+  Badge,
   Box,
   Button,
   Card,
@@ -30,6 +31,57 @@ function formatTime(seconds: number | null | undefined): string {
   const s = seconds % 60;
   if (h > 0) return `${h}h ${m.toString().padStart(2, "0")}m`;
   return `${m}m ${s.toString().padStart(2, "0")}s`;
+}
+
+type RankedRunner = PublicRunner & { rank: number };
+
+function RunnerCard({ runner }: { runner: RankedRunner }) {
+  const name =
+    `${runner.firstName ?? ""} ${runner.lastName ?? ""}`.trim() || "-";
+  const tours = runner.finishedParticipationsCount ?? 0;
+
+  return (
+    <Link href={`/coureurs/${runner.id}`} style={{ textDecoration: "none" }}>
+      <HStack
+        px="4"
+        py="3"
+        rounded="md"
+        bg="bg.subtle"
+        _hover={{ bg: "bg.muted" }}
+        transition="background 0.1s"
+        gap="3"
+      >
+        <Text fontWeight="bold" fontSize="lg" w="8" textAlign="center">
+          {runner.rank}
+        </Text>
+        <VStack align="flex-start" gap="0" flex="1" minW="0">
+          <HStack gap="2" flexWrap="wrap">
+            <Text fontWeight="medium" fontSize="sm" truncate>
+              {name}
+            </Text>
+            {runner.surname && (
+              <Text fontSize="xs" color="fg.muted">
+                ({runner.surname})
+              </Text>
+            )}
+          </HStack>
+          {runner.organization && (
+            <Text fontSize="xs" color="fg.muted" truncate>
+              {runner.organization}
+            </Text>
+          )}
+        </VStack>
+        <VStack align="flex-end" gap="0" flexShrink={0}>
+          <Badge colorPalette="primary" size="sm">
+            {tours} tour{tours !== 1 ? "s" : ""}
+          </Badge>
+          <Text fontSize="xs" color="fg.muted" fontFamily="mono">
+            {formatTime(runner.totalTime)}
+          </Text>
+        </VStack>
+      </HStack>
+    </Link>
+  );
 }
 
 export default function ClassementPage() {
@@ -94,7 +146,7 @@ export default function ClassementPage() {
               index={0}
             />
             <StatCard
-              label="Tours effectues"
+              label="Tours effectués"
               value={totalRuns}
               icon={LuTimer}
               color="stat.blue"
@@ -115,7 +167,7 @@ export default function ClassementPage() {
           <HStack gap="3">
             <Box position="relative" flex="1">
               <Input
-                placeholder="Rechercher un coureur..."
+                placeholder="Nom, prénom, surnom ou n° dossard"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 size="lg"
@@ -133,136 +185,163 @@ export default function ClassementPage() {
             </Box>
           </HStack>
 
-          {/* Results table */}
+          {/* Mobile: cards */}
           <Card.Root
             shadow="sm"
             borderWidth="1px"
             borderColor="card.border"
             bg="card.bg"
+            display={{ base: "block", md: "none" }}
           >
-            <Box overflowX="auto">
-              <Table.Root size="sm">
-                <Table.Header>
-                  <Table.Row bg="bg.subtle">
-                    <Table.ColumnHeader px="4" py="3" w="60px">
-                      #
-                    </Table.ColumnHeader>
-                    <Table.ColumnHeader px="4" py="3">
-                      Coureur
-                    </Table.ColumnHeader>
-                    <Table.ColumnHeader px="4" py="3" w="80px">
-                      Dossard
-                    </Table.ColumnHeader>
-                    <Table.ColumnHeader px="4" py="3" w="100px">
-                      Tours
-                    </Table.ColumnHeader>
-                    <Table.ColumnHeader px="4" py="3" w="100px">
-                      Distance
-                    </Table.ColumnHeader>
-                    <Table.ColumnHeader px="4" py="3" w="120px">
-                      Temps total
-                    </Table.ColumnHeader>
-                  </Table.Row>
-                </Table.Header>
-                <Table.Body>
-                  {isLoading ? (
-                    Array.from({ length: 8 }).map((_, i) => (
-                      <Table.Row key={i}>
-                        {Array.from({ length: 6 }).map((_, j) => (
-                          <Table.Cell key={j} px="4" py="3">
-                            <Skeleton height="4" width={`${50 + j * 10}%`} />
-                          </Table.Cell>
-                        ))}
-                      </Table.Row>
-                    ))
-                  ) : filtered.length === 0 ? (
-                    <Table.Row>
-                      <Table.Cell colSpan={6} textAlign="center" py="8">
-                        <Text color="fg.muted">Aucun coureur trouve</Text>
-                      </Table.Cell>
+            <Card.Body p="3">
+              {isLoading ? (
+                <VStack gap="2">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <Skeleton key={i} height="14" width="100%" rounded="md" />
+                  ))}
+                </VStack>
+              ) : filtered.length === 0 ? (
+                <Box textAlign="center" py="8">
+                  <Text color="fg.muted">Aucun coureur trouvé</Text>
+                </Box>
+              ) : (
+                <VStack gap="1" align="stretch">
+                  {filtered.map((r) => (
+                    <RunnerCard key={r.id} runner={r} />
+                  ))}
+                </VStack>
+              )}
+            </Card.Body>
+          </Card.Root>
+
+          {/* Desktop: table */}
+          <Card.Root
+            shadow="sm"
+            borderWidth="1px"
+            borderColor="card.border"
+            bg="card.bg"
+            display={{ base: "none", md: "block" }}
+          >
+            <Table.Root size="sm">
+              <Table.Header>
+                <Table.Row bg="bg.subtle">
+                  <Table.ColumnHeader px="4" py="3" w="60px">
+                    #
+                  </Table.ColumnHeader>
+                  <Table.ColumnHeader px="4" py="3">
+                    Coureur
+                  </Table.ColumnHeader>
+                  <Table.ColumnHeader px="4" py="3" w="80px">
+                    Dossard
+                  </Table.ColumnHeader>
+                  <Table.ColumnHeader px="4" py="3" w="100px">
+                    Tours
+                  </Table.ColumnHeader>
+                  <Table.ColumnHeader px="4" py="3" w="100px">
+                    Distance
+                  </Table.ColumnHeader>
+                  <Table.ColumnHeader px="4" py="3" w="120px">
+                    Temps total
+                  </Table.ColumnHeader>
+                </Table.Row>
+              </Table.Header>
+              <Table.Body>
+                {isLoading ? (
+                  Array.from({ length: 8 }).map((_, i) => (
+                    <Table.Row key={i}>
+                      {Array.from({ length: 6 }).map((_, j) => (
+                        <Table.Cell key={j} px="4" py="3">
+                          <Skeleton height="4" width={`${50 + j * 10}%`} />
+                        </Table.Cell>
+                      ))}
                     </Table.Row>
-                  ) : (
-                    filtered.map((r) => {
-                      const name =
-                        `${r.firstName ?? ""} ${r.lastName ?? ""}`.trim() ||
-                        "-";
-                      const tours = r.finishedParticipationsCount ?? 0;
-                      return (
-                        <Table.Row
-                          key={r.id}
-                          _hover={{ bg: "bg.subtle" }}
-                          transition="background 0.1s"
-                        >
-                          <Table.Cell px="4" py="3" fontWeight="bold">
-                            {r.rank}
-                          </Table.Cell>
-                          <Table.Cell px="4" py="3">
-                            <Link
-                              href={`/coureurs/${r.id}`}
-                              style={{ textDecoration: "none" }}
+                  ))
+                ) : filtered.length === 0 ? (
+                  <Table.Row>
+                    <Table.Cell colSpan={6} textAlign="center" py="8">
+                      <Text color="fg.muted">Aucun coureur trouvé</Text>
+                    </Table.Cell>
+                  </Table.Row>
+                ) : (
+                  filtered.map((r) => {
+                    const name =
+                      `${r.firstName ?? ""} ${r.lastName ?? ""}`.trim() || "-";
+                    const tours = r.finishedParticipationsCount ?? 0;
+                    return (
+                      <Table.Row
+                        key={r.id}
+                        _hover={{ bg: "bg.subtle" }}
+                        transition="background 0.1s"
+                      >
+                        <Table.Cell px="4" py="3" fontWeight="bold">
+                          {r.rank}
+                        </Table.Cell>
+                        <Table.Cell px="4" py="3">
+                          <Link
+                            href={`/coureurs/${r.id}`}
+                            style={{ textDecoration: "none" }}
+                          >
+                            <Text
+                              fontWeight="medium"
+                              color="primary.fg"
+                              _hover={{ textDecoration: "underline" }}
+                              fontSize="sm"
                             >
-                              <Text
-                                fontWeight="medium"
-                                color="primary.fg"
-                                _hover={{ textDecoration: "underline" }}
-                                fontSize="sm"
-                              >
-                                {name}
-                                {r.surname && (
-                                  <Text
-                                    as="span"
-                                    color="fg.muted"
-                                    fontWeight="normal"
-                                    ml="1"
-                                  >
-                                    ({r.surname})
-                                  </Text>
-                                )}
-                              </Text>
-                            </Link>
-                            {r.organization && (
-                              <Text fontSize="xs" color="fg.muted">
-                                {r.organization}
-                              </Text>
-                            )}
-                          </Table.Cell>
-                          <Table.Cell
-                            px="4"
-                            py="3"
-                            fontFamily="mono"
-                            fontSize="sm"
-                          >
-                            #{r.id}
-                          </Table.Cell>
-                          <Table.Cell
-                            px="4"
-                            py="3"
-                            fontVariantNumeric="tabular-nums"
-                          >
-                            {tours}
-                          </Table.Cell>
-                          <Table.Cell
-                            px="4"
-                            py="3"
-                            fontVariantNumeric="tabular-nums"
-                          >
-                            {tours * 4} km
-                          </Table.Cell>
-                          <Table.Cell
-                            px="4"
-                            py="3"
-                            fontFamily="mono"
-                            fontSize="sm"
-                          >
-                            {formatTime(r.totalTime)}
-                          </Table.Cell>
-                        </Table.Row>
-                      );
-                    })
-                  )}
-                </Table.Body>
-              </Table.Root>
-            </Box>
+                              {name}
+                              {r.surname && (
+                                <Text
+                                  as="span"
+                                  color="fg.muted"
+                                  fontWeight="normal"
+                                  ml="1"
+                                >
+                                  ({r.surname})
+                                </Text>
+                              )}
+                            </Text>
+                          </Link>
+                          {r.organization && (
+                            <Text fontSize="xs" color="fg.muted">
+                              {r.organization}
+                            </Text>
+                          )}
+                        </Table.Cell>
+                        <Table.Cell
+                          px="4"
+                          py="3"
+                          fontFamily="mono"
+                          fontSize="sm"
+                        >
+                          #{r.id}
+                        </Table.Cell>
+                        <Table.Cell
+                          px="4"
+                          py="3"
+                          fontVariantNumeric="tabular-nums"
+                        >
+                          {tours}
+                        </Table.Cell>
+                        <Table.Cell
+                          px="4"
+                          py="3"
+                          fontVariantNumeric="tabular-nums"
+                        >
+                          {tours * 4} km
+                        </Table.Cell>
+                        <Table.Cell
+                          px="4"
+                          py="3"
+                          fontFamily="mono"
+                          fontSize="sm"
+                        >
+                          {formatTime(r.totalTime)}
+                        </Table.Cell>
+                      </Table.Row>
+                    );
+                  })
+                )}
+              </Table.Body>
+            </Table.Root>
           </Card.Root>
         </VStack>
       </Box>

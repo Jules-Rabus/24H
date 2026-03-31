@@ -2,10 +2,11 @@
 
 namespace App\Dto\User;
 
+use App\Dto\Participation\ParticipationPublic;
 use App\Entity\User;
 use App\ObjectMapper\AverageTimeTransformer;
 use App\ObjectMapper\BestTimeTransformer;
-use App\ObjectMapper\ParticipationCollectionTransformer;
+use App\ObjectMapper\ParticipationPublicCollectionTransformer;
 use App\ObjectMapper\TotalTimeTransformer;
 use App\ObjectMapper\UserImageUrlTransformer;
 use Symfony\Component\ObjectMapper\Attribute\Map;
@@ -28,8 +29,8 @@ final class UserCollection
     #[Map(transform: UserImageUrlTransformer::class)]
     public ?string $image = null;
 
-    /** @var list<int> */
-    #[Map(transform: ParticipationCollectionTransformer::class)]
+    /** @var list<ParticipationPublic> */
+    #[Map(transform: ParticipationPublicCollectionTransformer::class)]
     public array $participations = [];
 
     #[Map(source: 'finishedParticipationsCount')]

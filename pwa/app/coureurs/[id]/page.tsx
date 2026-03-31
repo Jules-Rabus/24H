@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import { use, useMemo } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import {
@@ -12,8 +12,8 @@ import {
   Heading,
   HStack,
   SimpleGrid,
-  Skeleton,
   Spinner,
+  Table,
   Text,
   VStack,
 } from "@chakra-ui/react";
@@ -23,10 +23,21 @@ import {
   LuMapPin,
   LuTimer,
   LuGauge,
+  LuActivity,
 } from "react-icons/lu";
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+} from "recharts";
 import { PublicNav } from "@/components/public/PublicNav";
 import { StatCard } from "@/components/admin/ui/StatCard";
 import { usePublicRunnerQuery } from "@/state/public/queries";
+import type { PublicParticipation } from "@/state/public/schemas";
 
 const BibDownloadButton = dynamic(
   () => import("@/components/classement/BibDownloadButton"),
@@ -42,6 +53,13 @@ function formatTime(seconds: number | null | undefined): string {
   return `${m}m ${s.toString().padStart(2, "0")}s`;
 }
 
+function formatTimeMinutes(seconds: number | null | undefined): string {
+  if (!seconds) return "-";
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}:${s.toString().padStart(2, "0")}`;
+}
+
 export default function CoureurPage({
   params,
 }: {
@@ -50,6 +68,30 @@ export default function CoureurPage({
   const { id } = use(params);
   const userId = Number(id);
   const { data: runner, isLoading } = usePublicRunnerQuery(userId);
+
+  // Sort participations by run start date for the chart
+  const sortedParticipations = useMemo(() => {
+    if (!runner?.participations) return [];
+    return [...runner.participations]
+      .filter(
+        (p): p is PublicParticipation & { totalTime: number } =>
+          p.totalTime != null && p.status === "FINISHED",
+      )
+      .sort((a, b) => {
+        const da = a.runStartDate ? new Date(a.runStartDate).getTime() : 0;
+        const db = b.runStartDate ? new Date(b.runStartDate).getTime() : 0;
+        return da - db;
+      });
+  }, [runner?.participations]);
+
+  // Chart data: pace per run (minutes)
+  const chartData = useMemo(() => {
+    return sortedParticipations.map((p, i) => ({
+      name: `Tour ${i + 1}`,
+      minutes: Math.round((p.totalTime / 60) * 100) / 100,
+      label: formatTimeMinutes(p.totalTime),
+    }));
+  }, [sortedParticipations]);
 
   if (isLoading) {
     return (
@@ -149,7 +191,7 @@ export default function CoureurPage({
           {/* Stats grid */}
           <SimpleGrid columns={{ base: 2, md: 4 }} gap="4">
             <StatCard
-              label="Tours termines"
+              label="Tours terminés"
               value={finishedRuns}
               icon={LuTrophy}
               color="stat.green"
@@ -178,7 +220,70 @@ export default function CoureurPage({
             />
           </SimpleGrid>
 
-          {/* Participation count info */}
+          {/* Pace chart */}
+          {chartData.length >= 2 && (
+            <Card.Root
+              shadow="sm"
+              borderWidth="1px"
+              borderColor="card.border"
+              bg="card.bg"
+            >
+              <Card.Body p="6">
+                <HStack mb="4" gap="2" align="center">
+                  <LuActivity size={16} />
+                  <Text
+                    fontSize="xs"
+                    color="fg.muted"
+                    textTransform="uppercase"
+                    letterSpacing="wider"
+                    fontWeight="semibold"
+                  >
+                    Rythme par tour (minutes)
+                  </Text>
+                </HStack>
+                <Box h="250px">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                      <XAxis
+                        dataKey="name"
+                        fontSize={12}
+                        tickLine={false}
+                        axisLine={false}
+                      />
+                      <YAxis
+                        fontSize={12}
+                        tickLine={false}
+                        axisLine={false}
+                        tickFormatter={(v: number) =>
+                          `${Math.floor(v)}:${String(Math.round((v % 1) * 60)).padStart(2, "0")}`
+                        }
+                      />
+                      <Tooltip
+                        formatter={(value) => {
+                          const v = Number(value);
+                          return [
+                            `${Math.floor(v)}:${String(Math.round((v % 1) * 60)).padStart(2, "0")}`,
+                            "Temps",
+                          ];
+                        }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="minutes"
+                        stroke="#0f929a"
+                        strokeWidth={2}
+                        dot={{ fill: "#0f929a", r: 4 }}
+                        activeDot={{ r: 6 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </Box>
+              </Card.Body>
+            </Card.Root>
+          )}
+
+          {/* Participations detail table */}
           {runner.participations && runner.participations.length > 0 && (
             <Card.Root
               shadow="sm"
@@ -195,33 +300,134 @@ export default function CoureurPage({
                   fontWeight="semibold"
                   mb="4"
                 >
-                  Participations ({runner.participations.length})
+                  Détail des tours ({runner.participations.length})
                 </Text>
-                <VStack align="stretch" gap="2">
-                  {runner.participations.map((partId, i) => (
+
+                {/* Desktop table */}
+                <Box display={{ base: "none", md: "block" }}>
+                  <Table.Root size="sm">
+                    <Table.Header>
+                      <Table.Row bg="bg.subtle">
+                        <Table.ColumnHeader px="3" py="2">
+                          #
+                        </Table.ColumnHeader>
+                        <Table.ColumnHeader px="3" py="2">
+                          Début du run
+                        </Table.ColumnHeader>
+                        <Table.ColumnHeader px="3" py="2">
+                          Arrivée
+                        </Table.ColumnHeader>
+                        <Table.ColumnHeader px="3" py="2">
+                          Temps
+                        </Table.ColumnHeader>
+                        <Table.ColumnHeader px="3" py="2">
+                          Statut
+                        </Table.ColumnHeader>
+                      </Table.Row>
+                    </Table.Header>
+                    <Table.Body>
+                      {runner.participations.map((p, i) => (
+                        <Table.Row key={p.id}>
+                          <Table.Cell
+                            px="3"
+                            py="2"
+                            fontWeight="bold"
+                            fontSize="sm"
+                          >
+                            {i + 1}
+                          </Table.Cell>
+                          <Table.Cell px="3" py="2" fontSize="sm">
+                            {p.runStartDate
+                              ? new Date(p.runStartDate).toLocaleString(
+                                  "fr-FR",
+                                  {
+                                    dateStyle: "short",
+                                    timeStyle: "short",
+                                  },
+                                )
+                              : "-"}
+                          </Table.Cell>
+                          <Table.Cell px="3" py="2" fontSize="sm">
+                            {p.arrivalTime
+                              ? new Date(p.arrivalTime).toLocaleString(
+                                  "fr-FR",
+                                  { timeStyle: "short" },
+                                )
+                              : "-"}
+                          </Table.Cell>
+                          <Table.Cell
+                            px="3"
+                            py="2"
+                            fontFamily="mono"
+                            fontSize="sm"
+                          >
+                            {formatTime(p.totalTime)}
+                          </Table.Cell>
+                          <Table.Cell px="3" py="2">
+                            {p.status === "FINISHED" ? (
+                              <Badge colorPalette="green" size="sm">
+                                Terminé
+                              </Badge>
+                            ) : (
+                              <Badge colorPalette="orange" size="sm">
+                                En cours
+                              </Badge>
+                            )}
+                          </Table.Cell>
+                        </Table.Row>
+                      ))}
+                    </Table.Body>
+                  </Table.Root>
+                </Box>
+
+                {/* Mobile cards */}
+                <VStack
+                  align="stretch"
+                  gap="2"
+                  display={{ base: "flex", md: "none" }}
+                >
+                  {runner.participations.map((p, i) => (
                     <HStack
-                      key={partId}
+                      key={p.id}
                       px="4"
                       py="3"
                       rounded="md"
                       bg="bg.subtle"
                       justify="space-between"
+                      flexWrap="wrap"
+                      gap="2"
                     >
-                      <HStack gap="3">
-                        <Box
-                          w="3"
-                          h="3"
-                          rounded="full"
-                          bg="primary.500"
-                          flexShrink={0}
-                        />
-                        <Text fontSize="sm" fontWeight="medium">
+                      <VStack align="flex-start" gap="0">
+                        <Text fontSize="sm" fontWeight="semibold">
                           Tour {i + 1}
                         </Text>
+                        <Text fontSize="xs" color="fg.muted">
+                          {p.runStartDate
+                            ? new Date(p.runStartDate).toLocaleString("fr-FR", {
+                                dateStyle: "short",
+                                timeStyle: "short",
+                              })
+                            : "-"}
+                        </Text>
+                      </VStack>
+                      <HStack gap="3">
+                        <Text
+                          fontFamily="mono"
+                          fontSize="sm"
+                          fontWeight="medium"
+                        >
+                          {formatTime(p.totalTime)}
+                        </Text>
+                        {p.status === "FINISHED" ? (
+                          <Badge colorPalette="green" size="sm">
+                            Terminé
+                          </Badge>
+                        ) : (
+                          <Badge colorPalette="orange" size="sm">
+                            En cours
+                          </Badge>
+                        )}
                       </HStack>
-                      <Text fontSize="xs" color="fg.muted" fontFamily="mono">
-                        #{partId}
-                      </Text>
                     </HStack>
                   ))}
                 </VStack>
