@@ -17,6 +17,7 @@ import {
   IconButton,
   createListCollection,
 } from "@chakra-ui/react";
+import Link from "next/link";
 import { LuPencil, LuTrash2, LuX } from "react-icons/lu";
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
@@ -283,14 +284,27 @@ export default function ParticipationsPage() {
     {
       key: "user",
       header: "Coureur",
-      render: (row) => (
-        <Text>
-          {row.user
-            ? `${row.user.firstName ?? ""} ${row.user.lastName ?? ""}`.trim() ||
-              `#${row.user.id}`
-            : "-"}
-        </Text>
-      ),
+      render: (row) => {
+        const name = row.user
+          ? `${row.user.firstName ?? ""} ${row.user.lastName ?? ""}`.trim() ||
+            `#${row.user.id}`
+          : "-";
+        if (row.user?.id) {
+          return (
+            <Link href={`/admin/users/${row.user.id}`}>
+              <Text
+                fontWeight="medium"
+                color="primary.fg"
+                _hover={{ textDecoration: "underline" }}
+                cursor="pointer"
+              >
+                {name}
+              </Text>
+            </Link>
+          );
+        }
+        return <Text>{name}</Text>;
+      },
       width: "160px",
       sortField: "user.lastName",
     },

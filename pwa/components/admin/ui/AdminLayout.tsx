@@ -94,10 +94,13 @@ function Sidebar({ me }: { me: Me }) {
       borderColor="card.border"
       shadow="md"
       w="260px"
-      minH="100vh"
+      h="100vh"
+      position="sticky"
+      top={0}
       py="5"
       px="3"
       flexShrink={0}
+      overflowY="auto"
     >
       <Box px="3" mb="6">
         <Text fontWeight="bold" fontSize="lg" color="primary.fg">

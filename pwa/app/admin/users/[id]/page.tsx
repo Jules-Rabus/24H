@@ -498,7 +498,8 @@ export default function UserDetailPage({
                 loadingText="Envoi…"
                 onClick={() => fileInputRef.current?.click()}
               >
-                <LuCamera /> Changer l'image
+                <LuCamera />{" "}
+                {user.image ? "Changer l'image" : "Ajouter une image"}
               </Button>
             </VStack>
           </HStack>

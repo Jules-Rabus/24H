@@ -11,6 +11,7 @@ export default defineConfig({
     exclude: ["node_modules/**", "node_modulese/**", "e2e/**", ".next/**"],
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
     alias: {
+      "@/components": path.resolve(__dirname, "./components"),
       "@": path.resolve(__dirname, "./src"),
       "~": path.resolve(__dirname, "./"),
     },
