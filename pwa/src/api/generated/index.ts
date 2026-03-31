@@ -224,11 +224,9 @@ export type {
   UserCreateUser,
   UserCreateUserMultipart,
   UserMultipart,
-  UserMultipartWritable,
   UserRef,
   UserRefMultipart,
   UserUpdateUserJsonMergePatch,
   UserUserCollection,
   UserUserCollectionMultipart,
-  UserWritable,
 } from "./types.gen";

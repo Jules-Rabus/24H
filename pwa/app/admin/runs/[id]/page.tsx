@@ -344,6 +344,7 @@ export default function RunDetailPage({
           icon={LuUsers}
           color="stat.blue"
           loading={runLoading}
+          index={0}
         />
         <StatCard
           label="En cours"
@@ -351,6 +352,7 @@ export default function RunDetailPage({
           icon={LuPlay}
           color="stat.orange"
           loading={runLoading}
+          index={1}
         />
         <StatCard
           label="Termines"
@@ -358,6 +360,7 @@ export default function RunDetailPage({
           icon={LuCircleCheck}
           color="stat.green"
           loading={runLoading}
+          index={2}
         />
       </SimpleGrid>
 

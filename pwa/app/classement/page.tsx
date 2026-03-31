@@ -91,6 +91,7 @@ export default function ClassementPage() {
               icon={LuTrophy}
               color="primary.500"
               loading={isLoading}
+              index={0}
             />
             <StatCard
               label="Tours effectues"
@@ -98,6 +99,7 @@ export default function ClassementPage() {
               icon={LuTimer}
               color="stat.blue"
               loading={isLoading}
+              index={1}
             />
             <StatCard
               label="Km parcourus"
@@ -105,6 +107,7 @@ export default function ClassementPage() {
               icon={LuMapPin}
               color="stat.green"
               loading={isLoading}
+              index={2}
             />
           </SimpleGrid>
 

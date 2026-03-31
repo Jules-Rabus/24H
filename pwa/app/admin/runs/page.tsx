@@ -487,6 +487,7 @@ export default function AdminRunsPage() {
           icon={LuTimer}
           color="primary.500"
           loading={isLoading}
+          index={0}
         />
         <StatCard
           label="Participants total"
@@ -494,6 +495,7 @@ export default function AdminRunsPage() {
           icon={LuUsers}
           color="stat.blue"
           loading={isLoading}
+          index={1}
         />
         <StatCard
           label="En cours"
@@ -501,6 +503,7 @@ export default function AdminRunsPage() {
           icon={LuPlay}
           color="stat.orange"
           loading={isLoading}
+          index={2}
         />
         <StatCard
           label="Terminés"
@@ -508,6 +511,7 @@ export default function AdminRunsPage() {
           icon={LuCircleCheck}
           color="stat.green"
           loading={isLoading}
+          index={3}
         />
       </SimpleGrid>
 

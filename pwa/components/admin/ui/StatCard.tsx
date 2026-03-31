@@ -1,7 +1,10 @@
 "use client";
 
 import { Box, Card, HStack, Skeleton, Text } from "@chakra-ui/react";
+import { motion } from "framer-motion";
 import type { ComponentType } from "react";
+
+const MotionCard = motion.create(Card.Root);
 
 interface StatCardProps {
   label: string;
@@ -10,6 +13,7 @@ interface StatCardProps {
   color?: string;
   trend?: number;
   loading?: boolean;
+  index?: number;
 }
 
 export function StatCard({
@@ -19,13 +23,17 @@ export function StatCard({
   color = "primary.500",
   trend,
   loading,
+  index = 0,
 }: StatCardProps) {
   return (
-    <Card.Root
+    <MotionCard
       shadow="sm"
       borderWidth="1px"
       borderColor="card.border"
       bg="card.bg"
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: index * 0.05 }}
     >
       <Card.Body p="5">
         <HStack justify="space-between" align="start" mb="3">
@@ -66,6 +74,6 @@ export function StatCard({
           </Text>
         )}
       </Card.Body>
-    </Card.Root>
+    </MotionCard>
   );
 }

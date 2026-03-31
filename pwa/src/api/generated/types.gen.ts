@@ -249,7 +249,6 @@ export type User = {
   updatedAt?: string | null;
   finishedParticipations?: Array<string | null>;
   finishedParticipationsCount?: number;
-  readonly userIdentifier?: string;
 };
 
 export type UserCreateUser = {
@@ -292,6 +291,9 @@ export type UserUserCollection = {
   image?: string | null;
   participations?: Array<string | null>;
   finishedParticipationsCount?: number;
+  totalTime?: number | null;
+  bestTime?: number | null;
+  averageTime?: number | null;
 };
 
 export type UserUserCollectionMultipart = {
@@ -304,6 +306,9 @@ export type UserUserCollectionMultipart = {
   image?: string | null;
   participations?: Array<string | null>;
   finishedParticipationsCount?: number;
+  totalTime?: number | null;
+  bestTime?: number | null;
+  averageTime?: number | null;
 };
 
 export type UserMultipart = {
@@ -320,7 +325,6 @@ export type UserMultipart = {
   updatedAt?: string | null;
   finishedParticipations?: Array<string | null>;
   finishedParticipationsCount?: number;
-  readonly userIdentifier?: string;
 };
 
 export type UserRef = {
@@ -385,38 +389,6 @@ export type ConstraintViolationWritable = {
  */
 export type ErrorWritable = {
   status?: number | null;
-};
-
-export type UserWritable = {
-  id?: number | null;
-  firstName?: string;
-  lastName?: string;
-  surname?: string | null;
-  email?: string | null;
-  roles?: Array<string | null>;
-  organization?: string | null;
-  participations?: Array<string | null>;
-  image?: string | null;
-  createdAt?: string | null;
-  updatedAt?: string | null;
-  finishedParticipations?: Array<string | null>;
-  finishedParticipationsCount?: number;
-};
-
-export type UserMultipartWritable = {
-  id?: number | null;
-  firstName?: string;
-  lastName?: string;
-  surname?: string | null;
-  email?: string | null;
-  roles?: Array<string | null>;
-  organization?: string | null;
-  participations?: Array<string | null>;
-  image?: string | null;
-  createdAt?: string | null;
-  updatedAt?: string | null;
-  finishedParticipations?: Array<string | null>;
-  finishedParticipationsCount?: number;
 };
 
 export type PostForgotPasswordData = {
@@ -1297,7 +1269,7 @@ export type LogoutData = {
   /**
    * The new User resource
    */
-  body: UserWritable;
+  body: User;
   path?: never;
   query?: never;
   url: "/logout";

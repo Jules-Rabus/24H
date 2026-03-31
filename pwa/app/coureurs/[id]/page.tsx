@@ -153,24 +153,28 @@ export default function CoureurPage({
               value={finishedRuns}
               icon={LuTrophy}
               color="stat.green"
+              index={0}
             />
             <StatCard
               label="Distance"
               value={`${distance} km`}
               icon={LuMapPin}
               color="stat.blue"
+              index={1}
             />
             <StatCard
               label="Meilleur temps"
               value={formatTime(runner.bestTime)}
               icon={LuTimer}
               color="stat.orange"
+              index={2}
             />
             <StatCard
               label="Allure moyenne"
               value={formatTime(runner.averageTime)}
               icon={LuGauge}
               color="primary.500"
+              index={3}
             />
           </SimpleGrid>
 

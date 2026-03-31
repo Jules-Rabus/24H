@@ -13,7 +13,7 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "generate-api": "openapi-ts",
+    "generate-api": "OPENAPI_INPUT=http://php/docs.jsonopenapi openapi-ts",
     "prepare": "cd .. && (husky pwa/.husky || true)"
   },
   "dependencies": {

@@ -52,12 +52,14 @@ pwa/
 │   ├── scanner/                  # Scanner QR code + saisie manuelle dossard
 │   ├── upload/page.tsx           # Upload photo par les participants
 │   ├── gallery/page.tsx          # Galerie des médias
+│   ├── classement/page.tsx       # Classement public (mobile-first)
+│   ├── coureurs/[id]/page.tsx    # Profil coureur public (stats, timeline, dossard)
 │   ├── admin/                    # Admin moderne Chakra UI (remplace legacy/admin)
 │   │   ├── layout.tsx            # Layout admin (sidebar, auth check)
-│   │   ├── users/                # CRUD utilisateurs + PDF dossard
-│   │   ├── participations/       # CRUD participations
-│   │   ├── runs/                 # CRUD runs
-│   │   └── medias/               # CRUD médias
+│   │   ├── users/                # CRUD utilisateurs + PDF dossard (liste + [id] détail)
+│   │   ├── participations/       # CRUD participations (filtres debounced, create dialog)
+│   │   ├── runs/                 # CRUD runs + [id] détail + batch generator
+│   │   └── medias/               # CRUD médias (lightbox, filtre par commentaire)
 │   ├── legacy/                   # Pages Tailwind+DaisyUI (Admin React-Admin, Display, Résultats)
 │   │   ├── admin/                # React-Admin (API Platform)
 │   │   ├── display/index.tsx     # Affichage temps réel (useEffect + SSE Mercure)
@@ -71,8 +73,16 @@ pwa/
 │   │   ├── provider.tsx          # ChakraProvider wrapper
 │   │   ├── toaster.tsx           # Toaster global (createToaster)
 │   │   └── color-mode.tsx        # ColorModeProvider
+│   ├── admin/ui/
+│   │   ├── AdminLayout.tsx       # Sidebar + auth guard (react-icons, theme switcher)
+│   │   ├── DataTable.tsx         # Table générique (tri, pagination, sélection, skeletons)
+│   │   ├── StatCard.tsx          # Card de statistique réutilisable (icône, label, value)
+│   │   └── ConfirmDialog.tsx     # Dialog de confirmation (suppression)
 │   ├── classement/
-│   │   └── BibDownloadButton.tsx # Bouton PDF dossard QR code (bwip-js)
+│   │   ├── BibDownloadButton.tsx # PDF dossard individuel (QR code bwip-js)
+│   │   └── BulkBibDownloadButton.tsx # PDF dossards en masse (sélection DataTable)
+│   ├── public/
+│   │   └── PublicNav.tsx         # Header navigation partagé pages publiques
 │   ├── entities/
 │   │   └── users.tsx             # Composants entité User (liste, show, PDF)
 │   └── utils/
@@ -228,14 +238,9 @@ es.onmessage = (e) => {
 L'API doit être démarrée (`docker compose up`) avant de générer :
 
 ```bash
-# 1. Exporter le schéma depuis le container Symfony
-docker compose exec php bin/console api:openapi:export > /tmp/openapi.json
-docker compose cp php:/tmp/openapi.json pwa/openapi.json
-
-# 2. Générer le SDK
-cd pwa
-pnpm run generate-api
-# → génère src/api/generated/ depuis openapi.json local
+# Depuis le container PWA (récupère l'OpenAPI spec en live depuis le container PHP)
+docker compose exec pwa pnpm run generate-api
+# → génère src/api/generated/ depuis http://php/docs.jsonopenapi
 ```
 
 > **Règle** : ne jamais éditer `src/api/generated/` à la main — toujours régénérer depuis l'OpenAPI Symfony.
@@ -272,7 +277,7 @@ import { qrcode } from "@bwip-js/browser";
 qrcode(canvas, {
   bcid: "qrcode",
   text: JSON.stringify({ originId: user.id }),
-  scale: 7,
+  scale: 8,
 });
 ```
 
@@ -337,17 +342,17 @@ Le job `pwa-quality` dans `.github/workflows/ci.yml` exécute dans l'ordre :
 
 **Scripts disponibles dans `package.json`** :
 
-| Script         | Commande                                    |
-| -------------- | ------------------------------------------- |
-| `type:check`   | `tsc --noEmit`                              |
-| `lint`         | `eslint .`                                  |
-| `lint:fix`     | `eslint . --fix`                            |
-| `format`       | `prettier --write .`                        |
-| `format:check` | `prettier --check .`                        |
-| `test`         | `vitest run`                                |
-| `test:watch`   | `vitest`                                    |
-| `build`        | `next build`                                |
-| `generate-api` | génère le SDK hey-api depuis `openapi.json` |
+| Script         | Commande                                                   |
+| -------------- | ---------------------------------------------------------- |
+| `type:check`   | `tsc --noEmit`                                             |
+| `lint`         | `eslint .`                                                 |
+| `lint:fix`     | `eslint . --fix`                                           |
+| `format`       | `prettier --write .`                                       |
+| `format:check` | `prettier --check .`                                       |
+| `test`         | `vitest run`                                               |
+| `test:watch`   | `vitest`                                                   |
+| `build`        | `next build`                                               |
+| `generate-api` | génère le SDK hey-api depuis `http://php/docs.jsonopenapi` |
 
 ### Husky pre-commit
 
@@ -405,3 +410,19 @@ Déjà installé dans le projet à la migration. TanStack Form v1 s'intègre bie
 ### Pourquoi le SDK généré est commis dans le repo
 
 Pour que les builds CI/CD et les autres développeurs n'aient pas besoin de l'API en live pour compiler. Régénérer manuellement après chaque changement du schéma API.
+
+### Pages publiques (classement, coureurs)
+
+Les pages `/classement` et `/coureurs/[id]` utilisent l'endpoint public `/users/public` (pas d'auth requise). Navigation partagée via `PublicNav`. Ranking calculé côté client (tri par `finishedParticipationsCount` desc, puis `totalTime` asc). Les stats (totalTime, bestTime, averageTime) sont enrichies côté API via des transformers ObjectMapper.
+
+### DataTable v2 : sélection et actions en masse
+
+`DataTable` supporte `selectable` + `selectedKeys` + `onSelectionChange` pour la sélection de lignes avec checkbox. Utilisé pour la génération en masse de dossards PDF (`BulkBibDownloadButton`). La checkbox header supporte l'état `indeterminate`.
+
+### Debounced filters
+
+Tous les filtres admin utilisent `useDebounce(search, 300)` — pas de bouton "Rechercher". Les inputs mettent à jour le state local, le state debounced déclenche la re-fetch via TanStack Query. Pattern : `search` state → `useDebounce` → `filters` object → `useQuery(filters)`.
+
+### Theme switcher (3 modes)
+
+Le sidebar admin utilise `ThemeSwitcher` (3 boutons light/dark/system) via `next-themes` `useTheme()`. Wrappé dans `ClientOnly` pour éviter l'hydration mismatch. Remplace l'ancien toggle 2 états.
