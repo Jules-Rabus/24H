@@ -121,9 +121,9 @@ export default function UploadPage() {
               <Button
                 variant="outline"
                 w="full"
-                onClick={() => router.push("/public-race-status")}
+                onClick={() => router.push("/classement")}
               >
-                Tableau de bord
+                Voir le classement
               </Button>
               <Button
                 variant="ghost"
