@@ -5,6 +5,7 @@ export const publicParticipationSchema = z.object({
   runId: z.number().nullish(),
   runStartDate: z.string().nullish(),
   runEndDate: z.string().nullish(),
+  runEdition: z.number().nullish(),
   arrivalTime: z.string().nullish(),
   totalTime: z.number().nullish(),
   status: z.string(),

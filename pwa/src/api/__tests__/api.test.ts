@@ -15,7 +15,7 @@ describe("SDK generated client", () => {
   it("uploadRaceMedia retourne le media créé", async () => {
     const file = new File(["dummy content"], "test.png", { type: "image/png" });
     const { data } = await apiRaceMediasPost({ body: { file } });
-    expect((data as any).id).toBe(1);
+    expect((data as any).id).toBe(99);
     expect((data as any).filePath).toBe("test.png");
   });
 });

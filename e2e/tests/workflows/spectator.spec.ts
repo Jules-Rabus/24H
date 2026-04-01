@@ -59,7 +59,7 @@ test.describe("Workflow Spectateur", () => {
     });
 
     // 3. Remplissage du formulaire d'upload
-    await expect(page.getByText("Partagez l'Action")).toBeVisible();
+    await expect(page.getByText("Partager un moment")).toBeVisible();
     await page.waitForTimeout(2000); // Wait for hydration
 
     // Upload using setInputFiles on the input
@@ -71,11 +71,11 @@ test.describe("Workflow Spectateur", () => {
     });
 
     // 4. Soumission
-    const submitBtn = page.getByRole("button", { name: "Envoyer la photo" });
+    const submitBtn = page.getByRole("button", { name: "Partager maintenant" });
     await expect(submitBtn).toBeEnabled();
     await submitBtn.click();
 
     // 5. Message de succès
-    await expect(page.getByText("Photo envoyée !"), { timeout: 15000 }).toBeVisible();
+    await expect(page.getByText("Média partagé !"), { timeout: 15000 }).toBeVisible();
   });
 });

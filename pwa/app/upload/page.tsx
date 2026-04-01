@@ -5,9 +5,7 @@ import {
   Button,
   Container,
   Heading,
-  Input,
   Textarea,
-  Stack,
   Text,
   VStack,
   HStack,
@@ -15,20 +13,37 @@ import {
   Field,
 } from "@chakra-ui/react";
 import { useForm } from "@tanstack/react-form";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useUploadRaceMediaMutation } from "@/state/media/mutations";
-import { ColorModeButton } from "../../components/ui/color-mode";
 import {
   LuCamera,
   LuCircleCheck,
   LuCircleAlert,
   LuArrowLeft,
+  LuSend,
+  LuX,
 } from "react-icons/lu";
+
+const ALLOWED_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+  "image/heic",
+  "image/heif",
+  "video/mp4",
+  "video/quicktime",
+];
+
+const MAX_SIZE = 50 * 1024 * 1024;
 
 export default function UploadPage() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isVideo, setIsVideo] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const uploadMutation = useUploadRaceMediaMutation();
 
@@ -40,12 +55,8 @@ export default function UploadPage() {
     onSubmit: async ({ value }) => {
       try {
         const formData = new FormData();
-        if (value.file) {
-          formData.append("file", value.file);
-        }
-        if (value.comment) {
-          formData.append("comment", value.comment);
-        }
+        if (value.file) formData.append("file", value.file);
+        if (value.comment) formData.append("comment", value.comment);
         await uploadMutation.mutateAsync(formData);
         setSuccess(true);
       } catch {
@@ -54,9 +65,87 @@ export default function UploadPage() {
     },
   });
 
+  const handleFileSelect = (file: File | undefined) => {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    if (file) {
+      setPreviewUrl(URL.createObjectURL(file));
+      setIsVideo(file.type.startsWith("video/"));
+    } else {
+      setPreviewUrl(null);
+      setIsVideo(false);
+    }
+  };
+
+  const clearFile = () => {
+    form.setFieldValue("file", undefined);
+    handleFileSelect(undefined);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  if (success) {
+    return (
+      <Box bg="bg.canvas" minH="100vh" colorPalette="primary">
+        <Box
+          as="header"
+          bg="bg.panel"
+          borderBottomWidth="1px"
+          borderColor="border.subtle"
+          mb="8"
+        >
+          <Container maxW="container.md" py="4">
+            <Button variant="ghost" size="sm" onClick={() => router.back()}>
+              <LuArrowLeft /> Retour
+            </Button>
+          </Container>
+        </Box>
+        <Container maxW="md" pb="24">
+          <VStack
+            bg="bg.panel"
+            p={{ base: "6", md: "10" }}
+            shadow="lg"
+            borderRadius="2xl"
+            borderWidth="1px"
+            borderColor="border.subtle"
+            gap="6"
+            textAlign="center"
+          >
+            <Icon as={LuCircleCheck} boxSize="16" color="green.500" />
+            <Box>
+              <Text fontWeight="bold" fontSize="xl" mb="2">
+                Média partagé !
+              </Text>
+              <Text color="fg.muted">Merci pour votre contribution.</Text>
+            </Box>
+            <Button w="full" size="lg" onClick={() => router.push("/gallery")}>
+              Voir la galerie
+            </Button>
+            <Button
+              variant="outline"
+              w="full"
+              onClick={() => router.push("/classement")}
+            >
+              Voir le classement
+            </Button>
+            <Button
+              variant="ghost"
+              w="full"
+              onClick={() => {
+                setSuccess(false);
+                setError("");
+                clearFile();
+                form.reset();
+              }}
+            >
+              Partager un autre
+            </Button>
+          </VStack>
+        </Container>
+      </Box>
+    );
+  }
+
   return (
     <Box bg="bg.canvas" minH="100vh" colorPalette="primary">
-      {/* En-tête minimaliste */}
       <Box
         as="header"
         bg="bg.panel"
@@ -69,204 +158,182 @@ export default function UploadPage() {
             <Button variant="ghost" size="sm" onClick={() => router.back()}>
               <LuArrowLeft /> Retour
             </Button>
-            <ColorModeButton />
+            <Heading size="md" fontWeight="bold">
+              Partager un moment
+            </Heading>
+            <Box w="70px" />
           </HStack>
         </Container>
       </Box>
 
       <Container maxW="md" pb="24">
-        <VStack
-          bg="bg.panel"
-          p={{ base: "6", md: "10" }}
-          shadow="lg"
-          borderRadius="2xl"
-          borderWidth="1px"
-          borderColor="border.subtle"
-          gap="8"
-          align="stretch"
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            form.handleSubmit();
+          }}
         >
-          <VStack textAlign="center" gap="2">
-            <Icon as={LuCamera} boxSize="12" color="colorPalette.fg" mb="2" />
-            <Heading
-              size="2xl"
-              fontWeight="black"
-              letterSpacing="tighter"
-              textTransform="uppercase"
-            >
-              Partagez l&apos;Action
-            </Heading>
-            <Text color="fg.muted">
-              Prenez une photo pour la galerie publique du défi 24H !
-            </Text>
-          </VStack>
+          <VStack gap="6" align="stretch">
+            {/* Hidden file input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*,video/*"
+              capture="environment"
+              style={{ display: "none" }}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  form.setFieldValue("file", file);
+                  handleFileSelect(file);
+                }
+              }}
+            />
 
-          {success ? (
-            <VStack textAlign="center" py="10" gap="6">
-              <Icon as={LuCircleCheck} boxSize="16" color="green.500" />
-              <Box>
-                <Text fontWeight="bold" fontSize="xl" mb="2">
-                  Photo envoyée !
-                </Text>
-                <Text color="fg.muted">
-                  Merci pour votre contribution à l&apos;événement.
-                </Text>
-              </Box>
-              <Button
-                w="full"
-                size="lg"
-                onClick={() => router.push("/gallery")}
-              >
-                Voir la galerie
-              </Button>
-              <Button
-                variant="outline"
-                w="full"
-                onClick={() => router.push("/classement")}
-              >
-                Voir le classement
-              </Button>
-              <Button
-                variant="ghost"
-                w="full"
-                onClick={() => {
-                  setSuccess(false);
-                  form.reset();
-                }}
-              >
-                Envoyer une autre photo
-              </Button>
-            </VStack>
-          ) : (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                form.handleSubmit();
+            {/* Preview zone */}
+            <form.Field
+              name="file"
+              validators={{
+                onChange: ({ value }) => {
+                  if (!value) return undefined;
+                  if (!ALLOWED_TYPES.includes(value.type))
+                    return "Format non supporté";
+                  if (value.size > MAX_SIZE)
+                    return "Fichier trop lourd (max 50 Mo)";
+                  return undefined;
+                },
               }}
             >
-              <Stack gap="6">
-                <form.Field
-                  name="file"
-                  validators={{
-                    onChange: ({ value }) => {
-                      if (!value) return "Photo requise";
-                      const allowed = [
-                        "image/jpeg",
-                        "image/png",
-                        "image/gif",
-                        "image/webp",
-                        "image/heic",
-                        "image/heif",
-                      ];
-                      if (!allowed.includes(value?.type ?? ""))
-                        return "Format non supporté (JPEG, PNG, GIF, WebP, HEIC)";
-                      return undefined;
-                    },
-                  }}
-                >
-                  {(field) => (
-                    <Field.Root invalid={!!field.state.meta.errors?.length}>
-                      <Field.Label
-                        fontWeight="bold"
-                        fontSize="sm"
-                        textTransform="uppercase"
-                        letterSpacing="wider"
-                      >
-                        Votre photo
-                      </Field.Label>
-                      <Input
-                        type="file"
-                        accept="image/jpeg,image/png,image/gif,image/webp,image/heic,image/heif"
-                        capture="environment"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) field.handleChange(file);
+              {(field) => (
+                <Field.Root invalid={!!field.state.meta.errors?.length}>
+                  {previewUrl ? (
+                    <Box
+                      position="relative"
+                      w="100%"
+                      aspectRatio="1"
+                      rounded="xl"
+                      overflow="hidden"
+                      bg="black"
+                      cursor="pointer"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      {isVideo ? (
+                        <video
+                          src={previewUrl}
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                          }}
+                        />
+                      ) : (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={previewUrl}
+                          alt="Preview"
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                          }}
+                        />
+                      )}
+                      <Button
+                        position="absolute"
+                        top="2"
+                        right="2"
+                        size="sm"
+                        rounded="full"
+                        colorPalette="red"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          clearFile();
                         }}
-                        p="1"
-                        h="auto"
-                        bg="bg.canvas"
-                        borderStyle="dashed"
-                        borderWidth="2px"
-                        _hover={{ borderColor: "colorPalette.fg" }}
-                      />
-                      <Field.HelperText fontSize="xs">
-                        Formats acceptés : JPEG, PNG, GIF, WebP, HEIC.
-                      </Field.HelperText>
-                      <Field.ErrorText>
-                        {field.state.meta.errors?.join(", ")}
-                      </Field.ErrorText>
-                    </Field.Root>
-                  )}
-                </form.Field>
-
-                <form.Field name="comment">
-                  {(field) => (
-                    <Field.Root>
-                      <Field.Label
-                        fontWeight="bold"
-                        fontSize="sm"
-                        textTransform="uppercase"
-                        letterSpacing="wider"
                       >
-                        Commentaire{" "}
-                        <Text
-                          as="span"
-                          color="fg.subtle"
-                          fontWeight="normal"
-                          textTransform="none"
-                        >
-                          (optionnel)
-                        </Text>
-                      </Field.Label>
-                      <Textarea
-                        placeholder="Décrivez ce moment..."
-                        value={field.state.value}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        rows={3}
-                        resize="none"
-                        bg="bg.canvas"
-                      />
-                    </Field.Root>
+                        <LuX />
+                      </Button>
+                    </Box>
+                  ) : (
+                    <Box
+                      w="100%"
+                      aspectRatio="1"
+                      rounded="xl"
+                      border="2px dashed"
+                      borderColor="primary.300"
+                      bg="primary.50"
+                      _dark={{ bg: "primary.950", borderColor: "primary.700" }}
+                      display="flex"
+                      flexDirection="column"
+                      alignItems="center"
+                      justifyContent="center"
+                      gap="3"
+                      cursor="pointer"
+                      _hover={{ borderColor: "primary.500" }}
+                      transition="all 0.15s"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <Icon as={LuCamera} boxSize="12" color="primary.400" />
+                      <Text fontWeight="bold" fontSize="sm" color="primary.fg">
+                        Ajouter une photo ou vidéo
+                      </Text>
+                    </Box>
                   )}
-                </form.Field>
+                  <Field.ErrorText>
+                    {field.state.meta.errors?.join(", ")}
+                  </Field.ErrorText>
+                </Field.Root>
+              )}
+            </form.Field>
 
-                {error && (
-                  <HStack
-                    color="red.500"
-                    gap="2"
-                    justify="center"
-                    p="3"
-                    bg="red.50"
-                    rounded="md"
-                    borderWidth="1px"
-                    borderColor="red.100"
-                  >
-                    <Icon as={LuCircleAlert} />
-                    <Text fontSize="sm" fontWeight="medium">
-                      {error}
-                    </Text>
-                  </HStack>
-                )}
+            {/* Comment */}
+            <form.Field name="comment">
+              {(field) => (
+                <Textarea
+                  placeholder="Décrivez ce moment..."
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  rows={3}
+                  resize="none"
+                />
+              )}
+            </form.Field>
 
-                <Button
-                  mt="4"
-                  type="submit"
-                  size="lg"
-                  w="full"
-                  fontWeight="black"
-                  textTransform="uppercase"
-                  letterSpacing="widest"
-                  loading={uploadMutation.isPending}
-                  disabled={!form.state.canSubmit}
-                >
-                  {uploadMutation.isPending
-                    ? "Envoi en cours..."
-                    : "Envoyer la photo"}
-                </Button>
-              </Stack>
-            </form>
-          )}
-        </VStack>
+            <Text textAlign="center" fontSize="xs" color="fg.subtle">
+              📷 JPEG · PNG · HEIC · 🎥 MP4 · MOV · max 50 Mo
+            </Text>
+
+            {error && (
+              <HStack
+                color="red.500"
+                gap="2"
+                justify="center"
+                p="3"
+                bg="red.50"
+                rounded="md"
+                borderWidth="1px"
+                borderColor="red.100"
+              >
+                <Icon as={LuCircleAlert} />
+                <Text fontSize="sm" fontWeight="medium">
+                  {error}
+                </Text>
+              </HStack>
+            )}
+
+            <Button
+              type="submit"
+              size="lg"
+              w="full"
+              fontWeight="bold"
+              colorPalette="primary"
+              loading={uploadMutation.isPending}
+              disabled={!form.state.values.file}
+            >
+              <LuSend /> Partager maintenant
+            </Button>
+          </VStack>
+        </form>
       </Container>
     </Box>
   );

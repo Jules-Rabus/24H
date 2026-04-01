@@ -48,6 +48,8 @@ final class RunApi
 
     public \DateTimeInterface $endDate;
 
+    public ?int $edition = null;
+
     /** @var list<int> */
     #[Map(transform: ParticipationCollectionTransformer::class)]
     public array $participations = [];
