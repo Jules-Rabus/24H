@@ -2,8 +2,12 @@ services:
   php:
     image: ${IMAGES_PREFIX:-}app-php
     depends_on:
-      - database
-      - rustfs
+      database:
+        condition: service_healthy
+      rustfs:
+        condition: service_healthy
+      rustfs-init:
+        condition: service_completed_successfully
     restart: unless-stopped
     environment:
       PWA_UPSTREAM: pwa:3000
@@ -90,7 +94,7 @@ services:
       /bin/sh -c "
         mc alias set local http://rustfs:9000 ${RUSTFS_ROOT_USER:-rustfsadmin} ${RUSTFS_ROOT_PASSWORD:-rustfsadmin} &&
         mc mb --ignore-existing local/runner-images &&
-        mc anonymous set download local/runner-images && sleep infinity
+        mc anonymous set download local/runner-images
       "
 
 # Mercure is installed as a Caddy module, prevent the Flex recipe from installing another service
