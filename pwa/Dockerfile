@@ -47,15 +47,19 @@ ENV NODE_ENV=production
 # Delete the following line in case you want to enable telemetry during runtime.
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Create system user for running the app
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 --ingroup nodejs nextjs
+
 # Set the correct permission for prerender cache
-RUN mkdir .next;
+RUN mkdir .next && chown nextjs:nodejs .next
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=builder --link --chown=1001:1001 /srv/app/.next/standalone ./
-COPY --from=builder --link --chown=1001:1001 /srv/app/.next/static ./.next/static
-COPY --from=builder --link --chown=1001:1001 /srv/app/public ./public
-COPY --from=builder --link --chown=1001:1001 /srv/app/docker-entrypoint.sh ./
+COPY --from=builder --link --chown=nextjs:nodejs /srv/app/.next/standalone ./
+COPY --from=builder --link --chown=nextjs:nodejs /srv/app/.next/static ./.next/static
+COPY --from=builder --link --chown=nextjs:nodejs /srv/app/public ./public
+COPY --from=builder --link --chown=nextjs:nodejs /srv/app/docker-entrypoint.sh ./
 
 RUN chmod +x docker-entrypoint.sh
 
@@ -63,6 +67,8 @@ EXPOSE 3000
 
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
+
+USER nextjs
 
 ENTRYPOINT ["./docker-entrypoint.sh"]
 CMD ["node", "server.js"]

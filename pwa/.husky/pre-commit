@@ -1,5 +1,22 @@
-# Run lint-staged (format + lint on staged files only)
-docker compose exec -T pwa npx lint-staged
+#!/bin/sh
 
-# Run full type check (cannot be scoped to staged files)
-docker compose exec -T pwa npm run type:check
+# Pre-commit hook: runs lint-staged + type:check inside Docker
+# Falls back gracefully if Docker is not available
+
+# Only check staged files in pwa/
+STAGED_PWA=$(git diff --cached --name-only --diff-filter=ACM | grep "^pwa/" || true)
+if [ -z "$STAGED_PWA" ]; then
+  exit 0
+fi
+
+# Try Docker-based checks
+if command -v docker >/dev/null 2>&1 && docker compose ps --status running pwa 2>/dev/null | grep -q pwa; then
+  echo "🔍 Running lint-staged in Docker..."
+  docker compose exec -T pwa npx lint-staged --allow-empty || exit 1
+
+  echo "🔍 Running type:check in Docker..."
+  docker compose exec -T pwa pnpm run type:check || exit 1
+else
+  echo "⚠️  Docker/pwa container not running — skipping pre-commit checks"
+  echo "   Run checks manually: docker compose exec pwa pnpm run lint && pnpm run type:check"
+fi
