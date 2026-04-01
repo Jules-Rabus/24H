@@ -112,6 +112,30 @@ class Run
         return $this->participations->filter(fn ($p) => 'FINISHED' === $p->getStatus())->count();
     }
 
+    public function getAverageTime(): ?int
+    {
+        $finished = $this->participations->filter(fn ($p) => 'FINISHED' === $p->getStatus() && null !== $p->getTotalTime());
+        if ($finished->isEmpty()) {
+            return null;
+        }
+        $total = 0;
+        foreach ($finished as $p) {
+            $total += $p->getTotalTime();
+        }
+
+        return (int) round($total / $finished->count());
+    }
+
+    public function getFastestTime(): ?int
+    {
+        $times = $this->participations
+            ->filter(fn ($p) => 'FINISHED' === $p->getStatus() && null !== $p->getTotalTime())
+            ->map(fn ($p) => $p->getTotalTime())
+            ->toArray();
+
+        return $times ? min($times) : null;
+    }
+
     public function isFinished(): bool
     {
         return $this->endDate < new \DateTimeImmutable();

@@ -18,7 +18,10 @@ export function usePublicRunnersQuery(search?: string) {
     queryKey: publicKeys.runners(search ? { search } : undefined),
     queryFn: async () => {
       const { data } = await apiUserspublicGetCollection({
-        query: search ? { firstName: search } : undefined,
+        query: {
+          itemsPerPage: 500,
+          ...(search ? { firstName: search } : undefined),
+        },
       });
       return z.array(publicRunnerSchema).parse(data);
     },

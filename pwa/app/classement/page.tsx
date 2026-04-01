@@ -221,6 +221,7 @@ export default function ClassementPage() {
             borderColor="card.border"
             bg="card.bg"
             display={{ base: "none", md: "block" }}
+            overflow="hidden"
           >
             <Table.Root size="sm">
               <Table.Header>

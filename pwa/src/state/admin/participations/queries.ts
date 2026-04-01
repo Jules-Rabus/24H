@@ -13,6 +13,7 @@ const userRefSchema = z.object({
   firstName: z.string().nullish(),
   lastName: z.string().nullish(),
   surname: z.string().nullish(),
+  image: z.string().nullish(),
 });
 
 const participationSchema = z.object({
@@ -35,7 +36,7 @@ export const adminParticipationKeys = {
 export interface ParticipationFilters {
   "user.firstName"?: string;
   "user.lastName"?: string;
-  "user.surname"?: string;
+  "user.id"?: string;
   "run.id"?: number;
   page?: number;
   itemsPerPage?: number;

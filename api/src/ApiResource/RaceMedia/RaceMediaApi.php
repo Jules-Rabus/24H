@@ -23,6 +23,7 @@ use Symfony\Component\ObjectMapper\Attribute\Map;
     shortName: 'RaceMedia',
     uriTemplate: '/race_medias',
     stateOptions: new Options(entityClass: RaceMedia::class),
+    mercure: true,
     operations: [
         new Get(uriTemplate: '/race_medias/{id}'),
         new GetCollection(

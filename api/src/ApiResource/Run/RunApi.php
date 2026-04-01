@@ -61,6 +61,12 @@ final class RunApi
     #[Map(source: 'finishedParticipantsCount')]
     public int $finishedParticipantsCount = 0;
 
+    #[Map(source: 'averageTime')]
+    public ?int $averageTime = null;
+
+    #[Map(source: 'fastestTime')]
+    public ?int $fastestTime = null;
+
     public ?\DateTimeInterface $createdAt = null;
 
     public ?\DateTimeInterface $updatedAt = null;

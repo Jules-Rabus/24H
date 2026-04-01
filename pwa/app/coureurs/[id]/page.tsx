@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useMemo } from "react";
+import { use, useMemo, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import {
@@ -43,6 +43,10 @@ const BibDownloadButton = dynamic(
   () => import("@/components/classement/BibDownloadButton"),
   { ssr: false },
 );
+const QrCodeDisplay = dynamic(
+  () => import("@/components/classement/QrCodeDisplay"),
+  { ssr: false },
+);
 
 function formatTime(seconds: number | null | undefined): string {
   if (!seconds) return "-";
@@ -68,6 +72,7 @@ export default function CoureurPage({
   const { id } = use(params);
   const userId = Number(id);
   const { data: runner, isLoading } = usePublicRunnerQuery(userId);
+  const [qrOpen, setQrOpen] = useState(false);
 
   // Sort participations by run start date for the chart
   const sortedParticipations = useMemo(() => {
@@ -84,11 +89,12 @@ export default function CoureurPage({
       });
   }, [runner?.participations]);
 
-  // Chart data: pace per run (minutes)
+  // Chart data: pace per run in min/km (4km per tour)
   const chartData = useMemo(() => {
     return sortedParticipations.map((p, i) => ({
       name: `Tour ${i + 1}`,
       minutes: Math.round((p.totalTime / 60) * 100) / 100,
+      minPerKm: Math.round((p.totalTime / 60 / 4) * 100) / 100,
       label: formatTimeMinutes(p.totalTime),
     }));
   }, [sortedParticipations]);
@@ -174,16 +180,25 @@ export default function CoureurPage({
                   </Text>
                 </VStack>
 
-                {runner.id && runner.firstName && runner.lastName && (
-                  <BibDownloadButton
-                    user={{
-                      id: runner.id,
-                      firstName: runner.firstName,
-                      lastName: runner.lastName,
-                      surname: runner.surname,
-                    }}
-                  />
-                )}
+                <VStack gap="2" align="flex-end">
+                  {runner.id && (
+                    <QrCodeDisplay
+                      userId={runner.id}
+                      open={qrOpen}
+                      onOpenChange={setQrOpen}
+                    />
+                  )}
+                  {runner.id && runner.firstName && runner.lastName && (
+                    <BibDownloadButton
+                      user={{
+                        id: runner.id,
+                        firstName: runner.firstName,
+                        lastName: runner.lastName,
+                        surname: runner.surname,
+                      }}
+                    />
+                  )}
+                </VStack>
               </HStack>
             </Card.Body>
           </Card.Root>
@@ -238,7 +253,7 @@ export default function CoureurPage({
                     letterSpacing="wider"
                     fontWeight="semibold"
                   >
-                    Rythme par tour (minutes)
+                    Allure par tour (min/km)
                   </Text>
                 </HStack>
                 <Box h="250px">
@@ -263,14 +278,14 @@ export default function CoureurPage({
                         formatter={(value) => {
                           const v = Number(value);
                           return [
-                            `${Math.floor(v)}:${String(Math.round((v % 1) * 60)).padStart(2, "0")}`,
-                            "Temps",
+                            `${Math.floor(v)}:${String(Math.round((v % 1) * 60)).padStart(2, "0")} min/km`,
+                            "Allure",
                           ];
                         }}
                       />
                       <Line
                         type="monotone"
-                        dataKey="minutes"
+                        dataKey="minPerKm"
                         stroke="#0f929a"
                         strokeWidth={2}
                         dot={{ fill: "#0f929a", r: 4 }}

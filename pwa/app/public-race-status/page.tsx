@@ -24,7 +24,11 @@ import {
   useRunsQuery,
   raceKeys,
 } from "@/state/race/queries";
-import { useAdminRaceMediasQuery } from "@/state/admin/medias/queries";
+import { participationSchema } from "@/state/race/schemas";
+import {
+  useAdminRaceMediasQuery,
+  adminMediaKeys,
+} from "@/state/admin/medias/queries";
 import {
   BarChart,
   Bar,
@@ -157,18 +161,24 @@ export default function PublicRaceStatusPage() {
     return () => clearInterval(t);
   }, []);
 
-  // Mercure
+  // Mercure — participations + medias
   useEffect(() => {
     const hubUrl = process.env.NEXT_PUBLIC_MERCURE_HUB_URL;
-    const entrypoint = process.env.NEXT_PUBLIC_ENTRYPOINT;
-    if (!hubUrl || !entrypoint) return;
+    if (!hubUrl) return;
+    const entrypoint =
+      process.env.NEXT_PUBLIC_ENTRYPOINT || window.location.origin;
     const url = new URL(hubUrl);
     url.searchParams.append("topic", `${entrypoint}/participations/{id}`);
+    url.searchParams.append("topic", `${entrypoint}/race_medias/{id}`);
     const es = new EventSource(url.toString(), { withCredentials: true });
     es.onmessage = (e) => {
       try {
-        const data = JSON.parse(e.data);
-        if (data.status === "FINISHED") {
+        const raw = JSON.parse(e.data);
+
+        // New participation finished — parse through Zod for safety
+        if (raw.status === "FINISHED") {
+          const parsed = participationSchema.safeParse(raw);
+          const data = parsed.success ? parsed.data : raw;
           queryClient.setQueryData(
             raceKeys.participations(),
             (old: unknown) => {
@@ -188,6 +198,13 @@ export default function PublicRaceStatusPage() {
             },
           );
           queryClient.invalidateQueries({ queryKey: raceKeys.runs() });
+        }
+
+        // New race media — invalidate to refetch the gallery
+        if (raw.contentUrl !== undefined) {
+          queryClient.invalidateQueries({
+            queryKey: adminMediaKeys.list(),
+          });
         }
       } catch {}
     };
@@ -904,6 +921,7 @@ export default function PublicRaceStatusPage() {
                 const firstName = p.user?.firstName;
                 const lastName = p.user?.lastName;
                 const surname = p.user?.surname;
+                const userImage = p.user?.image;
                 const displayName =
                   firstName || lastName
                     ? `${firstName ?? ""} ${lastName ?? ""}`.trim()
@@ -940,6 +958,12 @@ export default function PublicRaceStatusPage() {
                         colorPalette={isFirst ? "primary" : "gray"}
                         variant="subtle"
                       >
+                        {userImage && (
+                          <Avatar.Image
+                            src={`${process.env.NEXT_PUBLIC_ENTRYPOINT ?? ""}${userImage}`}
+                            alt={displayName}
+                          />
+                        )}
                         <Avatar.Fallback fontSize="sm">
                           {initials(firstName, lastName) || "?"}
                         </Avatar.Fallback>

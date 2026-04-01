@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useRef, useState } from "react";
+import { use, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -28,7 +28,17 @@ import {
   LuMapPin,
   LuTimer,
   LuGauge,
+  LuActivity,
 } from "react-icons/lu";
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+} from "recharts";
 
 const BibDownloadButton = dynamic(
   () => import("@/components/classement/BibDownloadButton"),
@@ -273,6 +283,23 @@ export default function UserDetailPage({
   const [deleteOpen, setDeleteOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Chart data: pace per participation (finished only, sorted by run date)
+  const chartData = useMemo(() => {
+    const participations = participationsData?.member ?? [];
+    return participations
+      .filter((p) => p.totalTime != null && p.status === "FINISHED")
+      .sort((a, b) => {
+        const da = a.run?.startDate ? new Date(a.run.startDate).getTime() : 0;
+        const db = b.run?.startDate ? new Date(b.run.startDate).getTime() : 0;
+        return da - db;
+      })
+      .map((p, i) => ({
+        name: `Tour ${i + 1}`,
+        minutes: Math.round((p.totalTime! / 60) * 100) / 100,
+        minPerKm: Math.round((p.totalTime! / 60 / 4) * 100) / 100,
+      }));
+  }, [participationsData?.member]);
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -515,6 +542,64 @@ export default function UserDetailPage({
           index={3}
         />
       </SimpleGrid>
+
+      {/* Pace chart */}
+      {chartData.length >= 2 && (
+        <Card.Root variant="outline" shadow="sm" borderColor="border.subtle">
+          <Card.Body p="6">
+            <HStack mb="4" gap="2" align="center">
+              <LuActivity size={16} />
+              <Text
+                fontSize="xs"
+                color="fg.muted"
+                textTransform="uppercase"
+                letterSpacing="wider"
+                fontWeight="semibold"
+              >
+                Rythme par tour (min/km)
+              </Text>
+            </HStack>
+            <Box h="250px">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                  <XAxis
+                    dataKey="name"
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <YAxis
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={(v: number) =>
+                      `${Math.floor(v)}:${String(Math.round((v % 1) * 60)).padStart(2, "0")}`
+                    }
+                  />
+                  <Tooltip
+                    formatter={(value) => {
+                      const v = Number(value);
+                      return [
+                        `${Math.floor(v)}:${String(Math.round((v % 1) * 60)).padStart(2, "0")} min/km`,
+                        "Allure",
+                      ];
+                    }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="minPerKm"
+                    stroke="#0f929a"
+                    strokeWidth={2}
+                    dot={{ fill: "#0f929a", r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </Box>
+          </Card.Body>
+        </Card.Root>
+      )}
 
       {/* Image section */}
       <Card.Root variant="outline" shadow="sm" borderColor="border.subtle">

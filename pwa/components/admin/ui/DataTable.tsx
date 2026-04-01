@@ -341,7 +341,8 @@ export function DataTable<T>({
         <HStack justify="space-between" mt="4" px="1" flexWrap="wrap" gap="2">
           <HStack gap="3">
             <Text fontSize="sm" color="fg.muted">
-              {totalItems} résultat{totalItems !== 1 ? "s" : ""}
+              {data.length} résultat{data.length !== 1 ? "s" : ""}
+              {page > 1 && ` (page ${page})`}
             </Text>
             {selectable && selectedKeys && selectedKeys.size > 0 && (
               <Text fontSize="sm" color="primary.fg" fontWeight="medium">
@@ -379,7 +380,7 @@ export function DataTable<T>({
               </Select.Root>
             )}
 
-            {onPageChange && totalPages > 1 && (
+            {onPageChange && (page > 1 || data.length >= itemsPerPage) && (
               <HStack gap="2">
                 <Button
                   size="sm"
@@ -387,24 +388,24 @@ export function DataTable<T>({
                   disabled={page <= 1}
                   onClick={() => onPageChange(page - 1)}
                 >
-                  <LuChevronLeft />
+                  <LuChevronLeft /> Précédent
                 </Button>
                 <Text
                   fontSize="sm"
                   color="fg.muted"
                   fontVariantNumeric="tabular-nums"
-                  minW="80px"
+                  minW="50px"
                   textAlign="center"
                 >
-                  {page} / {totalPages}
+                  Page {page}
                 </Text>
                 <Button
                   size="sm"
                   variant="outline"
-                  disabled={page >= totalPages}
+                  disabled={data.length < itemsPerPage}
                   onClick={() => onPageChange(page + 1)}
                 >
-                  <LuChevronRight />
+                  Suivant <LuChevronRight />
                 </Button>
               </HStack>
             )}

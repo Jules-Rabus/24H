@@ -28,6 +28,8 @@ import {
   LuPlay,
   LuCircleCheck,
   LuCalendarPlus,
+  LuGauge,
+  LuZap,
 } from "react-icons/lu";
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
@@ -41,6 +43,19 @@ import {
 import { DataTable, type Column } from "@/components/admin/ui/DataTable";
 import { ConfirmDialog } from "@/components/admin/ui/ConfirmDialog";
 import { StatCard } from "@/components/admin/ui/StatCard";
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function formatTime(seconds: number | null | undefined): string {
+  if (!seconds) return "-";
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  if (h > 0) return `${h}h ${m.toString().padStart(2, "0")}m`;
+  return `${m}m ${s.toString().padStart(2, "0")}s`;
+}
 
 // ---------------------------------------------------------------------------
 // RunForm — TanStack Form + Zod
@@ -350,6 +365,22 @@ export default function AdminRunsPage() {
   const totalFinished =
     runs?.reduce((s, r) => s + (r.finishedParticipantsCount ?? 0), 0) ?? 0;
 
+  // Global average / fastest across all runs
+  const allAverageTimes = (runs ?? [])
+    .map((r) => r.averageTime)
+    .filter((t): t is number => t != null);
+  const globalAverageTime =
+    allAverageTimes.length > 0
+      ? Math.round(
+          allAverageTimes.reduce((a, b) => a + b, 0) / allAverageTimes.length,
+        )
+      : null;
+  const allFastestTimes = (runs ?? [])
+    .map((r) => r.fastestTime)
+    .filter((t): t is number => t != null);
+  const globalFastestTime =
+    allFastestTimes.length > 0 ? Math.min(...allFastestTimes) : null;
+
   // Column definitions
   const columns: Column<AdminRun>[] = [
     {
@@ -411,6 +442,26 @@ export default function AdminRunsPage() {
         <Badge colorPalette="green">{r.finishedParticipantsCount ?? 0}</Badge>
       ),
       width: "100px",
+    },
+    {
+      key: "averageTime",
+      header: "Temps moy.",
+      render: (r) => (
+        <Text fontFamily="mono" fontSize="sm">
+          {formatTime(r.averageTime)}
+        </Text>
+      ),
+      width: "120px",
+    },
+    {
+      key: "fastestTime",
+      header: "Plus rapide",
+      render: (r) => (
+        <Text fontFamily="mono" fontSize="sm" color="stat.green">
+          {formatTime(r.fastestTime)}
+        </Text>
+      ),
+      width: "120px",
     },
     {
       key: "actions",
@@ -493,7 +544,7 @@ export default function AdminRunsPage() {
       </HStack>
 
       {/* Stats cards */}
-      <SimpleGrid columns={{ base: 1, sm: 2, lg: 4 }} gap="4">
+      <SimpleGrid columns={{ base: 2, sm: 3, lg: 6 }} gap="4">
         <StatCard
           label="Total runs"
           value={totalRuns}
@@ -503,7 +554,7 @@ export default function AdminRunsPage() {
           index={0}
         />
         <StatCard
-          label="Participants total"
+          label="Participants"
           value={totalParticipants}
           icon={LuUsers}
           color="stat.blue"
@@ -525,6 +576,22 @@ export default function AdminRunsPage() {
           color="stat.green"
           loading={isLoading}
           index={3}
+        />
+        <StatCard
+          label="Temps moyen"
+          value={formatTime(globalAverageTime)}
+          icon={LuGauge}
+          color="stat.orange"
+          loading={isLoading}
+          index={4}
+        />
+        <StatCard
+          label="Plus rapide"
+          value={formatTime(globalFastestTime)}
+          icon={LuZap}
+          color="stat.green"
+          loading={isLoading}
+          index={5}
         />
       </SimpleGrid>
 

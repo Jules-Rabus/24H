@@ -9,6 +9,8 @@ const runSchema = z.object({
   participantsCount: z.number().optional(),
   inProgressParticipantsCount: z.number().optional(),
   finishedParticipantsCount: z.number().optional(),
+  averageTime: z.number().nullish(),
+  fastestTime: z.number().nullish(),
   createdAt: z.string().optional(),
   updatedAt: z.string().optional(),
 });

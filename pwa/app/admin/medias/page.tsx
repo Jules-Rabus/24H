@@ -4,6 +4,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import {
   Box,
   Button,
+  Card,
   Dialog,
   Field,
   Grid,
@@ -17,6 +18,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import {
+  LuCalendar,
   LuCamera,
   LuChevronLeft,
   LuChevronRight,
@@ -25,6 +27,7 @@ import {
   LuTrash2,
   LuX,
 } from "react-icons/lu";
+import { motion } from "framer-motion";
 import {
   useAdminRaceMediasQuery,
   type AdminRaceMedia,
@@ -221,67 +224,111 @@ export default function AdminMediasPage() {
           gap="4"
         >
           {filteredMedias.map((media, index) => (
-            <Box
+            <motion.div
               key={media.id}
-              position="relative"
-              rounded="lg"
-              overflow="hidden"
-              bg="bg.subtle"
-              aspectRatio={1}
-              cursor="pointer"
-              onClick={() => setLightboxIndex(index)}
-              _hover={{ opacity: 0.85 }}
-              transition="opacity 0.15s"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35, delay: index * 0.03 }}
             >
-              {media.contentUrl && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={media.contentUrl}
-                  alt={`Photo ${media.id}`}
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  onError={(e) => {
-                    e.currentTarget.src = "/placeholder.png";
-                  }}
-                />
-              )}
-
-              {/* Overlay bar */}
-              <Box
-                position="absolute"
-                bottom="0"
-                left="0"
-                right="0"
-                bg="rgba(0,0,0,0.7)"
-                px="2"
-                py="1.5"
+              <Card.Root
+                shadow="sm"
+                borderWidth="1px"
+                borderColor="card.border"
+                bg="card.bg"
+                overflow="hidden"
+                cursor="pointer"
+                onClick={() => setLightboxIndex(index)}
+                transition="all 0.2s"
+                _hover={{ shadow: "lg", transform: "translateY(-2px)" }}
+                role="group"
               >
-                {media.comment && (
-                  <Text fontSize="xs" color="white" truncate mb="0.5">
-                    {media.comment}
-                  </Text>
-                )}
-                <HStack justify="space-between" align="center">
-                  <Text fontSize="xs" color="white">
-                    {media.createdAt
-                      ? new Date(media.createdAt).toLocaleDateString("fr-FR")
-                      : ""}
-                  </Text>
+                {/* Image container */}
+                <Box position="relative" aspectRatio={4 / 3} bg="bg.subtle">
+                  {media.contentUrl && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={media.contentUrl}
+                      alt={`Photo ${media.id}`}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                      onError={(e) => {
+                        e.currentTarget.src = "/placeholder.png";
+                      }}
+                    />
+                  )}
+
+                  {/* Hover overlay with gradient scrim + delete */}
+                  <Box
+                    position="absolute"
+                    inset="0"
+                    bg="linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 50%)"
+                    opacity="0"
+                    transition="opacity 0.2s"
+                    _groupHover={{ opacity: 1 }}
+                    display="flex"
+                    alignItems="flex-start"
+                    justifyContent="flex-end"
+                    p="2"
+                  />
                   <IconButton
                     size="xs"
-                    variant="ghost"
+                    variant="solid"
                     colorPalette="red"
                     aria-label="Supprimer"
-                    color="white"
+                    position="absolute"
+                    top="2"
+                    right="2"
+                    opacity="0"
+                    transition="opacity 0.2s"
+                    _groupHover={{ opacity: 1 }}
                     onClick={(e) => {
                       e.stopPropagation();
                       setDeleteMedia(media);
                     }}
+                    rounded="full"
+                    shadow="md"
                   >
                     <LuTrash2 />
                   </IconButton>
-                </HStack>
-              </Box>
-            </Box>
+                </Box>
+
+                {/* Info below the image */}
+                <Card.Body px="3" py="2.5" gap="1">
+                  {media.comment ? (
+                    <Text
+                      fontSize="sm"
+                      fontWeight="medium"
+                      lineClamp={2}
+                      lineHeight="short"
+                    >
+                      {media.comment}
+                    </Text>
+                  ) : (
+                    <Text fontSize="sm" color="fg.muted" fontStyle="italic">
+                      Sans commentaire
+                    </Text>
+                  )}
+                  <HStack gap="1" color="fg.muted">
+                    <LuCalendar size={12} />
+                    <Text fontSize="xs">
+                      {media.createdAt
+                        ? new Date(media.createdAt).toLocaleDateString(
+                            "fr-FR",
+                            {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            },
+                          )
+                        : ""}
+                    </Text>
+                  </HStack>
+                </Card.Body>
+              </Card.Root>
+            </motion.div>
           ))}
         </Grid>
       )}
@@ -386,26 +433,44 @@ export default function AdminMediasPage() {
                     bottom="0"
                     left="0"
                     right="0"
-                    bg="rgba(0,0,0,0.75)"
-                    px="4"
-                    py="3"
+                    bg="linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 70%, transparent 100%)"
+                    px="5"
+                    pt="10"
+                    pb="4"
                   >
-                    <HStack justify="space-between" align="center">
-                      <VStack align="start" gap="0">
+                    <HStack justify="space-between" align="flex-end">
+                      <VStack align="start" gap="1" flex="1">
                         {lightboxMedia.comment && (
-                          <Text fontSize="sm" color="white">
+                          <Text
+                            fontSize="md"
+                            color="white"
+                            fontWeight="medium"
+                            lineHeight="short"
+                          >
                             {lightboxMedia.comment}
                           </Text>
                         )}
-                        <Text fontSize="xs" color="whiteAlpha.700">
-                          {lightboxMedia.createdAt
-                            ? new Date(
-                                lightboxMedia.createdAt,
-                              ).toLocaleDateString("fr-FR")
-                            : ""}
-                          {lightboxIndex !== null &&
-                            ` -- ${lightboxIndex + 1} / ${filteredMedias.length}`}
-                        </Text>
+                        <HStack gap="2" color="whiteAlpha.700" fontSize="xs">
+                          <HStack gap="1">
+                            <LuCalendar size={12} />
+                            <Text>
+                              {lightboxMedia.createdAt
+                                ? new Date(
+                                    lightboxMedia.createdAt,
+                                  ).toLocaleDateString("fr-FR", {
+                                    day: "numeric",
+                                    month: "long",
+                                    year: "numeric",
+                                  })
+                                : ""}
+                            </Text>
+                          </HStack>
+                          {lightboxIndex !== null && (
+                            <Text>
+                              {lightboxIndex + 1} / {filteredMedias.length}
+                            </Text>
+                          )}
+                        </HStack>
                       </VStack>
                       <IconButton
                         size="sm"
@@ -413,6 +478,7 @@ export default function AdminMediasPage() {
                         colorPalette="red"
                         aria-label="Supprimer"
                         color="white"
+                        _hover={{ bg: "whiteAlpha.200" }}
                         onClick={() => {
                           if (lightboxMedia) {
                             setDeleteMedia(lightboxMedia);

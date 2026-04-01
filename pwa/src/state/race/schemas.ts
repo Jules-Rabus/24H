@@ -18,6 +18,7 @@ export const participationUserSchema = z.object({
   firstName: z.string().nullish(),
   lastName: z.string().nullish(),
   surname: z.string().nullish(),
+  image: z.string().nullish(),
 });
 
 export const participationSchema = z.object({

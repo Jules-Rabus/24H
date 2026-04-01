@@ -213,7 +213,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <Flex minH="100vh" bg="bg.subtle">
       <Sidebar me={me} />
-      <Box flex="1" overflow="auto" as="main" p="6">
+      <Box flex="1" overflow="auto" as="main" p="6" pb="12">
         {children}
       </Box>
     </Flex>

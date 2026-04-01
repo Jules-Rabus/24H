@@ -251,7 +251,7 @@ export default function ParticipationsPage() {
     orderDir: sort.dir,
     "user.firstName": debouncedSearch.firstName || undefined,
     "user.lastName": debouncedSearch.lastName || undefined,
-    "user.surname": debouncedSearch.dossard || undefined,
+    "user.id": debouncedSearch.dossard || undefined,
   };
 
   const [createOpen, setCreateOpen] = useState(false);
