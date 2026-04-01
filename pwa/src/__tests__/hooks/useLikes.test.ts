@@ -15,6 +15,14 @@ describe("useLikes", () => {
     expect(result.current.hasLiked(1)).toBe(false);
   });
 
+  it("hydrates liked ids from localStorage on mount", () => {
+    localStorage.setItem("24h_likes", JSON.stringify([10, 20]));
+    const { result } = renderHook(() => useLikes());
+    expect(result.current.hasLiked(10)).toBe(true);
+    expect(result.current.hasLiked(20)).toBe(true);
+    expect(result.current.hasLiked(99)).toBe(false);
+  });
+
   it("like(id) saves id to localStorage without calling apiClient", async () => {
     const { result } = renderHook(() => useLikes());
     await act(async () => { result.current.like(1); });
