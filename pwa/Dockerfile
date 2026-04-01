@@ -1,5 +1,6 @@
 #syntax=docker/dockerfile:1
 
+
 # Versions
 FROM node:lts AS node_upstream
 
@@ -56,10 +57,10 @@ RUN mkdir .next && chown nextjs:nodejs .next
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=builder --link --chown=nextjs:nodejs /srv/app/.next/standalone ./
-COPY --from=builder --link --chown=nextjs:nodejs /srv/app/.next/static ./.next/static
-COPY --from=builder --link --chown=nextjs:nodejs /srv/app/public ./public
-COPY --from=builder --link --chown=nextjs:nodejs /srv/app/docker-entrypoint.sh ./
+COPY --from=builder --link --chown=1001:1001 /srv/app/.next/standalone ./
+COPY --from=builder --link --chown=1001:1001 /srv/app/.next/static ./.next/static
+COPY --from=builder --link --chown=1001:1001 /srv/app/public ./public
+COPY --from=builder --link --chown=1001:1001 /srv/app/docker-entrypoint.sh ./
 
 RUN chmod +x docker-entrypoint.sh
 
