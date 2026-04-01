@@ -3,7 +3,6 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   output: "standalone",
-  turbopack: {},
   webpack: (config, { dev }) => {
     if (dev) {
       config.watchOptions = {
