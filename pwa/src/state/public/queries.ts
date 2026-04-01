@@ -8,19 +8,19 @@ import { publicRunnerSchema, type PublicRunner } from "./schemas";
 
 export const publicKeys = {
   all: ["public"] as const,
-  runners: (params?: Record<string, string>) =>
+  runners: (params?: Record<string, unknown>) =>
     [...publicKeys.all, "runners", params] as const,
   runner: (id: number) => [...publicKeys.all, "runner", id] as const,
 };
 
-export function usePublicRunnersQuery(search?: string) {
+export function usePublicRunnersQuery(edition?: number) {
   return useQuery({
-    queryKey: publicKeys.runners(search ? { search } : undefined),
+    queryKey: publicKeys.runners(edition ? { edition } : undefined),
     queryFn: async () => {
       const { data } = await apiUserspublicGetCollection({
         query: {
           itemsPerPage: 500,
-          ...(search ? { firstName: search } : undefined),
+          ...(edition ? { edition: String(edition) } : undefined),
         },
       });
       return z.array(publicRunnerSchema).parse(data);

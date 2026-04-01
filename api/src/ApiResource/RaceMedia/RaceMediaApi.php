@@ -16,6 +16,7 @@ use ApiPlatform\OpenApi\Model;
 use App\Dto\RaceMedia\RaceMediaCollection;
 use App\Entity\RaceMedia;
 use App\ObjectMapper\RaceMediaContentUrlTransformer;
+use App\State\RaceMediaLikeProcessor;
 use App\State\RaceMediaProcessor;
 use Symfony\Component\ObjectMapper\Attribute\Map;
 
@@ -65,6 +66,13 @@ use Symfony\Component\ObjectMapper\Attribute\Map;
             uriTemplate: '/race_medias/{id}',
             security: 'is_granted("ROLE_ADMIN")',
         ),
+        new Post(
+            uriTemplate: '/race_medias/{id}/like',
+            processor: RaceMediaLikeProcessor::class,
+            deserialize: false,
+            read: false,
+            name: 'race_media_like',
+        ),
     ],
 )]
 #[Map(source: RaceMedia::class)]
@@ -79,6 +87,10 @@ final class RaceMediaApi
     public ?string $contentUrl = null;
 
     public ?string $comment = null;
+
+    public int $likesCount = 0;
+
+    public ?string $contentType = null;
 
     public ?\DateTimeInterface $createdAt = null;
 }

@@ -32,6 +32,9 @@ class Run
     #[Assert\GreaterThanOrEqual('now')]
     private \DateTimeInterface $endDate;
 
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $edition = null;
+
     /**
      * @var Collection<int, Participation>
      */
@@ -105,6 +108,16 @@ class Run
     public function getInProgressParticipantsCount(): int
     {
         return $this->participations->filter(fn ($p) => 'IN_PROGRESS' === $p->getStatus())->count();
+    }
+
+    public function getEdition(): ?int
+    {
+        return $this->edition;
+    }
+
+    public function setEdition(?int $edition): void
+    {
+        $this->edition = $edition;
     }
 
     public function getFinishedParticipantsCount(): int

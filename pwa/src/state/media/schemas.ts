@@ -6,6 +6,8 @@ export const raceMediaSchema = z.object({
   contentUrl: z.string().nullish(),
   comment: z.string().nullish(),
   createdAt: z.string().nullish(),
+  likesCount: z.number().default(0),
+  contentType: z.string().nullish(),
 });
 
 export type RaceMedia = z.infer<typeof raceMediaSchema>;

@@ -25,6 +25,12 @@ class RaceMedia
     #[ORM\Column(type: 'text', nullable: true)]
     public ?string $comment = null;
 
+    #[ORM\Column(type: 'integer', options: ['default' => 0])]
+    public int $likesCount = 0;
+
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    public ?string $contentType = null;
+
     public function getId(): ?int
     {
         return $this->id;

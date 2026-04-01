@@ -2,7 +2,9 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
+  Avatar,
   Badge,
   Box,
   Button,
@@ -12,17 +14,24 @@ import {
   Input,
   SimpleGrid,
   Skeleton,
-  Table,
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { LuSearch, LuTrophy, LuMapPin, LuTimer } from "react-icons/lu";
+import {
+  LuSearch,
+  LuTrophy,
+  LuMapPin,
+  LuTimer,
+  LuStar,
+  LuChevronRight,
+} from "react-icons/lu";
 import { PublicNav } from "@/components/public/PublicNav";
 import { StatCard } from "@/components/admin/ui/StatCard";
 import {
   usePublicRunnersQuery,
   type PublicRunner,
 } from "@/state/public/queries";
+import { useFavorites } from "@/hooks/useFavorites";
 
 function formatTime(seconds: number | null | undefined): string {
   if (!seconds) return "-";
@@ -33,77 +42,28 @@ function formatTime(seconds: number | null | undefined): string {
   return `${m}m ${s.toString().padStart(2, "0")}s`;
 }
 
-type RankedRunner = PublicRunner & { rank: number };
-
-function RunnerCard({ runner }: { runner: RankedRunner }) {
-  const name =
-    `${runner.firstName ?? ""} ${runner.lastName ?? ""}`.trim() || "-";
-  const tours = runner.finishedParticipationsCount ?? 0;
-
-  return (
-    <Link href={`/coureurs/${runner.id}`} style={{ textDecoration: "none" }}>
-      <HStack
-        px="3"
-        py="3"
-        rounded="md"
-        bg="bg.subtle"
-        _hover={{ bg: "bg.muted" }}
-        transition="background 0.1s"
-        gap="2"
-      >
-        <Text
-          fontWeight="bold"
-          fontSize="lg"
-          w="8"
-          textAlign="center"
-          flexShrink={0}
-        >
-          {runner.rank}
-        </Text>
-        <VStack align="flex-start" gap="0" flex="1" minW="0" overflow="hidden">
-          <Text
-            fontWeight="medium"
-            fontSize="sm"
-            truncate
-            maxW="100%"
-            display="block"
-          >
-            {name}
-          </Text>
-          <HStack gap="1" flexWrap="nowrap" minW="0" maxW="100%">
-            <Text
-              fontSize="xs"
-              color="fg.muted"
-              fontFamily="mono"
-              flexShrink={0}
-            >
-              #{runner.id}
-            </Text>
-            {runner.surname && (
-              <Text fontSize="xs" color="fg.muted" truncate>
-                · {runner.surname}
-              </Text>
-            )}
-          </HStack>
-        </VStack>
-        <VStack align="flex-end" gap="0" flexShrink={0}>
-          <Badge colorPalette="primary" size="sm">
-            {tours} tour{tours !== 1 ? "s" : ""}
-          </Badge>
-          <Text fontSize="xs" color="fg.muted" fontFamily="mono">
-            {formatTime(runner.totalTime)}
-          </Text>
-        </VStack>
-      </HStack>
-    </Link>
-  );
+function formatPace(seconds: number | null | undefined): string {
+  if (!seconds) return "-";
+  const paceMin = seconds / 60 / 4;
+  const m = Math.floor(paceMin);
+  const s = Math.round((paceMin - m) * 60);
+  return `${m}:${s.toString().padStart(2, "0")}/km`;
 }
 
-export default function ClassementPage() {
-  const [search, setSearch] = useState("");
-  const { data: runners, isLoading } = usePublicRunnersQuery();
+const RANK_MEDALS = ["🥇", "🥈", "🥉"] as const;
 
-  // Client-side ranking: finishedParticipationsCount desc, then totalTime asc
+type RankedRunner = PublicRunner & { rank: number };
+
+export default function ClassementPage() {
+  const searchParams = useSearchParams();
+  const edition = Number(searchParams.get("edition")) || 2026;
+
+  const [search, setSearch] = useState("");
+  const [showFavorites, setShowFavorites] = useState(false);
+  const { data: runners, isLoading } = usePublicRunnersQuery(edition);
+  const { data: prevRunners } = usePublicRunnersQuery(edition - 1);
+  const { favorites, toggle, isFavorite } = useFavorites();
+
   const ranked = useMemo(() => {
     if (!runners) return [];
     return [...runners]
@@ -116,29 +76,38 @@ export default function ClassementPage() {
       .map((r, i) => ({ ...r, rank: i + 1 }));
   }, [runners]);
 
-  // Client-side search filter
   const filtered = useMemo(() => {
-    if (!search.trim()) return ranked;
+    let list = ranked;
+    if (showFavorites) {
+      list = list.filter((r) => r.id && isFavorite(r.id));
+    }
+    if (!search.trim()) return list;
     const q = search.toLowerCase();
-    return ranked.filter(
+    return list.filter(
       (r) =>
         r.firstName?.toLowerCase().includes(q) ||
         r.lastName?.toLowerCase().includes(q) ||
         r.surname?.toLowerCase().includes(q) ||
         String(r.id).includes(q),
     );
-  }, [ranked, search]);
+  }, [ranked, search, showFavorites, isFavorite]);
 
-  // Global stats
-  const totalKm = ranked.reduce(
-    (s, r) => s + (r.finishedParticipationsCount ?? 0) * 4,
-    0,
-  );
+  const totalRunners = ranked.length;
   const totalRuns = ranked.reduce(
     (s, r) => s + (r.finishedParticipationsCount ?? 0),
     0,
   );
-  const totalRunners = ranked.length;
+  const totalKm = totalRuns * 4;
+
+  const prevTotalRunners = prevRunners?.length ?? 0;
+  const prevTotalRuns =
+    prevRunners?.reduce(
+      (s, r) => s + (r.finishedParticipationsCount ?? 0),
+      0,
+    ) ?? 0;
+  const prevTotalKm = prevTotalRuns * 4;
+
+  const favCount = ranked.filter((r) => r.id && isFavorite(r.id)).length;
 
   return (
     <Box minH="100vh" bg="bg.subtle">
@@ -150,7 +119,6 @@ export default function ClassementPage() {
             Classement
           </Heading>
 
-          {/* Global stats */}
           <SimpleGrid columns={{ base: 1, sm: 3 }} gap="4">
             <StatCard
               label="Coureurs"
@@ -161,7 +129,7 @@ export default function ClassementPage() {
               index={0}
             />
             <StatCard
-              label="Tours effectués"
+              label="Tours"
               value={totalRuns}
               icon={LuTimer}
               color="stat.blue"
@@ -169,7 +137,7 @@ export default function ClassementPage() {
               index={1}
             />
             <StatCard
-              label="Km parcourus"
+              label="Distance"
               value={`${totalKm} km`}
               icon={LuMapPin}
               color="stat.green"
@@ -178,7 +146,26 @@ export default function ClassementPage() {
             />
           </SimpleGrid>
 
-          {/* Search */}
+          {prevRunners && prevRunners.length > 0 && (
+            <HStack gap="2" fontSize="xs" color="fg.muted" flexWrap="wrap">
+              <Text>vs {edition - 1} :</Text>
+              <Text color="green.500" fontWeight="semibold">
+                {totalRunners - prevTotalRunners >= 0 ? "+" : ""}
+                {totalRunners - prevTotalRunners} coureurs
+              </Text>
+              <Text color="fg.subtle">·</Text>
+              <Text color="green.500" fontWeight="semibold">
+                {totalRuns - prevTotalRuns >= 0 ? "+" : ""}
+                {totalRuns - prevTotalRuns} tours
+              </Text>
+              <Text color="fg.subtle">·</Text>
+              <Text color="green.500" fontWeight="semibold">
+                {totalKm - prevTotalKm >= 0 ? "+" : ""}
+                {totalKm - prevTotalKm} km
+              </Text>
+            </HStack>
+          )}
+
           <HStack gap="3">
             <Box position="relative" flex="1">
               <Input
@@ -200,17 +187,41 @@ export default function ClassementPage() {
             </Box>
           </HStack>
 
-          {/* Mobile: cards */}
+          <HStack bg="bg" rounded="md" p="1" gap="1">
+            <Button
+              flex="1"
+              size="sm"
+              variant={!showFavorites ? "solid" : "ghost"}
+              colorPalette={!showFavorites ? "primary" : undefined}
+              onClick={() => setShowFavorites(false)}
+            >
+              Tous
+            </Button>
+            <Button
+              flex="1"
+              size="sm"
+              variant={showFavorites ? "solid" : "ghost"}
+              colorPalette={showFavorites ? "primary" : undefined}
+              onClick={() => setShowFavorites(true)}
+            >
+              <LuStar /> Mes favoris
+              {favCount > 0 && (
+                <Badge colorPalette="gray" size="sm" ml="1" variant="subtle">
+                  {favCount}
+                </Badge>
+              )}
+            </Button>
+          </HStack>
+
           <Card.Root
             shadow="sm"
             borderWidth="1px"
             borderColor="card.border"
             bg="card.bg"
-            display={{ base: "block", md: "none" }}
           >
-            <Card.Body p="3">
+            <Card.Body p="0">
               {isLoading ? (
-                <VStack gap="2">
+                <VStack gap="0" p="3">
                   {Array.from({ length: 8 }).map((_, i) => (
                     <Skeleton key={i} height="14" width="100%" rounded="md" />
                   ))}
@@ -220,147 +231,113 @@ export default function ClassementPage() {
                   <Text color="fg.muted">Aucun coureur trouvé</Text>
                 </Box>
               ) : (
-                <VStack gap="1" align="stretch">
+                <VStack gap="0" align="stretch">
                   {filtered.map((r) => (
-                    <RunnerCard key={r.id} runner={r} />
+                    <RunnerRow
+                      key={r.id}
+                      runner={r}
+                      isFav={!!r.id && isFavorite(r.id)}
+                      onToggleFav={() => r.id && toggle(r.id)}
+                    />
                   ))}
                 </VStack>
               )}
             </Card.Body>
           </Card.Root>
-
-          {/* Desktop: table */}
-          <Card.Root
-            shadow="sm"
-            borderWidth="1px"
-            borderColor="card.border"
-            bg="card.bg"
-            display={{ base: "none", md: "block" }}
-            overflow="hidden"
-          >
-            <Table.Root size="sm">
-              <Table.Header>
-                <Table.Row bg="bg.subtle">
-                  <Table.ColumnHeader px="4" py="3" w="60px">
-                    #
-                  </Table.ColumnHeader>
-                  <Table.ColumnHeader px="4" py="3">
-                    Coureur
-                  </Table.ColumnHeader>
-                  <Table.ColumnHeader px="4" py="3" w="80px">
-                    Dossard
-                  </Table.ColumnHeader>
-                  <Table.ColumnHeader px="4" py="3" w="100px">
-                    Tours
-                  </Table.ColumnHeader>
-                  <Table.ColumnHeader px="4" py="3" w="100px">
-                    Distance
-                  </Table.ColumnHeader>
-                  <Table.ColumnHeader px="4" py="3" w="120px">
-                    Temps total
-                  </Table.ColumnHeader>
-                </Table.Row>
-              </Table.Header>
-              <Table.Body>
-                {isLoading ? (
-                  Array.from({ length: 8 }).map((_, i) => (
-                    <Table.Row key={i}>
-                      {Array.from({ length: 6 }).map((_, j) => (
-                        <Table.Cell key={j} px="4" py="3">
-                          <Skeleton height="4" width={`${50 + j * 10}%`} />
-                        </Table.Cell>
-                      ))}
-                    </Table.Row>
-                  ))
-                ) : filtered.length === 0 ? (
-                  <Table.Row>
-                    <Table.Cell colSpan={6} textAlign="center" py="8">
-                      <Text color="fg.muted">Aucun coureur trouvé</Text>
-                    </Table.Cell>
-                  </Table.Row>
-                ) : (
-                  filtered.map((r) => {
-                    const name =
-                      `${r.firstName ?? ""} ${r.lastName ?? ""}`.trim() || "-";
-                    const tours = r.finishedParticipationsCount ?? 0;
-                    return (
-                      <Table.Row
-                        key={r.id}
-                        _hover={{ bg: "bg.subtle" }}
-                        transition="background 0.1s"
-                      >
-                        <Table.Cell px="4" py="3" fontWeight="bold">
-                          {r.rank}
-                        </Table.Cell>
-                        <Table.Cell px="4" py="3">
-                          <Link
-                            href={`/coureurs/${r.id}`}
-                            style={{ textDecoration: "none" }}
-                          >
-                            <Text
-                              fontWeight="medium"
-                              color="primary.fg"
-                              _hover={{ textDecoration: "underline" }}
-                              fontSize="sm"
-                            >
-                              {name}
-                              {r.surname && (
-                                <Text
-                                  as="span"
-                                  color="fg.muted"
-                                  fontWeight="normal"
-                                  ml="1"
-                                >
-                                  ({r.surname})
-                                </Text>
-                              )}
-                            </Text>
-                          </Link>
-                          {r.organization && (
-                            <Text fontSize="xs" color="fg.muted">
-                              {r.organization}
-                            </Text>
-                          )}
-                        </Table.Cell>
-                        <Table.Cell
-                          px="4"
-                          py="3"
-                          fontFamily="mono"
-                          fontSize="sm"
-                        >
-                          #{r.id}
-                        </Table.Cell>
-                        <Table.Cell
-                          px="4"
-                          py="3"
-                          fontVariantNumeric="tabular-nums"
-                        >
-                          {tours}
-                        </Table.Cell>
-                        <Table.Cell
-                          px="4"
-                          py="3"
-                          fontVariantNumeric="tabular-nums"
-                        >
-                          {tours * 4} km
-                        </Table.Cell>
-                        <Table.Cell
-                          px="4"
-                          py="3"
-                          fontFamily="mono"
-                          fontSize="sm"
-                        >
-                          {formatTime(r.totalTime)}
-                        </Table.Cell>
-                      </Table.Row>
-                    );
-                  })
-                )}
-              </Table.Body>
-            </Table.Root>
-          </Card.Root>
         </VStack>
       </Box>
     </Box>
+  );
+}
+
+function RunnerRow({
+  runner,
+  isFav,
+  onToggleFav,
+}: {
+  runner: RankedRunner;
+  isFav: boolean;
+  onToggleFav: () => void;
+}) {
+  const name =
+    `${runner.firstName ?? ""} ${runner.lastName ?? ""}`.trim() || "-";
+  const tours = runner.finishedParticipationsCount ?? 0;
+  const km = tours * 4;
+  const initials =
+    (runner.firstName?.charAt(0) ?? "") + (runner.lastName?.charAt(0) ?? "");
+  const medal = runner.rank <= 3 ? RANK_MEDALS[runner.rank - 1] : undefined;
+
+  return (
+    <Link href={`/coureurs/${runner.id}`} style={{ textDecoration: "none" }}>
+      <HStack
+        px="3"
+        py="3"
+        gap="2"
+        borderBottom="1px solid"
+        borderColor="border.subtle"
+        _hover={{ bg: "bg.muted" }}
+        transition="background 0.1s"
+        cursor="pointer"
+      >
+        <Text
+          fontWeight="bold"
+          fontSize={medal ? "lg" : "sm"}
+          w="7"
+          textAlign="center"
+          flexShrink={0}
+          color={medal ? undefined : "fg.muted"}
+        >
+          {medal ?? runner.rank}
+        </Text>
+
+        <Avatar.Root size="sm" colorPalette="primary" flexShrink={0}>
+          {runner.image ? (
+            <Avatar.Image src={runner.image} alt={initials} />
+          ) : null}
+          <Avatar.Fallback>{initials}</Avatar.Fallback>
+        </Avatar.Root>
+
+        <VStack align="flex-start" gap="0" flex="1" minW="0">
+          <Text fontWeight="medium" fontSize="sm" truncate>
+            {name}
+          </Text>
+          <HStack gap="1" fontSize="xs" color="fg.muted">
+            <Text fontFamily="mono">#{runner.id}</Text>
+            {runner.organization && (
+              <Text truncate>· {runner.organization}</Text>
+            )}
+          </HStack>
+        </VStack>
+
+        <VStack align="flex-end" gap="0" flexShrink={0}>
+          <Badge colorPalette="primary" size="sm">
+            {tours} tour{tours !== 1 ? "s" : ""}
+          </Badge>
+          <HStack gap="2" fontSize="xs" color="fg.muted" fontFamily="mono">
+            <Text>{km} km</Text>
+            <Text>{formatPace(runner.averageTime)}</Text>
+          </HStack>
+        </VStack>
+
+        <Button
+          variant="ghost"
+          size="xs"
+          aria-label="Toggle favori"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onToggleFav();
+          }}
+          color={isFav ? "yellow.500" : "fg.subtle"}
+          flexShrink={0}
+        >
+          <LuStar fill={isFav ? "currentColor" : "none"} />
+        </Button>
+
+        <Box color={isFav ? "primary.fg" : "fg.subtle"} flexShrink={0}>
+          <LuChevronRight size={16} />
+        </Box>
+      </HStack>
+    </Link>
   );
 }
