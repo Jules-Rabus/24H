@@ -260,6 +260,14 @@ function formatTime(seconds: number | null | undefined): string {
   return `${m}m ${s.toString().padStart(2, "0")}s`;
 }
 
+function formatPace(seconds: number | null | undefined): string {
+  if (!seconds) return "-";
+  const paceMin = seconds / 60 / 4; // min/km (4km per tour)
+  const m = Math.floor(paceMin);
+  const s = Math.round((paceMin - m) * 60);
+  return `${m}:${s.toString().padStart(2, "0")}`;
+}
+
 // ---------------------------------------------------------------------------
 // UserDetailPage
 // ---------------------------------------------------------------------------
@@ -405,6 +413,16 @@ export default function UserDetailPage({
         </Text>
       ),
       width: "120px",
+    },
+    {
+      key: "pace",
+      header: "Allure (min/km)",
+      render: (row) => (
+        <Text fontFamily="mono" fontSize="sm">
+          {formatPace(row.totalTime)} /km
+        </Text>
+      ),
+      width: "130px",
     },
     {
       key: "status",

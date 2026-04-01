@@ -64,6 +64,14 @@ function formatTimeMinutes(seconds: number | null | undefined): string {
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
+function formatPace(seconds: number | null | undefined): string {
+  if (!seconds) return "-";
+  const paceMin = seconds / 60 / 4; // min/km (4km per tour)
+  const m = Math.floor(paceMin);
+  const s = Math.round((paceMin - m) * 60);
+  return `${m}:${s.toString().padStart(2, "0")}`;
+}
+
 export default function CoureurPage({
   params,
 }: {
@@ -336,6 +344,9 @@ export default function CoureurPage({
                           Temps
                         </Table.ColumnHeader>
                         <Table.ColumnHeader px="3" py="2">
+                          Allure (min/km)
+                        </Table.ColumnHeader>
+                        <Table.ColumnHeader px="3" py="2">
                           Statut
                         </Table.ColumnHeader>
                       </Table.Row>
@@ -377,6 +388,14 @@ export default function CoureurPage({
                             fontSize="sm"
                           >
                             {formatTime(p.totalTime)}
+                          </Table.Cell>
+                          <Table.Cell
+                            px="3"
+                            py="2"
+                            fontFamily="mono"
+                            fontSize="sm"
+                          >
+                            {formatPace(p.totalTime)} /km
                           </Table.Cell>
                           <Table.Cell px="3" py="2">
                             {p.status === "FINISHED" ? (
@@ -425,24 +444,35 @@ export default function CoureurPage({
                             : "-"}
                         </Text>
                       </VStack>
-                      <HStack gap="3">
-                        <Text
-                          fontFamily="mono"
-                          fontSize="sm"
-                          fontWeight="medium"
-                        >
-                          {formatTime(p.totalTime)}
-                        </Text>
-                        {p.status === "FINISHED" ? (
-                          <Badge colorPalette="green" size="sm">
-                            Terminé
-                          </Badge>
-                        ) : (
-                          <Badge colorPalette="orange" size="sm">
-                            En cours
-                          </Badge>
+                      <VStack align="flex-end" gap="0">
+                        <HStack gap="3">
+                          <Text
+                            fontFamily="mono"
+                            fontSize="sm"
+                            fontWeight="medium"
+                          >
+                            {formatTime(p.totalTime)}
+                          </Text>
+                          {p.status === "FINISHED" ? (
+                            <Badge colorPalette="green" size="sm">
+                              Terminé
+                            </Badge>
+                          ) : (
+                            <Badge colorPalette="orange" size="sm">
+                              En cours
+                            </Badge>
+                          )}
+                        </HStack>
+                        {p.totalTime && (
+                          <Text
+                            fontSize="xs"
+                            color="fg.muted"
+                            fontFamily="mono"
+                          >
+                            {formatPace(p.totalTime)} /km
+                          </Text>
                         )}
-                      </HStack>
+                      </VStack>
                     </HStack>
                   ))}
                 </VStack>
