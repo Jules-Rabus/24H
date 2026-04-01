@@ -35,7 +35,7 @@ export function StatCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.05 }}
     >
-      <Card.Body p="5">
+      <Card.Body p={{ base: "4", md: "5" }}>
         <HStack justify="space-between" align="start" mb="3">
           <Text
             fontSize="xs"
@@ -53,10 +53,11 @@ export function StatCard({
 
         <Skeleton loading={loading ?? false} height="8" width="60%">
           <Text
-            fontSize="2xl"
+            fontSize={{ base: "lg", md: "2xl" }}
             fontWeight="extrabold"
             letterSpacing="tight"
             fontVariantNumeric="tabular-nums"
+            lineHeight="tight"
           >
             {value}
           </Text>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { qrcode } from "@bwip-js/browser";
 import {
   Box,
@@ -19,20 +19,29 @@ interface QrCodeDisplayProps {
   onOpenChange: (open: boolean) => void;
 }
 
+function generateQrDataUrl(userId: number): string {
+  const canvas = document.createElement("canvas");
+  qrcode(canvas, {
+    bcid: "qrcode",
+    text: JSON.stringify({ originId: userId }),
+    scale: 10,
+  });
+  return canvas.toDataURL("image/png");
+}
+
 export default function QrCodeDisplay({
   userId,
   open,
   onOpenChange,
 }: QrCodeDisplayProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [qrSrc, setQrSrc] = useState<string | null>(null);
 
   useEffect(() => {
-    if (open && canvasRef.current) {
-      qrcode(canvasRef.current, {
-        bcid: "qrcode",
-        text: JSON.stringify({ originId: userId }),
-        scale: 8,
-      });
+    if (!open) return;
+    try {
+      setQrSrc(generateQrDataUrl(userId));
+    } catch (err) {
+      console.error("QR code generation failed:", err);
     }
   }, [open, userId]);
 
@@ -44,16 +53,16 @@ export default function QrCodeDisplay({
         colorPalette="primary"
         onClick={() => onOpenChange(true)}
       >
-        <LuQrCode /> QR Code
+        <LuQrCode /> Voir mon dossard (QR Code)
       </Button>
 
       <Dialog.Root open={open} onOpenChange={({ open: o }) => onOpenChange(o)}>
         <Portal>
           <Dialog.Backdrop />
           <Dialog.Positioner>
-            <Dialog.Content maxW="sm">
+            <Dialog.Content maxW="md">
               <Dialog.Header>
-                <Dialog.Title>QR Code — Dossard #{userId}</Dialog.Title>
+                <Dialog.Title>Dossard #{userId}</Dialog.Title>
                 <Dialog.CloseTrigger asChild>
                   <IconButton
                     variant="ghost"
@@ -68,16 +77,27 @@ export default function QrCodeDisplay({
                 </Dialog.CloseTrigger>
               </Dialog.Header>
               <Dialog.Body>
-                <VStack gap="4" align="center" py="4">
+                <VStack gap="4" align="center" py="6">
                   <Box
                     bg="white"
-                    p="4"
+                    p="6"
                     rounded="xl"
                     shadow="sm"
                     borderWidth="1px"
                     borderColor="gray.200"
+                    display="flex"
+                    justifyContent="center"
                   >
-                    <canvas ref={canvasRef} />
+                    {qrSrc ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={qrSrc}
+                        alt={`QR Code dossard #${userId}`}
+                        style={{ width: "280px", height: "280px" }}
+                      />
+                    ) : (
+                      <Box w="280px" h="280px" />
+                    )}
                   </Box>
                   <Text fontSize="sm" color="fg.muted" textAlign="center">
                     Scannez ce QR code pour identifier le coureur #{userId}

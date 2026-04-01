@@ -163,18 +163,25 @@ export default function CoureurPage({
             borderColor="card.border"
             bg="card.bg"
           >
-            <Card.Body p="6">
-              <HStack gap="5" align="flex-start" flexWrap="wrap">
-                <Avatar.Root size="xl" colorPalette="primary">
+            <Card.Body p={{ base: "4", md: "6" }}>
+              <HStack gap={{ base: "3", md: "5" }} align="flex-start">
+                <Avatar.Root
+                  size={{ base: "lg", md: "xl" }}
+                  colorPalette="primary"
+                >
                   <Avatar.Fallback>{initials}</Avatar.Fallback>
                 </Avatar.Root>
 
-                <VStack align="flex-start" gap="1" flex="1">
-                  <Heading size="xl" fontWeight="extrabold">
+                <VStack align="flex-start" gap="1" flex="1" minW="0">
+                  <Heading
+                    size={{ base: "lg", md: "xl" }}
+                    fontWeight="extrabold"
+                    truncate
+                  >
                     {fullName}
                   </Heading>
                   {runner.surname && (
-                    <Text color="fg.muted" fontSize="sm">
+                    <Text color="fg.muted" fontSize="sm" truncate>
                       {runner.surname}
                     </Text>
                   )}
@@ -187,32 +194,33 @@ export default function CoureurPage({
                     Dossard #{runner.id}
                   </Text>
                 </VStack>
+              </HStack>
 
-                <VStack gap="2" align="flex-end">
-                  {runner.id && (
-                    <QrCodeDisplay
-                      userId={runner.id}
-                      open={qrOpen}
-                      onOpenChange={setQrOpen}
-                    />
-                  )}
-                  {runner.id && runner.firstName && runner.lastName && (
-                    <BibDownloadButton
-                      user={{
-                        id: runner.id,
-                        firstName: runner.firstName,
-                        lastName: runner.lastName,
-                        surname: runner.surname,
-                      }}
-                    />
-                  )}
-                </VStack>
+              {/* Action buttons — always horizontal */}
+              <HStack gap="2" mt="4" flexWrap="wrap">
+                {runner.id && (
+                  <QrCodeDisplay
+                    userId={runner.id}
+                    open={qrOpen}
+                    onOpenChange={setQrOpen}
+                  />
+                )}
+                {runner.id && runner.firstName && runner.lastName && (
+                  <BibDownloadButton
+                    user={{
+                      id: runner.id,
+                      firstName: runner.firstName,
+                      lastName: runner.lastName,
+                      surname: runner.surname,
+                    }}
+                  />
+                )}
               </HStack>
             </Card.Body>
           </Card.Root>
 
           {/* Stats grid */}
-          <SimpleGrid columns={{ base: 2, md: 4 }} gap="4">
+          <SimpleGrid columns={{ base: 2, sm: 2, md: 4 }} gap={{ base: "3", md: "4" }}>
             <StatCard
               label="Tours terminés"
               value={finishedRuns}
@@ -235,7 +243,7 @@ export default function CoureurPage({
               index={2}
             />
             <StatCard
-              label="Allure moyenne"
+              label="Allure moy."
               value={formatTime(runner.averageTime)}
               icon={LuGauge}
               color="primary.500"
@@ -251,8 +259,8 @@ export default function CoureurPage({
               borderColor="card.border"
               bg="card.bg"
             >
-              <Card.Body p="6">
-                <HStack mb="4" gap="2" align="center">
+              <Card.Body p={{ base: "3", md: "6" }}>
+                <HStack mb="3" gap="2" align="center">
                   <LuActivity size={16} />
                   <Text
                     fontSize="xs"
@@ -264,9 +272,10 @@ export default function CoureurPage({
                     Allure par tour (min/km)
                   </Text>
                 </HStack>
-                <Box h="250px">
+                <Box h="250px" overflowX="auto" overflowY="hidden">
+                  <Box minW={{ base: `${Math.max(chartData.length * 60, 300)}px`, md: "100%" }} h="100%">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={chartData}>
+                    <LineChart data={chartData} margin={{ left: -10, right: 10, top: 5, bottom: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                       <XAxis
                         dataKey="name"
@@ -301,6 +310,7 @@ export default function CoureurPage({
                       />
                     </LineChart>
                   </ResponsiveContainer>
+                  </Box>
                 </Box>
               </Card.Body>
             </Card.Root>
