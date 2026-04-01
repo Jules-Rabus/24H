@@ -178,6 +178,8 @@ export type Run = {
   participantsCount?: number;
   inProgressParticipantsCount?: number;
   finishedParticipantsCount?: number;
+  averageTime?: number | null;
+  fastestTime?: number | null;
   createdAt?: string | null;
   updatedAt?: string | null;
 };
@@ -219,6 +221,8 @@ export type RunMultipart = {
   participantsCount?: number;
   inProgressParticipantsCount?: number;
   finishedParticipantsCount?: number;
+  averageTime?: number | null;
+  fastestTime?: number | null;
   createdAt?: string | null;
   updatedAt?: string | null;
 };
@@ -332,6 +336,7 @@ export type UserRef = {
   firstName?: string | null;
   lastName?: string | null;
   surname?: string | null;
+  image?: string | null;
 };
 
 export type UserRefMultipart = {
@@ -339,6 +344,7 @@ export type UserRefMultipart = {
   firstName?: string | null;
   lastName?: string | null;
   surname?: string | null;
+  image?: string | null;
 };
 
 export type ForgotPasswordReset = {

@@ -52,6 +52,7 @@ export function useAdminParticipationsQuery(
     itemsPerPage = 30,
     orderField = "run.id",
     orderDir = "asc",
+    "user.id": userIdStr,
     ...rest
   } = filters;
   const orderKey = `order[${orderField}]` as `order[${string}]`;
@@ -61,14 +62,22 @@ export function useAdminParticipationsQuery(
     orderField,
     orderDir,
   };
+  if (userIdStr) keyFilters["user.id"] = userIdStr;
   for (const [k, v] of Object.entries(rest)) {
     if (v !== undefined) keyFilters[k] = String(v);
   }
+  const userId = userIdStr ? Number(userIdStr) : undefined;
   return useQuery({
     queryKey: adminParticipationKeys.list(keyFilters),
     queryFn: async () => {
       const { data } = await apiParticipationsGetCollection({
-        query: { page, itemsPerPage, [orderKey]: orderDir, ...rest },
+        query: {
+          page,
+          itemsPerPage,
+          [orderKey]: orderDir,
+          ...rest,
+          ...(userId ? { "user.id": userId } : {}),
+        },
       });
       const member = z.array(participationSchema).parse(data);
       return { member, totalItems: member.length };

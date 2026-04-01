@@ -43,33 +43,48 @@ function RunnerCard({ runner }: { runner: RankedRunner }) {
   return (
     <Link href={`/coureurs/${runner.id}`} style={{ textDecoration: "none" }}>
       <HStack
-        px="4"
+        px="3"
         py="3"
         rounded="md"
         bg="bg.subtle"
         _hover={{ bg: "bg.muted" }}
         transition="background 0.1s"
-        gap="3"
+        gap="2"
       >
-        <Text fontWeight="bold" fontSize="lg" w="8" textAlign="center">
+        <Text
+          fontWeight="bold"
+          fontSize="lg"
+          w="8"
+          textAlign="center"
+          flexShrink={0}
+        >
           {runner.rank}
         </Text>
-        <VStack align="flex-start" gap="0" flex="1" minW="0">
-          <HStack gap="2" flexWrap="wrap">
-            <Text fontWeight="medium" fontSize="sm" truncate>
-              {name}
+        <VStack align="flex-start" gap="0" flex="1" minW="0" overflow="hidden">
+          <Text
+            fontWeight="medium"
+            fontSize="sm"
+            truncate
+            maxW="100%"
+            display="block"
+          >
+            {name}
+          </Text>
+          <HStack gap="1" flexWrap="nowrap" minW="0" maxW="100%">
+            <Text
+              fontSize="xs"
+              color="fg.muted"
+              fontFamily="mono"
+              flexShrink={0}
+            >
+              #{runner.id}
             </Text>
             {runner.surname && (
-              <Text fontSize="xs" color="fg.muted">
-                ({runner.surname})
+              <Text fontSize="xs" color="fg.muted" truncate>
+                · {runner.surname}
               </Text>
             )}
           </HStack>
-          {runner.organization && (
-            <Text fontSize="xs" color="fg.muted" truncate>
-              {runner.organization}
-            </Text>
-          )}
         </VStack>
         <VStack align="flex-end" gap="0" flexShrink={0}>
           <Badge colorPalette="primary" size="sm">
