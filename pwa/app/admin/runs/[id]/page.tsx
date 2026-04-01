@@ -113,7 +113,7 @@ function EditArrivalTimeForm({
           >
             {(field) => (
               <Field.Root required invalid={!!field.state.meta.errors.length}>
-                <Field.Label>Heure d'arrivee</Field.Label>
+                <Field.Label>Heure d&apos;arrivee</Field.Label>
                 <Input
                   type="datetime-local"
                   value={field.state.value}
@@ -459,7 +459,9 @@ export default function RunDetailPage({
           <Dialog.Positioner>
             <Dialog.Content maxW="md">
               <Dialog.Header>
-                <Dialog.Title>Modifier l'heure d'arrivee</Dialog.Title>
+                <Dialog.Title>
+                  Modifier l&apos;heure d&apos;arrivee
+                </Dialog.Title>
                 <Dialog.CloseTrigger asChild>
                   <Button
                     variant="ghost"

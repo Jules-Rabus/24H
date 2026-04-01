@@ -731,7 +731,7 @@ export default function UserDetailPage({
           <Dialog.Positioner>
             <Dialog.Content maxW="md">
               <Dialog.Header>
-                <Dialog.Title>Modifier l'utilisateur</Dialog.Title>
+                <Dialog.Title>Modifier l&apos;utilisateur</Dialog.Title>
                 <Dialog.CloseTrigger asChild>
                   <Button
                     variant="ghost"

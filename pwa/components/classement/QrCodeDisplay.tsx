@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { qrcode } from "@bwip-js/browser";
 import {
   Box,
@@ -34,14 +34,13 @@ export default function QrCodeDisplay({
   open,
   onOpenChange,
 }: QrCodeDisplayProps) {
-  const [qrSrc, setQrSrc] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!open) return;
+  const qrSrc = useMemo(() => {
+    if (!open) return null;
     try {
-      setQrSrc(generateQrDataUrl(userId));
+      return generateQrDataUrl(userId);
     } catch (err) {
       console.error("QR code generation failed:", err);
+      return null;
     }
   }, [open, userId]);
 

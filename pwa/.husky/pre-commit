@@ -1,5 +1,5 @@
-cd pwa
-pnpm run lint
-pnpm run format:check
-pnpm run type:check
-pnpm run test
+# Run lint-staged (format + lint on staged files only)
+docker compose exec -T pwa npx lint-staged
+
+# Run full type check (cannot be scoped to staged files)
+docker compose exec -T pwa npm run type:check

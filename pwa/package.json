@@ -84,6 +84,7 @@
     "eslint-config-next": "^16.1.6",
     "eslint-config-prettier": "^10.1.2",
     "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
     "prettier": "^3.5.3",
     "typescript": "^5.8.3"
   },
@@ -92,6 +93,15 @@
     "@popperjs/core": "^2.11.6"
   },
   "packageManager": "pnpm@9.1.3+sha512.7c2ea089e1a6af306409c4fc8c4f0897bdac32b772016196c469d9428f1fe2d5a21daf8ad6512762654ac645b5d9136bb210ec9a00afa8dbc4677843ba362ecd",
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "prettier --write",
+      "eslint"
+    ],
+    "*.{js,mjs,json,css,md}": [
+      "prettier --write"
+    ]
+  },
   "msw": {
     "workerDirectory": [
       "public"

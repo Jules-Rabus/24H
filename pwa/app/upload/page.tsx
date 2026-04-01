@@ -93,7 +93,7 @@ export default function UploadPage() {
               letterSpacing="tighter"
               textTransform="uppercase"
             >
-              Partagez l'Action
+              Partagez l&apos;Action
             </Heading>
             <Text color="fg.muted">
               Prenez une photo pour la galerie publique du défi 24H !
@@ -108,7 +108,7 @@ export default function UploadPage() {
                   Photo envoyée !
                 </Text>
                 <Text color="fg.muted">
-                  Merci pour votre contribution à l'événement.
+                  Merci pour votre contribution à l&apos;événement.
                 </Text>
               </Box>
               <Button

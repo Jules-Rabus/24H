@@ -220,7 +220,10 @@ export default function CoureurPage({
           </Card.Root>
 
           {/* Stats grid */}
-          <SimpleGrid columns={{ base: 2, sm: 2, md: 4 }} gap={{ base: "3", md: "4" }}>
+          <SimpleGrid
+            columns={{ base: 2, sm: 2, md: 4 }}
+            gap={{ base: "3", md: "4" }}
+          >
             <StatCard
               label="Tours terminés"
               value={finishedRuns}
@@ -273,43 +276,52 @@ export default function CoureurPage({
                   </Text>
                 </HStack>
                 <Box h="250px" overflowX="auto" overflowY="hidden">
-                  <Box minW={{ base: `${Math.max(chartData.length * 60, 300)}px`, md: "100%" }} h="100%">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={chartData} margin={{ left: -10, right: 10, top: 5, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                      <XAxis
-                        dataKey="name"
-                        fontSize={12}
-                        tickLine={false}
-                        axisLine={false}
-                      />
-                      <YAxis
-                        fontSize={12}
-                        tickLine={false}
-                        axisLine={false}
-                        tickFormatter={(v: number) =>
-                          `${Math.floor(v)}:${String(Math.round((v % 1) * 60)).padStart(2, "0")}`
-                        }
-                      />
-                      <Tooltip
-                        formatter={(value) => {
-                          const v = Number(value);
-                          return [
-                            `${Math.floor(v)}:${String(Math.round((v % 1) * 60)).padStart(2, "0")} min/km`,
-                            "Allure",
-                          ];
-                        }}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="minPerKm"
-                        stroke="#0f929a"
-                        strokeWidth={2}
-                        dot={{ fill: "#0f929a", r: 4 }}
-                        activeDot={{ r: 6 }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
+                  <Box
+                    minW={{
+                      base: `${Math.max(chartData.length * 60, 300)}px`,
+                      md: "100%",
+                    }}
+                    h="100%"
+                  >
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart
+                        data={chartData}
+                        margin={{ left: -10, right: 10, top: 5, bottom: 5 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                        <XAxis
+                          dataKey="name"
+                          fontSize={12}
+                          tickLine={false}
+                          axisLine={false}
+                        />
+                        <YAxis
+                          fontSize={12}
+                          tickLine={false}
+                          axisLine={false}
+                          tickFormatter={(v: number) =>
+                            `${Math.floor(v)}:${String(Math.round((v % 1) * 60)).padStart(2, "0")}`
+                          }
+                        />
+                        <Tooltip
+                          formatter={(value) => {
+                            const v = Number(value);
+                            return [
+                              `${Math.floor(v)}:${String(Math.round((v % 1) * 60)).padStart(2, "0")} min/km`,
+                              "Allure",
+                            ];
+                          }}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="minPerKm"
+                          stroke="#0f929a"
+                          strokeWidth={2}
+                          dot={{ fill: "#0f929a", r: 4 }}
+                          activeDot={{ r: 6 }}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
                   </Box>
                 </Box>
               </Card.Body>
