@@ -33,3 +33,14 @@ test('upload page shows form', async ({ page }) => {
   await expect(page.locator('input[type="file"]')).toBeVisible();
 });
 
+test('homepage shows Participant and Organisateur buttons', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByText('Participant')).toBeVisible();
+  await expect(page.getByText('Organisateur')).toBeVisible();
+});
+
+test('homepage Participant button navigates to classement', async ({ page }) => {
+  await page.goto('/');
+  await page.getByText('Participant').click();
+  await expect(page).toHaveURL(/\/classement/);
+});

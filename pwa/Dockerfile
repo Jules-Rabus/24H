@@ -6,6 +6,12 @@ FROM node:lts AS node_upstream
 # Base stage for dev and build
 FROM node_upstream AS base
 
+# For local build
+COPY ./ZscalerRootCertificate-2048-SHA256.crt /usr/local/share/ca-certificates/
+RUN set -ex; \
+    apt-get update && apt-get install --yes --no-install-recommends ca-certificates && apt-get clean && rm -rf /var/lib/apt/lists/* && update-ca-certificates
+ENV NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/ZscalerRootCertificate-2048-SHA256.crt
+
 WORKDIR /srv/app
 
 RUN npm install -g corepack@latest && \

@@ -1,4 +1,15 @@
-import { Participation } from "../../app/legacy/resultats";
+interface Run {
+  id: number;
+  startDate: string;
+  endDate: string;
+}
+
+export interface Participation {
+  id: number;
+  arrivalTime: string | null;
+  run: Run;
+  status: string;
+}
 
 type Props = { participation: Participation; index: number };
 

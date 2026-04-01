@@ -41,9 +41,8 @@ test.describe("Workflow Spectateur", () => {
     await expect(page.getByText("DÉFI 24H")).toBeVisible();
     await expect(page.getByText("Jean Dupont")).toBeVisible();
 
-    // 2. Navigation vers la page d'upload via le Hub
-    await page.goto("/");
-    await page.getByRole("link", { name: "Upload photo" }).click();
+    // 2. Navigation directe vers la page d'upload
+    await page.goto("/upload");
     await expect(page).toHaveURL(/\/upload/);
 
     // Mock des requêtes API pour l'upload
