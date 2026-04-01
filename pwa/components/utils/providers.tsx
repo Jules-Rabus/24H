@@ -42,7 +42,7 @@ export const RedirectToLogin = () => {
         }
       })
       .catch(() => setIsAuth(false));
-  }, []);
+  }, [introspect]);
 
   if (isAuth === null) return <></>;
   if (isAuth) return <></>;
