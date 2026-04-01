@@ -13,6 +13,7 @@ const nextConfig: NextConfig = {
     }
     return config;
   },
+  // Transpile required packages for API Platform and React Admin
   transpilePackages: [
     "@api-platform/admin",
     "@api-platform/api-doc-parser",
