@@ -49,6 +49,14 @@ jobs:
       - run: pnpm run format:check
       - run: pnpm run type:check
       - run: pnpm run test
+      - name: Next.js build cache
+        uses: actions/cache@v4
+        with:
+          path: pwa/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('pwa/pnpm-lock.yaml') }}-${{ hashFiles('pwa/**/*.ts', 'pwa/**/*.tsx', 'pwa/**/*.js', 'pwa/**/*.jsx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('pwa/pnpm-lock.yaml') }}-
+            ${{ runner.os }}-nextjs-
       - name: Build
         run: pnpm run build
       - name: Prepare Standalone Artifact
