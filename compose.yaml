@@ -90,7 +90,7 @@ services:
       /bin/sh -c "
         mc alias set local http://rustfs:9000 ${RUSTFS_ROOT_USER:-rustfsadmin} ${RUSTFS_ROOT_PASSWORD:-rustfsadmin} &&
         mc mb --ignore-existing local/runner-images &&
-        mc anonymous set download local/runner-images
+        mc anonymous set download local/runner-images && sleep infinity
       "
 
 # Mercure is installed as a Caddy module, prevent the Flex recipe from installing another service
