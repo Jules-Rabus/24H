@@ -200,15 +200,15 @@ function Sidebar({ me }: { me: Me }) {
             </Link>
           );
         })}
-
-        <Box pt="4" px="3">
-          <Link href="/" style={{ textDecoration: "none" }}>
-            <Text fontSize="xs" color="fg.muted" _hover={{ color: "fg" }}>
-              ← Retour à l&apos;accueil
-            </Text>
-          </Link>
-        </Box>
       </VStack>
+
+      <Box px="6" pb="2">
+        <Link href="/" style={{ textDecoration: "none" }}>
+          <Text fontSize="xs" color="fg.muted" _hover={{ color: "fg" }}>
+            ← Retour à l&apos;accueil
+          </Text>
+        </Link>
+      </Box>
 
       <Separator />
 
