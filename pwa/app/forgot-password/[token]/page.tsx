@@ -24,19 +24,24 @@ import { toaster } from "../../../components/ui/toaster";
 const MotionBox = motion.create(Box);
 
 function extractApiError(err: unknown): string {
-  if (
-    err &&
-    typeof err === "object" &&
-    "response" in err &&
-    err.response &&
-    typeof err.response === "object" &&
-    "data" in err.response &&
-    err.response.data &&
-    typeof err.response.data === "object" &&
-    "detail" in err.response.data &&
-    typeof err.response.data.detail === "string"
-  ) {
-    return err.response.data.detail;
+  if (err && typeof err === "object" && "response" in err) {
+    const response = (err as { response?: unknown }).response;
+    if (response && typeof response === "object" && "data" in response) {
+      const data = (response as { data?: unknown }).data;
+      if (data && typeof data === "object") {
+        // 422 constraint violations — pick plainPassword message first
+        if ("violations" in data && Array.isArray((data as { violations: unknown[] }).violations)) {
+          const violations = (data as { violations: Array<{ propertyPath?: string; message?: string }> }).violations;
+          const pw = violations.find((v) => v.propertyPath === "plainPassword");
+          const msg = pw?.message ?? violations[0]?.message;
+          if (msg) return msg;
+        }
+        // Generic API error detail
+        if ("detail" in data && typeof (data as { detail: unknown }).detail === "string") {
+          return (data as { detail: string }).detail;
+        }
+      }
+    }
   }
   return "Le lien de réinitialisation est invalide ou expiré. Veuillez recommencer.";
 }
