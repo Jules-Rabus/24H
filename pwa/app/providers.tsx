@@ -43,6 +43,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
             staleTime: 60 * 1000,
             retry: (failureCount, error) => {
               if (error instanceof ZodError) return false;
+              const status = (
+                error as { response?: { status?: number } }
+              )?.response?.status;
+              if (status === 401) return false;
               return failureCount < 3;
             },
           },
