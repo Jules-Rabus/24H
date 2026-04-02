@@ -1,22 +1,27 @@
 #!/bin/sh
 
-# Pre-commit hook: runs lint-staged + type:check inside Docker
-# Falls back gracefully if Docker is not available
+# Pre-commit hook: mirrors Frontend CI (lint, format:check, type:check, test)
+# Runs inside Docker if available, skips gracefully otherwise.
 
-# Only check staged files in pwa/
+# Only check if pwa/ files are staged
 STAGED_PWA=$(git diff --cached --name-only --diff-filter=ACM | grep "^pwa/" || true)
 if [ -z "$STAGED_PWA" ]; then
   exit 0
 fi
 
-# Try Docker-based checks
 if command -v docker >/dev/null 2>&1 && docker compose ps --status running pwa 2>/dev/null | grep -q pwa; then
-  echo "🔍 Running lint-staged in Docker..."
+  echo "Running lint-staged..."
   docker compose exec -T pwa npx lint-staged --allow-empty || exit 1
 
-  echo "🔍 Running type:check in Docker..."
+  echo "Running format:check..."
+  docker compose exec -T pwa pnpm run format:check || exit 1
+
+  echo "Running type:check..."
   docker compose exec -T pwa pnpm run type:check || exit 1
+
+  echo "Running tests..."
+  docker compose exec -T pwa pnpm run test || exit 1
 else
-  echo "⚠️  Docker/pwa container not running — skipping pre-commit checks"
-  echo "   Run checks manually: docker compose exec pwa pnpm run lint && pnpm run type:check"
+  echo "Docker/pwa container not running — skipping pre-commit checks"
+  echo "Run manually: docker compose exec pwa pnpm run lint && pnpm run format:check && pnpm run type:check && pnpm run test"
 fi

@@ -31,9 +31,7 @@ async function renderPage() {
 describe("ResetPasswordPage", () => {
   it("affiche le formulaire de réinitialisation", async () => {
     await renderPage();
-    expect(
-      screen.getAllByPlaceholderText("••••••••")[0],
-    ).toBeInTheDocument();
+    expect(screen.getAllByPlaceholderText("••••••••")[0]).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /définir le nouveau mot de passe/i }),
     ).toBeInTheDocument();
