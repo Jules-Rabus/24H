@@ -15,6 +15,8 @@ final class ParticipationPublic
 
     public ?\DateTimeInterface $runEndDate = null;
 
+    public ?int $runEdition = null;
+
     public ?\DateTimeInterface $arrivalTime = null;
 
     public ?int $totalTime = null;

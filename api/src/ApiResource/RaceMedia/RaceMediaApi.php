@@ -33,7 +33,6 @@ use Symfony\Component\ObjectMapper\Attribute\Map;
         ),
         new Post(
             uriTemplate: '/race_medias',
-            security: 'is_granted("ROLE_ADMIN")',
             inputFormats: ['multipart' => ['multipart/form-data']],
             openapi: new Model\Operation(
                 requestBody: new Model\RequestBody(

@@ -29,6 +29,7 @@ final class ParticipationPublicCollectionTransformer implements TransformCallabl
             $dto->runId = $p->getRun()?->getId();
             $dto->runStartDate = $p->getRun()?->getStartDate();
             $dto->runEndDate = $p->getRun()?->getEndDate();
+            $dto->runEdition = $p->getRun()?->getEdition();
             $dto->arrivalTime = $p->getArrivalTime();
             $dto->totalTime = $p->getTotalTime();
             $dto->status = $p->getStatus();

@@ -2,6 +2,7 @@
 
 namespace App\Dto\User;
 
+use ApiPlatform\Metadata\ApiProperty;
 use App\Dto\Participation\ParticipationPublic;
 use App\Entity\User;
 use App\ObjectMapper\AverageTimeTransformer;
@@ -29,7 +30,27 @@ final class UserCollection
     #[Map(transform: UserImageUrlTransformer::class)]
     public ?string $image = null;
 
-    /** @var list<ParticipationPublic> */
+    /**
+     * @var list<ParticipationPublic>
+     */
+    #[ApiProperty(
+        schema: [
+            'type' => 'array',
+            'items' => [
+                'type' => 'object',
+                'properties' => [
+                    'id' => ['type' => 'integer'],
+                    'runId' => ['type' => 'integer', 'nullable' => true],
+                    'runStartDate' => ['type' => 'string', 'format' => 'date-time', 'nullable' => true],
+                    'runEndDate' => ['type' => 'string', 'format' => 'date-time', 'nullable' => true],
+                    'runEdition' => ['type' => 'integer', 'nullable' => true],
+                    'arrivalTime' => ['type' => 'string', 'format' => 'date-time', 'nullable' => true],
+                    'totalTime' => ['type' => 'integer', 'nullable' => true],
+                    'status' => ['type' => 'string'],
+                ],
+            ],
+        ]
+    )]
     #[Map(transform: ParticipationPublicCollectionTransformer::class)]
     public array $participations = [];
 

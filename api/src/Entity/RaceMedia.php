@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Entity\Traits\Timestampable;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 #[Vich\Uploadable]
@@ -16,7 +17,13 @@ class RaceMedia
     #[ORM\Id, ORM\Column, ORM\GeneratedValue]
     private ?int $id = null;
 
-    #[Vich\UploadableField(mapping: 'race_media', fileNameProperty: 'filePath')]
+    #[Assert\File(
+        maxSize: '25M',
+        mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'video/mp4', 'video/quicktime', 'video/webm'],
+        maxSizeMessage: 'Le fichier ne doit pas dépasser 25 Mo.',
+        mimeTypesMessage: 'Format non supporté. Formats acceptés : JPEG, PNG, WebP, GIF, MP4, MOV, WebM.',
+    )]
+    #[Vich\UploadableField(mapping: 'race_media', fileNameProperty: 'filePath', mimeType: 'contentType')]
     public ?File $file = null;
 
     #[ORM\Column(nullable: true)]
