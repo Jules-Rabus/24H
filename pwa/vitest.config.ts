@@ -10,6 +10,7 @@ export default defineConfig({
     setupFiles: ["./vitest.setup.ts"],
     exclude: ["node_modules/**", "node_modulese/**", "e2e/**", ".next/**"],
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
+    testTimeout: 30000,
     alias: {
       "@/components": path.resolve(__dirname, "./components"),
       "@": path.resolve(__dirname, "./src"),

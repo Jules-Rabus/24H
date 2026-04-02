@@ -156,7 +156,7 @@ export default function PublicRaceStatusPage() {
   }, [emblaApi, mediaCount]);
 
   useEffect(() => {
-    setCurrentTime(new Date()); // eslint-disable-line react-hooks/set-state-in-effect
+    setCurrentTime(new Date());
     const t = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(t);
   }, []);

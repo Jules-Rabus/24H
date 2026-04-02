@@ -1,40 +1,29 @@
 #!/bin/sh
 # Pre-commit hook — mirrors Frontend CI and Backend CI static checks.
-# Requires Docker Compose services to be running.
 
 STAGED=$(git diff --cached --name-only --diff-filter=ACM)
 
 STAGED_PWA=$(echo "$STAGED" | grep "^pwa/" || true)
 STAGED_API=$(echo "$STAGED" | grep "^api/" || true)
 
-DOCKER_OK=0
-if command -v docker >/dev/null 2>&1; then
-  DOCKER_OK=1
-fi
-
-# ── Frontend (pwa/) ──────────────────────────────────────────────────────────
+# ── Frontend (pwa/) — runs locally ──────────────────────────────────────────
 if [ -n "$STAGED_PWA" ]; then
-  if [ "$DOCKER_OK" = "1" ] && docker compose ps --status running pwa 2>/dev/null | grep -q pwa; then
-    echo "[pre-commit] pwa: lint..."
-    docker compose exec -T pwa pnpm run lint || exit 1
+  echo "[pre-commit] pwa: lint..."
+  (cd pwa && pnpm run lint) || exit 1
 
-    echo "[pre-commit] pwa: format:check..."
-    docker compose exec -T pwa pnpm run format:check || exit 1
+  echo "[pre-commit] pwa: format:check..."
+  (cd pwa && pnpm run format:check) || exit 1
 
-    echo "[pre-commit] pwa: type:check..."
-    docker compose exec -T pwa pnpm run type:check || exit 1
+  echo "[pre-commit] pwa: type:check..."
+  (cd pwa && pnpm run type:check) || exit 1
 
-    echo "[pre-commit] pwa: test..."
-    docker compose exec -T pwa pnpm run test || exit 1
-  else
-    echo "[pre-commit] pwa container not running — skipping frontend checks"
-    echo "  Start with: docker compose up pwa -d"
-  fi
+  echo "[pre-commit] pwa: test..."
+  (cd pwa && pnpm run test) || exit 1
 fi
 
-# ── Backend (api/) ───────────────────────────────────────────────────────────
+# ── Backend (api/) — runs in Docker ─────────────────────────────────────────
 if [ -n "$STAGED_API" ]; then
-  if [ "$DOCKER_OK" = "1" ] && docker compose ps --status running php 2>/dev/null | grep -q php; then
+  if command -v docker >/dev/null 2>&1 && docker compose ps --status running php 2>/dev/null | grep -q php; then
     echo "[pre-commit] api: php-cs-fixer..."
     docker compose exec -T php vendor/bin/php-cs-fixer check --config=.php-cs-fixer.dist.php || exit 1
 
