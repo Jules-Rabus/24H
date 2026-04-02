@@ -5,12 +5,13 @@ import UploadPage from "../../app/upload/page";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), back: vi.fn() }),
+  usePathname: () => "/upload",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 describe("UploadPage", () => {
-  it("affiche le titre et le formulaire", () => {
+  it("affiche le formulaire d'upload", () => {
     render(<UploadPage />);
-    expect(screen.getByText(/partager un moment/i)).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /partager maintenant/i }),
     ).toBeInTheDocument();

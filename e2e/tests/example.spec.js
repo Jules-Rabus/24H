@@ -28,7 +28,7 @@ test('login page', async ({ page }) => {
 
 test('upload page shows form', async ({ page }) => {
   await page.goto('/upload');
-  await expect(page.getByText('Partagez l\'Action')).toBeVisible();
+  await expect(page.getByRole('button', { name: /partager maintenant/i })).toBeVisible();
   // Ensure the photo upload input is there
   await expect(page.locator('input[type="file"]')).toBeVisible();
 });

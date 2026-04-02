@@ -16,7 +16,6 @@ module.exports = defineConfig({
     baseURL: 'https://localhost',
     ignoreHTTPSErrors: true,
     trace: 'on-first-retry',
-    permissions: ['camera'],
   },
 
   projects: [

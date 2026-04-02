@@ -30,14 +30,24 @@ function extractApiError(err: unknown): string {
       const data = (response as { data?: unknown }).data;
       if (data && typeof data === "object") {
         // 422 constraint violations — pick plainPassword message first
-        if ("violations" in data && Array.isArray((data as { violations: unknown[] }).violations)) {
-          const violations = (data as { violations: Array<{ propertyPath?: string; message?: string }> }).violations;
+        if (
+          "violations" in data &&
+          Array.isArray((data as { violations: unknown[] }).violations)
+        ) {
+          const violations = (
+            data as {
+              violations: Array<{ propertyPath?: string; message?: string }>;
+            }
+          ).violations;
           const pw = violations.find((v) => v.propertyPath === "plainPassword");
           const msg = pw?.message ?? violations[0]?.message;
           if (msg) return msg;
         }
         // Generic API error detail
-        if ("detail" in data && typeof (data as { detail: unknown }).detail === "string") {
+        if (
+          "detail" in data &&
+          typeof (data as { detail: unknown }).detail === "string"
+        ) {
           return (data as { detail: string }).detail;
         }
       }
