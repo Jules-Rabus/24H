@@ -70,8 +70,8 @@ export function ParticipationsDetail({
                 key={p.id}
                 w="full"
                 size="sm"
-                bg={isBest ? { base: "yellow.50", _dark: "yellow.950" } : undefined}
-                borderColor={isBest ? { base: "yellow.200", _dark: "yellow.800" } : undefined}
+                bg={isBest ? { base: "yellow.50", _dark: "orange.900" } : undefined}
+                borderColor={isBest ? { base: "yellow.200", _dark: "orange.700" } : undefined}
               >
               <Card.Body>
                 <HStack justify="space-between">

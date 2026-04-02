@@ -245,8 +245,8 @@ function RunnerRow({
         gap="2"
         borderBottom="1px solid"
         borderColor="border.subtle"
-        bg={isFav ? { base: "yellow.50", _dark: "yellow.950" } : undefined}
-        _hover={{ bg: isFav ? { base: "yellow.100", _dark: "yellow.900" } : "bg.muted" }}
+        bg={isFav ? { base: "yellow.50", _dark: "orange.900" } : undefined}
+        _hover={{ bg: isFav ? { base: "yellow.100", _dark: "orange.800" } : "bg.muted" }}
         transition="background 0.1s"
         cursor="pointer"
       >
