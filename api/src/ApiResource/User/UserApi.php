@@ -2,6 +2,7 @@
 
 namespace App\ApiResource\User;
 
+use ApiPlatform\Doctrine\Orm\Filter\ExactFilter;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
@@ -13,6 +14,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\QueryParameter;
 use App\Controller\SecurityController;
 use App\Dto\User\CreateUser;
 use App\Dto\User\UpdateUser;
@@ -42,6 +44,12 @@ use Symfony\Component\ObjectMapper\Attribute\Map;
             uriTemplate: 'users/public',
             output: UserCollection::class,
             cacheHeaders: ['max_age' => 60, 'shared_max_age' => 60, 'public' => true],
+            parameters: [
+                'edition' => new QueryParameter(
+                    filter: new ExactFilter(),
+                    property: 'participations.run.edition',
+                ),
+            ],
         ),
         new Get(
             uriTemplate: 'users/public/{id}',

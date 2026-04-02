@@ -4,8 +4,10 @@ import userEvent from "@testing-library/user-event";
 import { render } from "../test-utils/render";
 import ClassementPage from "../../app/classement/page";
 
+const mockReplace = vi.fn();
+
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+  useRouter: () => ({ push: vi.fn(), replace: mockReplace }),
   usePathname: () => "/classement",
   useSearchParams: () => new URLSearchParams("edition=2026"),
 }));
@@ -13,6 +15,7 @@ vi.mock("next/navigation", () => ({
 describe("ClassementPage", () => {
   beforeEach(() => {
     localStorage.clear();
+    mockReplace.mockClear();
   });
 
   it("affiche le heading Classement", async () => {
@@ -24,7 +27,7 @@ describe("ClassementPage", () => {
     });
   });
 
-  it("affiche les StatCards avec valeurs", async () => {
+  it("affiche les StatCards", async () => {
     render(<ClassementPage />);
     await waitFor(() => {
       expect(screen.getByText("Coureurs")).toBeInTheDocument();
@@ -33,11 +36,22 @@ describe("ClassementPage", () => {
     });
   });
 
-  it("affiche les coureurs avec allure et km", async () => {
+  it("affiche les coureurs retournés par l'API pour l'édition 2026", async () => {
     render(<ClassementPage />);
+    // MSW handler filters by edition — runners with 2026 participations
     await waitFor(() => {
       expect(screen.getByText("Marie Curie")).toBeInTheDocument();
       expect(screen.getByText("Jean Dupont")).toBeInTheDocument();
+    });
+  });
+
+  it("affiche le nombre de tours depuis finishedParticipationsCount de l'API", async () => {
+    render(<ClassementPage />);
+    await waitFor(() => {
+      // Marie Curie: finishedParticipationsCount=12 → "12 tours"
+      expect(screen.getByText(/12 tours/i)).toBeInTheDocument();
+      // Jean Dupont: finishedParticipationsCount=8 → "8 tours"
+      expect(screen.getByText(/8 tours/i)).toBeInTheDocument();
     });
   });
 
