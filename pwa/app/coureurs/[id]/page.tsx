@@ -196,6 +196,9 @@ function CoureurContent({ params }: { params: Promise<{ id: string }> }) {
                   size={{ base: "lg", md: "xl" }}
                   colorPalette="primary"
                 >
+                  {runner.image && (
+                    <Avatar.Image src={runner.image} alt={initials} />
+                  )}
                   <Avatar.Fallback>{initials}</Avatar.Fallback>
                 </Avatar.Root>
 
