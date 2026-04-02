@@ -18,7 +18,14 @@ type ChartPoint = {
 
 function CustomLegend() {
   return (
-    <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginBottom: 8 }}>
+    <div
+      style={{
+        display: "flex",
+        gap: 12,
+        justifyContent: "flex-end",
+        marginBottom: 8,
+      }}
+    >
       <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
         <div style={{ width: 16, height: 2, background: "#0f929a" }} />
         <span style={{ fontSize: 11, color: "#64748b" }}>2026</span>
@@ -37,9 +44,21 @@ export function PaceChart({ data }: { data: ChartPoint[] }) {
     <>
       <CustomLegend />
       <ResponsiveContainer width="100%" height={140}>
-        <LineChart data={data} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
-          <CartesianGrid strokeDasharray="0" stroke="#e2e8f0" strokeWidth={0.5} />
-          <XAxis dataKey="name" fontSize={10} tickLine={false} axisLine={false} />
+        <LineChart
+          data={data}
+          margin={{ top: 4, right: 4, bottom: 0, left: -20 }}
+        >
+          <CartesianGrid
+            strokeDasharray="0"
+            stroke="#e2e8f0"
+            strokeWidth={0.5}
+          />
+          <XAxis
+            dataKey="name"
+            fontSize={10}
+            tickLine={false}
+            axisLine={false}
+          />
           <YAxis fontSize={10} tickLine={false} axisLine={false} />
           <Tooltip
             formatter={(v) => [`${v} min/km`]}

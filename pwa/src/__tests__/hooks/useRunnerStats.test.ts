@@ -67,9 +67,17 @@ describe("useRunnerStats", () => {
     const chartData = result.current.chartData;
     // max(2 participations 2026, 1 participation 2025) = 2 entries
     expect(chartData.length).toBe(2);
-    expect(chartData[0]).toMatchObject({ name: "T1", pace2026: 6, pace2025: 7 });
+    expect(chartData[0]).toMatchObject({
+      name: "T1",
+      pace2026: 6,
+      pace2025: 7,
+    });
     // T2 has no 2025 counterpart
-    expect(chartData[1]).toMatchObject({ name: "T2", pace2026: 8, pace2025: null });
+    expect(chartData[1]).toMatchObject({
+      name: "T2",
+      pace2026: 8,
+      pace2025: null,
+    });
   });
 
   it("splits participations by edition", () => {

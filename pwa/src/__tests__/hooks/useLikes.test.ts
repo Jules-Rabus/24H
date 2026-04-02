@@ -4,7 +4,11 @@ import { useLikes } from "@/hooks/useLikes";
 
 // Ensure apiClient is NOT imported/called
 vi.mock("@/api/client", () => ({
-  apiClient: { post: vi.fn(() => { throw new Error("apiClient must not be called from useLikes"); }) },
+  apiClient: {
+    post: vi.fn(() => {
+      throw new Error("apiClient must not be called from useLikes");
+    }),
+  },
 }));
 
 describe("useLikes", () => {
@@ -25,15 +29,21 @@ describe("useLikes", () => {
 
   it("like(id) saves id to localStorage without calling apiClient", async () => {
     const { result } = renderHook(() => useLikes());
-    await act(async () => { result.current.like(1); });
+    await act(async () => {
+      result.current.like(1);
+    });
     expect(result.current.hasLiked(1)).toBe(true);
     expect(JSON.parse(localStorage.getItem("24h_likes")!)).toContain(1);
   });
 
   it("like(id) is a no-op if already liked", async () => {
     const { result } = renderHook(() => useLikes());
-    await act(async () => { result.current.like(1); });
-    await act(async () => { result.current.like(1); });
+    await act(async () => {
+      result.current.like(1);
+    });
+    await act(async () => {
+      result.current.like(1);
+    });
     expect(JSON.parse(localStorage.getItem("24h_likes")!)).toHaveLength(1);
   });
 });

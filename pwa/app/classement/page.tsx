@@ -17,7 +17,14 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { LuSearch, LuStar, LuChevronRight, LuUsers, LuRefreshCw, LuMapPin } from "react-icons/lu";
+import {
+  LuSearch,
+  LuStar,
+  LuChevronRight,
+  LuUsers,
+  LuRefreshCw,
+  LuMapPin,
+} from "react-icons/lu";
 import { PublicNav } from "@/components/public/PublicNav";
 import { PublicStatCard } from "@/components/public/PublicStatCard";
 import { usePublicRunnersQuery } from "@/state/public/queries";
@@ -99,10 +106,14 @@ function ClassementContent() {
               icon={LuUsers}
               color="primary.500"
               loading={isLoading}
-              delta={prevRunners && prevRunners.length > 0 && totalRunners - prevTotalRunners !== 0
-                ? `${totalRunners - prevTotalRunners >= 0 ? "+" : ""}${totalRunners - prevTotalRunners} vs ${edition - 1}`
-                : undefined}
-              deltaPositive={(totalRunners - prevTotalRunners) >= 0}
+              delta={
+                prevRunners &&
+                prevRunners.length > 0 &&
+                totalRunners - prevTotalRunners !== 0
+                  ? `${totalRunners - prevTotalRunners >= 0 ? "+" : ""}${totalRunners - prevTotalRunners} vs ${edition - 1}`
+                  : undefined
+              }
+              deltaPositive={totalRunners - prevTotalRunners >= 0}
             />
             <PublicStatCard
               label="Tours"
@@ -110,10 +121,14 @@ function ClassementContent() {
               icon={LuRefreshCw}
               color="blue.500"
               loading={isLoading}
-              delta={prevRunners && prevRunners.length > 0 && totalRuns - prevTotalRuns !== 0
-                ? `${totalRuns - prevTotalRuns >= 0 ? "+" : ""}${totalRuns - prevTotalRuns} vs ${edition - 1}`
-                : undefined}
-              deltaPositive={(totalRuns - prevTotalRuns) >= 0}
+              delta={
+                prevRunners &&
+                prevRunners.length > 0 &&
+                totalRuns - prevTotalRuns !== 0
+                  ? `${totalRuns - prevTotalRuns >= 0 ? "+" : ""}${totalRuns - prevTotalRuns} vs ${edition - 1}`
+                  : undefined
+              }
+              deltaPositive={totalRuns - prevTotalRuns >= 0}
             />
             <PublicStatCard
               label="Distance"
@@ -121,10 +136,14 @@ function ClassementContent() {
               icon={LuMapPin}
               color="green.500"
               loading={isLoading}
-              delta={prevRunners && prevRunners.length > 0 && totalKm - prevTotalKm !== 0
-                ? `${totalKm - prevTotalKm >= 0 ? "+" : ""}${totalKm - prevTotalKm}km vs ${edition - 1}`
-                : undefined}
-              deltaPositive={(totalKm - prevTotalKm) >= 0}
+              delta={
+                prevRunners &&
+                prevRunners.length > 0 &&
+                totalKm - prevTotalKm !== 0
+                  ? `${totalKm - prevTotalKm >= 0 ? "+" : ""}${totalKm - prevTotalKm}km vs ${edition - 1}`
+                  : undefined
+              }
+              deltaPositive={totalKm - prevTotalKm >= 0}
             />
           </SimpleGrid>
 
@@ -246,7 +265,9 @@ function RunnerRow({
         borderBottom="1px solid"
         borderColor="border.subtle"
         bg={isFav ? { base: "yellow.50", _dark: "orange.900" } : undefined}
-        _hover={{ bg: isFav ? { base: "yellow.100", _dark: "orange.800" } : "bg.muted" }}
+        _hover={{
+          bg: isFav ? { base: "yellow.100", _dark: "orange.800" } : "bg.muted",
+        }}
         transition="background 0.1s"
         cursor="pointer"
       >
@@ -273,9 +294,13 @@ function RunnerRow({
             {name}
           </Text>
           <HStack gap="1" fontSize="xs" color="fg.muted" overflow="hidden">
-            <Text fontFamily="mono" flexShrink={0}>#{runner.id}</Text>
+            <Text fontFamily="mono" flexShrink={0}>
+              #{runner.id}
+            </Text>
             {runner.organization && (
-              <Text truncate overflow="hidden" minW="0">· {runner.organization}</Text>
+              <Text truncate overflow="hidden" minW="0">
+                · {runner.organization}
+              </Text>
             )}
           </HStack>
         </Box>

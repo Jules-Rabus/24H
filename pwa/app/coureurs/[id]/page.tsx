@@ -35,7 +35,11 @@ const QrCodeDisplay = dynamic(
   { ssr: false },
 );
 
-type ChartPoint = { name: string; pace2026: number | null; pace2025: number | null };
+type ChartPoint = {
+  name: string;
+  pace2026: number | null;
+  pace2025: number | null;
+};
 
 function TabContent({
   stats,
@@ -54,11 +58,22 @@ function TabContent({
     <VStack align="stretch" gap="4" mt="4">
       <RunnerStatCards stats={stats} prevStats={prevStats} />
       {chartData.length >= 2 && (
-        <Card.Root shadow="sm" borderWidth="1px" borderColor="card.border" bg="card.bg">
+        <Card.Root
+          shadow="sm"
+          borderWidth="1px"
+          borderColor="card.border"
+          bg="card.bg"
+        >
           <Card.Body p={{ base: "3", md: "4" }}>
             <HStack mb="2" gap="2" align="center">
               <LuActivity size={14} />
-              <Text fontSize="xs" color="fg.muted" textTransform="uppercase" letterSpacing="wider" fontWeight="semibold">
+              <Text
+                fontSize="xs"
+                color="fg.muted"
+                textTransform="uppercase"
+                letterSpacing="wider"
+                fontWeight="semibold"
+              >
                 Allure par tour (min/km)
               </Text>
             </HStack>
@@ -96,7 +111,12 @@ function CoureurContent({ params }: { params: Promise<{ id: string }> }) {
         <Box maxW="4xl" mx="auto" px="4" py="8">
           <VStack align="stretch" gap="6">
             <Skeleton height="8" width="32" rounded="md" />
-            <Card.Root shadow="sm" borderWidth="1px" borderColor="card.border" bg="card.bg">
+            <Card.Root
+              shadow="sm"
+              borderWidth="1px"
+              borderColor="card.border"
+              bg="card.bg"
+            >
               <Card.Body p={{ base: "4", md: "6" }}>
                 <HStack gap="4">
                   <Skeleton boxSize={{ base: "12", md: "16" }} rounded="full" />
@@ -164,14 +184,29 @@ function CoureurContent({ params }: { params: Promise<{ id: string }> }) {
           </HStack>
 
           {/* Hero card */}
-          <Card.Root shadow="sm" borderWidth="1px" borderColor="card.border" bg="card.bg">
+          <Card.Root
+            shadow="sm"
+            borderWidth="1px"
+            borderColor="card.border"
+            bg="card.bg"
+          >
             <Card.Body p={{ base: "4", md: "6" }}>
               <HStack gap={{ base: "3", md: "5" }} align="flex-start">
-                <Avatar.Root size={{ base: "lg", md: "xl" }} colorPalette="primary">
+                <Avatar.Root
+                  size={{ base: "lg", md: "xl" }}
+                  colorPalette="primary"
+                >
                   <Avatar.Fallback>{initials}</Avatar.Fallback>
                 </Avatar.Root>
 
-                <VStack align="flex-start" gap="1" flex="1" minW="0" overflow="hidden" w="full">
+                <VStack
+                  align="flex-start"
+                  gap="1"
+                  flex="1"
+                  minW="0"
+                  overflow="hidden"
+                  w="full"
+                >
                   <Heading
                     size={{ base: "lg", md: "xl" }}
                     fontWeight="extrabold"
@@ -188,7 +223,15 @@ function CoureurContent({ params }: { params: Promise<{ id: string }> }) {
                     </Text>
                   )}
                   {runner.organization && (
-                    <Badge colorPalette="gray" size="sm" maxW="full" overflow="hidden" textOverflow="ellipsis" whiteSpace="nowrap" display="block">
+                    <Badge
+                      colorPalette="gray"
+                      size="sm"
+                      maxW="full"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                      whiteSpace="nowrap"
+                      display="block"
+                    >
                       {runner.organization}
                     </Badge>
                   )}
@@ -201,7 +244,11 @@ function CoureurContent({ params }: { params: Promise<{ id: string }> }) {
               {/* Action buttons */}
               <HStack gap="2" mt="4" flexWrap="wrap">
                 {runner.id && (
-                  <QrCodeDisplay userId={runner.id} open={qrOpen} onOpenChange={setQrOpen} />
+                  <QrCodeDisplay
+                    userId={runner.id}
+                    open={qrOpen}
+                    onOpenChange={setQrOpen}
+                  />
                 )}
                 {runner.id && runner.firstName && runner.lastName && (
                   <BibDownloadButton
@@ -251,7 +298,12 @@ function CoureurContent({ params }: { params: Promise<{ id: string }> }) {
           </Tabs.Root>
 
           {/* Comparison — always visible */}
-          <Card.Root shadow="sm" borderWidth="1px" borderColor="card.border" bg="card.bg">
+          <Card.Root
+            shadow="sm"
+            borderWidth="1px"
+            borderColor="card.border"
+            bg="card.bg"
+          >
             <Card.Body p={{ base: "3", md: "5" }}>
               <Text
                 fontSize="xs"
@@ -263,7 +315,10 @@ function CoureurContent({ params }: { params: Promise<{ id: string }> }) {
               >
                 Comparaison 2026 vs 2025
               </Text>
-              <EditionCompareTable stats2026={stats2026} stats2025={stats2025} />
+              <EditionCompareTable
+                stats2026={stats2026}
+                stats2025={stats2025}
+              />
             </Card.Body>
           </Card.Root>
         </VStack>

@@ -17,7 +17,10 @@ function timeDelta(
   const m = Math.floor(abs / 60);
   const s = abs % 60;
   const sign = diff < 0 ? "-" : "+";
-  return { label: `${sign}${m}:${s.toString().padStart(2, "0")}`, positive: diff < 0 };
+  return {
+    label: `${sign}${m}:${s.toString().padStart(2, "0")}`,
+    positive: diff < 0,
+  };
 }
 
 function paceDelta(
@@ -31,7 +34,10 @@ function paceDelta(
   const m = Math.floor(abs / 60);
   const s = Math.round(abs % 60);
   const sign = diffSec < 0 ? "-" : "+";
-  return { label: `${sign}${m}:${s.toString().padStart(2, "0")}/km`, positive: diffSec < 0 };
+  return {
+    label: `${sign}${m}:${s.toString().padStart(2, "0")}/km`,
+    positive: diffSec < 0,
+  };
 }
 
 export function RunnerStatCards({
@@ -43,10 +49,18 @@ export function RunnerStatCards({
   prevStats?: EditionStats;
   loading?: boolean;
 }) {
-  const toursDiff = prevStats != null ? stats.finishedCount - prevStats.finishedCount : null;
-  const distDiff = prevStats != null ? stats.distance - prevStats.distance : null;
-  const bestTimeDelta = timeDelta(stats.bestTime ?? null, prevStats?.bestTime ?? null);
-  const paceDeltaVal = paceDelta(stats.averageTime ?? null, prevStats?.averageTime ?? null);
+  const toursDiff =
+    prevStats != null ? stats.finishedCount - prevStats.finishedCount : null;
+  const distDiff =
+    prevStats != null ? stats.distance - prevStats.distance : null;
+  const bestTimeDelta = timeDelta(
+    stats.bestTime ?? null,
+    prevStats?.bestTime ?? null,
+  );
+  const paceDeltaVal = paceDelta(
+    stats.averageTime ?? null,
+    prevStats?.averageTime ?? null,
+  );
 
   return (
     <SimpleGrid columns={2} gap="3">
@@ -56,7 +70,11 @@ export function RunnerStatCards({
         icon={LuTrophy}
         color="primary.500"
         loading={loading}
-        delta={toursDiff != null && toursDiff !== 0 ? `${toursDiff >= 0 ? "+" : ""}${toursDiff}` : undefined}
+        delta={
+          toursDiff != null && toursDiff !== 0
+            ? `${toursDiff >= 0 ? "+" : ""}${toursDiff}`
+            : undefined
+        }
         deltaPositive={toursDiff != null ? toursDiff >= 0 : undefined}
       />
       <PublicStatCard
@@ -65,7 +83,11 @@ export function RunnerStatCards({
         icon={LuMapPin}
         color="green.500"
         loading={loading}
-        delta={distDiff != null && distDiff !== 0 ? `${distDiff >= 0 ? "+" : ""}${distDiff} km` : undefined}
+        delta={
+          distDiff != null && distDiff !== 0
+            ? `${distDiff >= 0 ? "+" : ""}${distDiff} km`
+            : undefined
+        }
         deltaPositive={distDiff != null ? distDiff >= 0 : undefined}
       />
       <PublicStatCard

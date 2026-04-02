@@ -301,9 +301,13 @@ export default function UploadPage() {
             </form.Field>
 
             <HStack justify="center" gap="3" color="fg.subtle" fontSize="xs">
-              <HStack gap="1"><Icon as={LuImage} boxSize="3" /> <Text>Image</Text></HStack>
+              <HStack gap="1">
+                <Icon as={LuImage} boxSize="3" /> <Text>Image</Text>
+              </HStack>
               <Text>·</Text>
-              <HStack gap="1"><Icon as={LuVideo} boxSize="3" /> <Text>Vidéo</Text></HStack>
+              <HStack gap="1">
+                <Icon as={LuVideo} boxSize="3" /> <Text>Vidéo</Text>
+              </HStack>
               <Text>· max 25 Mo</Text>
             </HStack>
 

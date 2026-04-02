@@ -23,7 +23,12 @@ export function PublicStatCard({
   loading,
 }: PublicStatCardProps) {
   return (
-    <Card.Root shadow="sm" borderWidth="1px" borderColor="card.border" bg="card.bg">
+    <Card.Root
+      shadow="sm"
+      borderWidth="1px"
+      borderColor="card.border"
+      bg="card.bg"
+    >
       <Card.Body p="3" display="flex" flexDirection="column" gap="1">
         <HStack justify="space-between" align="center" minH="4">
           <Text

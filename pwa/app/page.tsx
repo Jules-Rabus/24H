@@ -2,7 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { Box, HStack, Text, VStack } from "@chakra-ui/react";
-import { LuPersonStanding, LuSettings2, LuZap, LuChevronRight, LuFlame } from "react-icons/lu";
+import {
+  LuPersonStanding,
+  LuSettings2,
+  LuZap,
+  LuChevronRight,
+  LuFlame,
+} from "react-icons/lu";
 
 export default function HomePage() {
   const router = useRouter();
@@ -29,7 +35,16 @@ export default function HomePage() {
       </Box>
 
       {/* Buttons */}
-      <VStack flex="1" justify="center" px="6" gap="4" py="10" maxW="sm" mx="auto" w="full">
+      <VStack
+        flex="1"
+        justify="center"
+        px="6"
+        gap="4"
+        py="10"
+        maxW="sm"
+        mx="auto"
+        w="full"
+      >
         {/* Participant */}
         <Box
           as="button"
@@ -44,12 +59,7 @@ export default function HomePage() {
           onClick={() => router.push("/classement")}
         >
           <HStack gap="4" align="center">
-            <Box
-              bg="whiteAlpha.200"
-              rounded="xl"
-              p="3"
-              flexShrink={0}
-            >
+            <Box bg="whiteAlpha.200" rounded="xl" p="3" flexShrink={0}>
               <LuPersonStanding size={24} color="white" />
             </Box>
             <VStack align="flex-start" gap="0" flex="1">

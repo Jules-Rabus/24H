@@ -67,12 +67,16 @@ export function ParticipationsDetail({
           const isBest = bestTime != null && p.totalTime === bestTime;
           return (
             <Card.Root
-                key={p.id}
-                w="full"
-                size="sm"
-                bg={isBest ? { base: "yellow.50", _dark: "orange.900" } : undefined}
-                borderColor={isBest ? { base: "yellow.200", _dark: "orange.700" } : undefined}
-              >
+              key={p.id}
+              w="full"
+              size="sm"
+              bg={
+                isBest ? { base: "yellow.50", _dark: "orange.900" } : undefined
+              }
+              borderColor={
+                isBest ? { base: "yellow.200", _dark: "orange.700" } : undefined
+              }
+            >
               <Card.Body>
                 <HStack justify="space-between">
                   <HStack gap="1">
@@ -89,7 +93,9 @@ export function ParticipationsDetail({
                 <HStack gap="4" mt="2" fontSize="sm" color="fg.muted">
                   <Text fontFamily="mono">{formatTime(p.totalTime)}</Text>
                   <Text>4 km</Text>
-                  <Text fontFamily="mono" color="fg.subtle">{formatPace(p.totalTime)}</Text>
+                  <Text fontFamily="mono" color="fg.subtle">
+                    {formatPace(p.totalTime)}
+                  </Text>
                 </HStack>
               </Card.Body>
             </Card.Root>
@@ -115,7 +121,11 @@ export function ParticipationsDetail({
               return (
                 <Table.Row
                   key={p.id}
-                  bg={isBest ? { base: "yellow.50", _dark: "yellow.950" } : undefined}
+                  bg={
+                    isBest
+                      ? { base: "yellow.50", _dark: "yellow.950" }
+                      : undefined
+                  }
                 >
                   <Table.Cell>
                     <HStack gap="1">
