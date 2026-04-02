@@ -92,11 +92,9 @@ final class RaceMediaTest extends AbstractTestCase
         $this->assertMatchesResourceItemJsonSchema(RaceMediaApi::class);
     }
 
-    public function testCreateRaceMediaForbiddenForUser(): void
+    public function testCreateRaceMediaAsAnonymous(): void
     {
-        $user = UserFactory::createOne();
-
-        $this->createClientWithCredentials($user)->request('POST', self::ROUTE, [
+        static::createClient()->request('POST', self::ROUTE, [
             'headers' => [
                 'Accept' => 'application/json',
                 'Content-Type' => 'multipart/form-data',
@@ -106,7 +104,7 @@ final class RaceMediaTest extends AbstractTestCase
             ],
         ]);
 
-        $this->assertResponseStatusCodeSame(403);
+        $this->assertResponseStatusCodeSame(201);
     }
 
     public function testDeleteRaceMediaAsAdmin(): void

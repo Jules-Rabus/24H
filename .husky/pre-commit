@@ -29,6 +29,9 @@ if [ -n "$STAGED_API" ]; then
 
     echo "[pre-commit] api: phpstan..."
     docker compose exec -T php vendor/bin/phpstan analyse --configuration=phpstan.dist.neon --memory-limit=512M || exit 1
+
+    echo "[pre-commit] api: phpunit..."
+    docker compose exec -T php bin/phpunit --no-coverage || exit 1
   else
     echo "[pre-commit] php container not running — skipping backend checks"
     echo "  Start with: docker compose up php -d"

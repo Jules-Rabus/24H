@@ -8,7 +8,6 @@ use App\Entity\RaceMedia;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @implements ProcessorInterface<null, RaceMedia>
@@ -28,7 +27,6 @@ final readonly class RaceMediaProcessor implements ProcessorInterface
     public function __construct(
         #[Autowire(service: 'api_platform.doctrine.orm.state.persist_processor')]
         private ProcessorInterface $persistProcessor,
-        private ValidatorInterface $validator,
     ) {
     }
 
@@ -50,10 +48,7 @@ final readonly class RaceMediaProcessor implements ProcessorInterface
 
         $mime = $file->getMimeType();
         if (!in_array($mime, self::ALLOWED_MIMES, true)) {
-            throw new BadRequestException(sprintf(
-                'Format non supporté (%s). Formats acceptés : JPEG, PNG, WebP, GIF, MP4, MOV, WebM.',
-                $mime ?? 'inconnu'
-            ));
+            throw new BadRequestException(sprintf('Format non supporté (%s). Formats acceptés : JPEG, PNG, WebP, GIF, MP4, MOV, WebM.', $mime ?? 'inconnu'));
         }
 
         $raceMedia = new RaceMedia();
