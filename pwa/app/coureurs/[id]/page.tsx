@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 import { Suspense, use, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import dynamic from "next/dynamic";
+import nextDynamic from "next/dynamic";
 import {
   Avatar,
   Badge,
@@ -28,11 +28,11 @@ import { ParticipationsDetail } from "@/components/public/ParticipationsDetail";
 import { usePublicRunnerQuery } from "@/state/public/queries";
 import { useRunnerStats } from "@/hooks/useRunnerStats";
 import type { EditionStats, PublicParticipation } from "@/state/public/schemas";
-const BibDownloadButton = dynamic(
+const BibDownloadButton = nextDynamic(
   () => import("@/components/classement/BibDownloadButton"),
   { ssr: false },
 );
-const QrCodeDisplay = dynamic(
+const QrCodeDisplay = nextDynamic(
   () => import("@/components/classement/QrCodeDisplay"),
   { ssr: false },
 );
