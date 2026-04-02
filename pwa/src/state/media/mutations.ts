@@ -3,6 +3,7 @@ import { apiRaceMediasPost } from "@/api/generated/sdk.gen";
 import { apiClient } from "@/api/client";
 import { raceKeys } from "../race/queries";
 import { adminMediaKeys } from "../admin/medias/queries";
+import { publicMediaKeys } from "../public/mediaQueries";
 import { raceMediaSchema } from "./schemas";
 
 export function useUploadRaceMediaMutation() {
@@ -20,6 +21,7 @@ export function useUploadRaceMediaMutation() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: raceKeys.all });
       queryClient.invalidateQueries({ queryKey: adminMediaKeys.all });
+      queryClient.invalidateQueries({ queryKey: publicMediaKeys.all });
     },
   });
 }
@@ -33,6 +35,7 @@ export function useLikeRaceMediaMutation() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminMediaKeys.all });
+      queryClient.invalidateQueries({ queryKey: publicMediaKeys.all });
     },
   });
 }

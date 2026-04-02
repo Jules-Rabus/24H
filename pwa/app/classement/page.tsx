@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { Suspense, useState, useMemo } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
@@ -17,44 +17,16 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import {
-  LuSearch,
-  LuTrophy,
-  LuMapPin,
-  LuTimer,
-  LuStar,
-  LuChevronRight,
-} from "react-icons/lu";
+import { LuSearch, LuStar, LuChevronRight } from "react-icons/lu";
 import { PublicNav } from "@/components/public/PublicNav";
-import { StatCard } from "@/components/admin/ui/StatCard";
-import {
-  usePublicRunnersQuery,
-  type PublicRunner,
-} from "@/state/public/queries";
+import { usePublicRunnersQuery } from "@/state/public/queries";
+import { type RankedRunner } from "@/state/public/schemas";
 import { useFavorites } from "@/hooks/useFavorites";
-
-function formatTime(seconds: number | null | undefined): string {
-  if (!seconds) return "-";
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  const s = seconds % 60;
-  if (h > 0) return `${h}h ${m.toString().padStart(2, "0")}m`;
-  return `${m}m ${s.toString().padStart(2, "0")}s`;
-}
-
-function formatPace(seconds: number | null | undefined): string {
-  if (!seconds) return "-";
-  const paceMin = seconds / 60 / 4;
-  const m = Math.floor(paceMin);
-  const s = Math.round((paceMin - m) * 60);
-  return `${m}:${s.toString().padStart(2, "0")}/km`;
-}
+import { formatPace } from "@/utils/race";
 
 const RANK_MEDALS = ["🥇", "🥈", "🥉"] as const;
 
-type RankedRunner = PublicRunner & { rank: number };
-
-export default function ClassementPage() {
+function ClassementContent() {
   const searchParams = useSearchParams();
   const edition = Number(searchParams.get("edition")) || 2026;
 
@@ -119,52 +91,35 @@ export default function ClassementPage() {
             Classement
           </Heading>
 
-          <SimpleGrid columns={{ base: 1, sm: 3 }} gap="4">
-            <StatCard
-              label="Coureurs"
-              value={totalRunners}
-              icon={LuTrophy}
-              color="primary.500"
-              loading={isLoading}
-              index={0}
-            />
-            <StatCard
-              label="Tours"
-              value={totalRuns}
-              icon={LuTimer}
-              color="stat.blue"
-              loading={isLoading}
-              index={1}
-            />
-            <StatCard
-              label="Distance"
-              value={`${totalKm} km`}
-              icon={LuMapPin}
-              color="stat.green"
-              loading={isLoading}
-              index={2}
-            />
+          <SimpleGrid columns={3} gap="3">
+            {[
+              { label: "Coureurs", value: totalRunners, color: "primary.500", delta: totalRunners - prevTotalRunners },
+              { label: "Tours", value: totalRuns, color: "blue.500", delta: totalRuns - prevTotalRuns },
+              { label: "Distance", value: `${totalKm}km`, color: "green.500", delta: totalKm - prevTotalKm },
+            ].map(({ label, value, color, delta }) => (
+              <Card.Root key={label} shadow="sm" borderWidth="1px" borderColor="card.border" bg="card.bg">
+                <Card.Body p="3" textAlign="center">
+                  <Skeleton loading={isLoading} height="6" mx="auto" width="12">
+                    <Text fontWeight="extrabold" fontSize="xl" color={color} lineHeight="1">
+                      {value}
+                    </Text>
+                  </Skeleton>
+                  <Text color="fg.muted" fontSize="2xs" mt="1" lineHeight="1">{label}</Text>
+                  {prevRunners && prevRunners.length > 0 && (
+                    <Text
+                      fontSize="2xs"
+                      mt="1"
+                      lineHeight="1"
+                      color={delta >= 0 ? "green.500" : "red.500"}
+                      fontWeight="semibold"
+                    >
+                      {delta >= 0 ? "+" : ""}{delta} vs {edition - 1}
+                    </Text>
+                  )}
+                </Card.Body>
+              </Card.Root>
+            ))}
           </SimpleGrid>
-
-          {prevRunners && prevRunners.length > 0 && (
-            <HStack gap="2" fontSize="xs" color="fg.muted" flexWrap="wrap">
-              <Text>vs {edition - 1} :</Text>
-              <Text color="green.500" fontWeight="semibold">
-                {totalRunners - prevTotalRunners >= 0 ? "+" : ""}
-                {totalRunners - prevTotalRunners} coureurs
-              </Text>
-              <Text color="fg.subtle">·</Text>
-              <Text color="green.500" fontWeight="semibold">
-                {totalRuns - prevTotalRuns >= 0 ? "+" : ""}
-                {totalRuns - prevTotalRuns} tours
-              </Text>
-              <Text color="fg.subtle">·</Text>
-              <Text color="green.500" fontWeight="semibold">
-                {totalKm - prevTotalKm >= 0 ? "+" : ""}
-                {totalKm - prevTotalKm} km
-              </Text>
-            </HStack>
-          )}
 
           <HStack gap="3">
             <Box position="relative" flex="1">
@@ -250,6 +205,14 @@ export default function ClassementPage() {
   );
 }
 
+export default function ClassementPage() {
+  return (
+    <Suspense>
+      <ClassementContent />
+    </Suspense>
+  );
+}
+
 function RunnerRow({
   runner,
   isFav,
@@ -275,7 +238,8 @@ function RunnerRow({
         gap="2"
         borderBottom="1px solid"
         borderColor="border.subtle"
-        _hover={{ bg: "bg.muted" }}
+        bg={isFav ? { base: "yellow.50", _dark: "yellow.950" } : undefined}
+        _hover={{ bg: isFav ? { base: "yellow.100", _dark: "yellow.900" } : "bg.muted" }}
         transition="background 0.1s"
         cursor="pointer"
       >
@@ -297,17 +261,17 @@ function RunnerRow({
           <Avatar.Fallback>{initials}</Avatar.Fallback>
         </Avatar.Root>
 
-        <VStack align="flex-start" gap="0" flex="1" minW="0">
-          <Text fontWeight="medium" fontSize="sm" truncate>
+        <Box flex="1" minW="0" overflow="hidden">
+          <Text fontWeight="medium" fontSize="sm" truncate w="full">
             {name}
           </Text>
-          <HStack gap="1" fontSize="xs" color="fg.muted">
-            <Text fontFamily="mono">#{runner.id}</Text>
+          <HStack gap="1" fontSize="xs" color="fg.muted" overflow="hidden">
+            <Text fontFamily="mono" flexShrink={0}>#{runner.id}</Text>
             {runner.organization && (
-              <Text truncate>· {runner.organization}</Text>
+              <Text truncate overflow="hidden" minW="0">· {runner.organization}</Text>
             )}
           </HStack>
-        </VStack>
+        </Box>
 
         <VStack align="flex-end" gap="0" flexShrink={0}>
           <Badge colorPalette="primary" size="sm">

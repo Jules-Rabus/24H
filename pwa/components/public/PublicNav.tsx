@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import {
   Box,
   Button,
@@ -62,7 +63,7 @@ function ThemeSwitcher() {
   );
 }
 
-export function PublicNav() {
+function PublicNavContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -175,5 +176,13 @@ export function PublicNav() {
         </ClientOnly>
       </Flex>
     </Box>
+  );
+}
+
+export function PublicNav() {
+  return (
+    <Suspense>
+      <PublicNavContent />
+    </Suspense>
   );
 }

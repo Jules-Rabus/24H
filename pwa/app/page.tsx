@@ -1,115 +1,116 @@
 "use client";
 
-import {
-  Box,
-  Flex,
-  HStack,
-  Text,
-  VStack,
-} from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
-import { LuPersonStanding, LuSettings2, LuChevronRight } from "react-icons/lu";
+import { Box, HStack, Text, VStack } from "@chakra-ui/react";
+import { LuPersonStanding, LuSettings2, LuZap, LuChevronRight, LuFlame } from "react-icons/lu";
 
 export default function HomePage() {
   const router = useRouter();
 
   return (
-    <Flex direction="column" minH="100vh">
+    <Box minH="100vh" bg="bg.subtle" display="flex" flexDirection="column">
       {/* Header */}
-      <Box bg="primary.500" py="10" textAlign="center">
-        <Text
-          fontWeight="black"
-          fontSize="3xl"
-          color="white"
-          letterSpacing="widest"
-          textTransform="uppercase"
-        >
-          24H Race
-        </Text>
-        <Text color="whiteAlpha.700" fontSize="sm" mt="1">
+      <Box bg="#0f929a" py="10" px="4" textAlign="center">
+        <HStack justify="center" gap="2" mb="1">
+          <LuFlame size={28} color="white" />
+          <Text
+            fontWeight="extrabold"
+            fontSize="3xl"
+            color="white"
+            letterSpacing="widest"
+            textTransform="uppercase"
+          >
+            24H Race
+          </Text>
+        </HStack>
+        <Text color="cyan.100" fontSize="md">
           Bienvenue
         </Text>
       </Box>
 
-      {/* Body */}
-      <Flex flex="1" bg="bg.subtle" p="6" direction="column" gap="4" justify="center">
-        {/* Bouton Participant */}
+      {/* Buttons */}
+      <VStack flex="1" justify="center" px="6" gap="4" py="10" maxW="sm" mx="auto" w="full">
+        {/* Participant */}
         <Box
           as="button"
-          bg="primary.500"
-          borderRadius="xl"
-          px="5"
-          py="6"
-          onClick={() => router.push("/classement")}
-          boxShadow="0 4px 14px rgba(15,146,154,0.35)"
-          _hover={{ bg: "primary.600" }}
-          transition="background 0.15s"
-          cursor="pointer"
           w="full"
+          bg="primary.500"
+          _hover={{ bg: "primary.600" }}
+          rounded="2xl"
+          px="5"
+          py="5"
+          cursor="pointer"
+          transition="background 0.15s"
+          onClick={() => router.push("/classement")}
         >
-          <HStack gap="4">
-            <Flex
-              w="11"
-              h="11"
-              bg="whiteAlpha.300"
-              borderRadius="lg"
-              align="center"
-              justify="center"
+          <HStack gap="4" align="center">
+            <Box
+              bg="whiteAlpha.200"
+              rounded="xl"
+              p="3"
               flexShrink={0}
             >
-              <LuPersonStanding size={22} color="white" />
-            </Flex>
-            <VStack align="start" gap="0" flex="1">
-              <Text color="white" fontWeight="bold" fontSize="lg">
+              <LuPersonStanding size={24} color="white" />
+            </Box>
+            <VStack align="flex-start" gap="0" flex="1">
+              <Text fontWeight="bold" fontSize="lg" color="white">
                 Participant
               </Text>
-              <Text color="whiteAlpha.700" fontSize="sm">
+              <Text fontSize="sm" color="whiteAlpha.800">
                 Classement · Dossard
               </Text>
             </VStack>
-            <LuChevronRight size={20} color="rgba(255,255,255,0.5)" />
+            <LuChevronRight size={20} color="white" />
           </HStack>
         </Box>
 
-        {/* Bouton Organisateur */}
+        {/* Organisateur */}
         <Box
           as="button"
-          bg="white"
-          borderRadius="xl"
-          px="5"
-          py="6"
-          border="2px solid"
-          borderColor="border.subtle"
-          onClick={() => router.push("/admin")}
-          _hover={{ bg: "bg.muted" }}
-          transition="background 0.15s"
-          cursor="pointer"
           w="full"
+          bg="card.bg"
+          borderWidth="1px"
+          borderColor="card.border"
+          _hover={{ bg: "bg.muted" }}
+          rounded="2xl"
+          px="5"
+          py="5"
+          cursor="pointer"
+          transition="background 0.15s"
+          onClick={() => router.push("/admin")}
         >
-          <HStack gap="4">
-            <Flex
-              w="11"
-              h="11"
+          <HStack gap="4" align="center">
+            <Box
               bg="primary.100"
-              borderRadius="lg"
-              align="center"
-              justify="center"
+              _dark={{ bg: "primary.900" }}
+              rounded="xl"
+              p="3"
               flexShrink={0}
             >
-              <LuSettings2 size={22} color="#0f929a" />
-            </Flex>
-            <VStack align="start" gap="0" flex="1">
-              <Text color="fg" fontWeight="bold" fontSize="lg">
+              <LuSettings2 size={24} color="#0f929a" />
+            </Box>
+            <VStack align="flex-start" gap="0" flex="1">
+              <Text fontWeight="bold" fontSize="lg" color="fg">
                 Organisateur
               </Text>
-              <Text color="fg.muted" fontSize="sm">
+              <Text fontSize="sm" color="fg.muted">
                 Admin · Scanner
               </Text>
             </VStack>
-            <LuChevronRight size={20} color="var(--chakra-colors-border-subtle)" />
+            <LuChevronRight size={20} color="currentColor" />
           </HStack>
         </Box>
-      </Flex>
-    </Flex>
+      </VStack>
+
+      {/* Footer */}
+      <Box py="6" textAlign="center">
+        <HStack justify="center" gap="1">
+          <LuZap size={14} color="#0f929a" />
+          <Text fontSize="xs" color="fg.muted">
+            24H Race
+          </Text>
+        </HStack>
+      </Box>
+    </Box>
   );
 }

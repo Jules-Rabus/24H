@@ -28,3 +28,16 @@ export const publicRunnerSchema = z.object({
 });
 
 export type PublicRunner = z.infer<typeof publicRunnerSchema>;
+
+export const rankedRunnerSchema = publicRunnerSchema.extend({
+  rank: z.number(),
+});
+export type RankedRunner = z.infer<typeof rankedRunnerSchema>;
+
+export const editionStatsSchema = z.object({
+  finishedCount: z.number(),
+  distance: z.number(),
+  bestTime: z.number().nullable(),
+  averageTime: z.number().nullable(),
+});
+export type EditionStats = z.infer<typeof editionStatsSchema>;
