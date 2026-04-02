@@ -61,6 +61,7 @@ class Run
         $this->startDate = $startDate instanceof \DateTimeImmutable
             ? \DateTime::createFromImmutable($startDate)
             : $startDate;
+        $this->edition = (int) $this->startDate->format('Y');
     }
 
     public function getEndDate(): \DateTimeInterface

@@ -33,6 +33,31 @@ final class RunUpdateTest extends AbstractTestCase
         $this->assertMatchesResourceItemJsonSchema(RunApi::class);
     }
 
+    public function testUpdateStartDateUpdatesEdition(): void
+    {
+        $startDate = new \DateTimeImmutable('+1 day');
+        $run = RunFactory::createOne([
+            'startDate' => $startDate,
+            'endDate' => $startDate->modify('+1 day'),
+        ]);
+        $newStartDate = new \DateTimeImmutable('+2 days');
+        $newEndDate = $newStartDate->modify('+1 day');
+
+        $this->createClientWithCredentials()->request('PATCH', self::ROUTE.'/'.$run->getId(), [
+            'headers' => [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/merge-patch+json',
+            ],
+            'json' => [
+                'startDate' => $newStartDate->format(\DateTimeInterface::RFC3339),
+                'endDate' => $newEndDate->format(\DateTimeInterface::RFC3339),
+            ],
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains(['edition' => (int) $newStartDate->format('Y')]);
+    }
+
     public function testUpdateRunForbiddenForUser(): void
     {
         $run = RunFactory::createOne();

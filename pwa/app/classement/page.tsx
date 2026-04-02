@@ -1,7 +1,5 @@
 "use client";
 
-export const dynamic = "force-dynamic";
-
 import { Suspense, useState, useMemo } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -44,7 +42,7 @@ function ClassementContent() {
   const [showFavorites, setShowFavorites] = useState(false);
   const { data: runners, isLoading } = usePublicRunnersQuery(edition);
   const { data: prevRunners } = usePublicRunnersQuery(edition - 1);
-  const { favorites, toggle, isFavorite } = useFavorites();
+  const { toggle, isFavorite } = useFavorites();
 
   const ranked = useMemo(() => {
     if (!runners) return [];

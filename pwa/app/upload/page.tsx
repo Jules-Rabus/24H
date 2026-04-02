@@ -4,7 +4,6 @@ import {
   Box,
   Button,
   Container,
-  Heading,
   Textarea,
   Text,
   VStack,
@@ -16,11 +15,11 @@ import { useForm } from "@tanstack/react-form";
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useUploadRaceMediaMutation } from "@/state/media/mutations";
+import { PublicNav } from "@/components/public/PublicNav";
 import {
   LuCamera,
   LuCircleCheck,
   LuCircleAlert,
-  LuArrowLeft,
   LuSend,
   LuX,
   LuImage,
@@ -86,20 +85,8 @@ export default function UploadPage() {
   if (success) {
     return (
       <Box bg="bg.canvas" minH="100vh" colorPalette="primary">
-        <Box
-          as="header"
-          bg="bg.panel"
-          borderBottomWidth="1px"
-          borderColor="border.subtle"
-          mb="8"
-        >
-          <Container maxW="container.md" py="4">
-            <Button variant="ghost" size="sm" onClick={() => router.back()}>
-              <LuArrowLeft /> Retour
-            </Button>
-          </Container>
-        </Box>
-        <Container maxW="md" pb="24">
+        <PublicNav />
+        <Container maxW="md" pt="30" pb="24">
           <VStack
             bg="bg.panel"
             p={{ base: "6", md: "10" }}
@@ -147,27 +134,9 @@ export default function UploadPage() {
 
   return (
     <Box bg="bg.canvas" minH="100vh" colorPalette="primary">
-      <Box
-        as="header"
-        bg="bg.panel"
-        borderBottomWidth="1px"
-        borderColor="border.subtle"
-        mb="8"
-      >
-        <Container maxW="container.md" py="4">
-          <HStack justify="space-between">
-            <Button variant="ghost" size="sm" onClick={() => router.back()}>
-              <LuArrowLeft /> Retour
-            </Button>
-            <Heading size="md" fontWeight="bold">
-              Partager un moment
-            </Heading>
-            <Box w="70px" />
-          </HStack>
-        </Container>
-      </Box>
+      <PublicNav />
 
-      <Container maxW="md" pb="24">
+      <Container maxW="md" py="8" pb="24">
         <form
           onSubmit={(e) => {
             e.preventDefault();

@@ -1,7 +1,5 @@
 "use client";
 
-export const dynamic = "force-dynamic";
-
 import { useMemo, useState } from "react";
 import {
   Badge,
@@ -241,7 +239,7 @@ export default function GalleryPage() {
                       </Box>
                     )}
 
-                    {/* Pill likes (display-only en mode normal) */}
+                    {/* Pill likes */}
                     {!isExpanded && (
                       <Box
                         position="absolute"
@@ -257,6 +255,11 @@ export default function GalleryPage() {
                         display="flex"
                         alignItems="center"
                         gap="1"
+                        cursor={liked ? "default" : "pointer"}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (media.id) handleLike(media.id);
+                        }}
                       >
                         <LuHeart
                           size={10}

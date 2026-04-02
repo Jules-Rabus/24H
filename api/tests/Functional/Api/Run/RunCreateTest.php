@@ -29,6 +29,7 @@ final class RunCreateTest extends AbstractTestCase
         $this->assertResponseStatusCodeSame(201);
         $this->assertJsonContains([
             'startDate' => $startDate->format(\DateTimeInterface::RFC3339),
+            'edition' => (int) $startDate->format('Y'),
         ]);
         $this->assertIsInt($response->toArray()['id']);
         $this->assertMatchesResourceItemJsonSchema(RunApi::class);
