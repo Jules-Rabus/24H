@@ -94,7 +94,7 @@ export const runnersHandlers = [
     const runners = edition
       ? mockRunners.map((r) => ({
           ...r,
-          participations: r.participations.filter(
+          participations: (r.participations ?? []).filter(
             (p) => p.runEdition === Number(edition),
           ),
         }))

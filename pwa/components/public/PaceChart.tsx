@@ -42,7 +42,7 @@ export function PaceChart({ data }: { data: ChartPoint[] }) {
           <XAxis dataKey="name" fontSize={10} tickLine={false} axisLine={false} />
           <YAxis fontSize={10} tickLine={false} axisLine={false} />
           <Tooltip
-            formatter={(v: number) => [`${v} min/km`]}
+            formatter={(v) => [`${v} min/km`]}
             labelFormatter={(l) => `Tour ${l.replace("T", "")}`}
           />
           <Line
