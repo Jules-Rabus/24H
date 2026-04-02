@@ -35,6 +35,7 @@ if [ "$1" = 'frankenphp' ] || [ "$1" = 'php' ] || [ "$1" = 'bin/console' ]; then
 		php bin/console lexik:jwt:generate-keypair --skip-if-exists
 
 		if [ "$(find ./migrations -iname '*.php' -print -quit)" ]; then
+			php bin/console dbal:run-sql -q "DELETE FROM doctrine_migration_versions WHERE version = 'DoctrineMigrations\\Version20260402093619' AND NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'race_media' AND column_name = 'likes_count')" 2>/dev/null || true
 			php bin/console doctrine:migrations:migrate --no-interaction --all-or-nothing
 		fi
 	fi
