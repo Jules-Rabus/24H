@@ -70,3 +70,31 @@ test.describe("Upload", () => {
     ).toBeVisible();
   });
 });
+
+test.describe("Gallery", () => {
+  test("affiche le titre Galerie et le bouton Partager", async ({ page }) => {
+    await page.goto("/gallery");
+    await expect(page.getByRole("heading", { name: "Galerie" })).toBeVisible();
+    await expect(page.getByRole("button", { name: /partager/i })).toBeVisible();
+  });
+
+  test("tap sur un média affiche le bouton Fermer", async ({ page }) => {
+    await page.goto("/gallery");
+    const firstImg = page.getByRole("img").first();
+    await expect(firstImg).toBeVisible({ timeout: 10000 });
+    await firstImg.click();
+    await expect(page.getByRole("button", { name: /fermer/i })).toBeVisible();
+  });
+
+  test("bouton Fermer referme la card agrandie", async ({ page }) => {
+    await page.goto("/gallery");
+    const firstImg = page.getByRole("img").first();
+    await expect(firstImg).toBeVisible({ timeout: 10000 });
+    await firstImg.click();
+    await expect(page.getByRole("button", { name: /fermer/i })).toBeVisible();
+    await page.getByRole("button", { name: /fermer/i }).click();
+    await expect(
+      page.getByRole("button", { name: /fermer/i }),
+    ).not.toBeVisible();
+  });
+});

@@ -23,20 +23,21 @@ import {
   LuArrowLeft,
   LuSend,
   LuX,
+  LuImage,
+  LuVideo,
 } from "react-icons/lu";
 
 const ALLOWED_TYPES = [
   "image/jpeg",
   "image/png",
-  "image/gif",
   "image/webp",
-  "image/heic",
-  "image/heif",
+  "image/gif",
   "video/mp4",
   "video/quicktime",
+  "video/webm",
 ];
 
-const MAX_SIZE = 50 * 1024 * 1024;
+const MAX_SIZE = 25 * 1024 * 1024;
 
 export default function UploadPage() {
   const [success, setSuccess] = useState(false);
@@ -179,7 +180,7 @@ export default function UploadPage() {
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/*,video/*"
+              accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/quicktime,video/webm"
               capture="environment"
               style={{ display: "none" }}
               onChange={(e) => {
@@ -200,7 +201,7 @@ export default function UploadPage() {
                   if (!ALLOWED_TYPES.includes(value.type))
                     return "Format non supporté";
                   if (value.size > MAX_SIZE)
-                    return "Fichier trop lourd (max 50 Mo)";
+                    return "Fichier trop lourd (max 25 Mo)";
                   return undefined;
                 },
               }}
@@ -299,9 +300,12 @@ export default function UploadPage() {
               )}
             </form.Field>
 
-            <Text textAlign="center" fontSize="xs" color="fg.subtle">
-              📷 JPEG · PNG · HEIC · 🎥 MP4 · MOV · max 50 Mo
-            </Text>
+            <HStack justify="center" gap="3" color="fg.subtle" fontSize="xs">
+              <HStack gap="1"><Icon as={LuImage} boxSize="3" /> <Text>Image</Text></HStack>
+              <Text>·</Text>
+              <HStack gap="1"><Icon as={LuVideo} boxSize="3" /> <Text>Vidéo</Text></HStack>
+              <Text>· max 25 Mo</Text>
+            </HStack>
 
             {error && (
               <HStack

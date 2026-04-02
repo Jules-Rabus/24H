@@ -146,6 +146,8 @@ export type RaceMedia = {
   id?: number | null;
   contentUrl?: string | null;
   comment?: string | null;
+  likesCount?: number;
+  contentType?: string | null;
   createdAt?: string | null;
 };
 
@@ -167,6 +169,8 @@ export type RaceMediaMultipart = {
   id?: number | null;
   contentUrl?: string | null;
   comment?: string | null;
+  likesCount?: number;
+  contentType?: string | null;
   createdAt?: string | null;
 };
 
@@ -174,6 +178,7 @@ export type Run = {
   id?: number | null;
   startDate?: string;
   endDate?: string;
+  edition?: number | null;
   participations?: Array<string | null>;
   participantsCount?: number;
   inProgressParticipantsCount?: number;
@@ -217,6 +222,7 @@ export type RunMultipart = {
   id?: number | null;
   startDate?: string;
   endDate?: string;
+  edition?: number | null;
   participations?: Array<string | null>;
   participantsCount?: number;
   inProgressParticipantsCount?: number;
@@ -293,7 +299,16 @@ export type UserUserCollection = {
   email?: string | null;
   organization?: string | null;
   image?: string | null;
-  participations?: Array<string | null>;
+  participations?: Array<{
+    id?: number;
+    runId?: number;
+    runStartDate?: string;
+    runEndDate?: string;
+    runEdition?: number;
+    arrivalTime?: string;
+    totalTime?: number;
+    status?: string;
+  }>;
   finishedParticipationsCount?: number;
   totalTime?: number | null;
   bestTime?: number | null;
@@ -308,7 +323,16 @@ export type UserUserCollectionMultipart = {
   email?: string | null;
   organization?: string | null;
   image?: string | null;
-  participations?: Array<string | null>;
+  participations?: Array<{
+    id?: number;
+    runId?: number;
+    runStartDate?: string;
+    runEndDate?: string;
+    runEdition?: number;
+    arrivalTime?: string;
+    totalTime?: number;
+    status?: string;
+  }>;
   finishedParticipationsCount?: number;
   totalTime?: number | null;
   bestTime?: number | null;
@@ -1066,6 +1090,44 @@ export type ApiRaceMediasIdGetResponses = {
 
 export type ApiRaceMediasIdGetResponse =
   ApiRaceMediasIdGetResponses[keyof ApiRaceMediasIdGetResponses];
+
+export type RaceMediaLikeData = {
+  /**
+   * The new RaceMedia resource
+   */
+  body: RaceMedia;
+  path: {
+    /**
+     * RaceMedia identifier
+     */
+    id: string;
+  };
+  query?: never;
+  url: "/race_medias/{id}/like";
+};
+
+export type RaceMediaLikeErrors = {
+  /**
+   * Invalid input
+   */
+  400: Error;
+  /**
+   * An error occurred
+   */
+  422: ConstraintViolation;
+};
+
+export type RaceMediaLikeError = RaceMediaLikeErrors[keyof RaceMediaLikeErrors];
+
+export type RaceMediaLikeResponses = {
+  /**
+   * RaceMedia resource created
+   */
+  201: RaceMedia;
+};
+
+export type RaceMediaLikeResponse =
+  RaceMediaLikeResponses[keyof RaceMediaLikeResponses];
 
 export type ApiRunsGetCollectionData = {
   body?: never;

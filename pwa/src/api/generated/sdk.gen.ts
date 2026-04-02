@@ -101,6 +101,9 @@ import type {
   PostForgotPasswordTokenData,
   PostForgotPasswordTokenErrors,
   PostForgotPasswordTokenResponses,
+  RaceMediaLikeData,
+  RaceMediaLikeErrors,
+  RaceMediaLikeResponses,
 } from "./types.gen";
 
 export type Options<
@@ -462,6 +465,28 @@ export const apiRaceMediasIdGet = <ThrowOnError extends boolean = false>(
     responseType: "json",
     url: "/race_medias/{id}",
     ...options,
+  });
+
+/**
+ * Creates a RaceMedia resource.
+ *
+ * Creates a RaceMedia resource.
+ */
+export const raceMediaLike = <ThrowOnError extends boolean = false>(
+  options: Options<RaceMediaLikeData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    RaceMediaLikeResponses,
+    RaceMediaLikeErrors,
+    ThrowOnError
+  >({
+    responseType: "json",
+    url: "/race_medias/{id}/like",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   });
 
 /**

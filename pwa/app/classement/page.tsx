@@ -17,8 +17,9 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { LuSearch, LuStar, LuChevronRight } from "react-icons/lu";
+import { LuSearch, LuStar, LuChevronRight, LuUsers, LuRefreshCw, LuMapPin } from "react-icons/lu";
 import { PublicNav } from "@/components/public/PublicNav";
+import { PublicStatCard } from "@/components/public/PublicStatCard";
 import { usePublicRunnersQuery } from "@/state/public/queries";
 import { type RankedRunner } from "@/state/public/schemas";
 import { useFavorites } from "@/hooks/useFavorites";
@@ -92,33 +93,39 @@ function ClassementContent() {
           </Heading>
 
           <SimpleGrid columns={3} gap="3">
-            {[
-              { label: "Coureurs", value: totalRunners, color: "primary.500", delta: totalRunners - prevTotalRunners },
-              { label: "Tours", value: totalRuns, color: "blue.500", delta: totalRuns - prevTotalRuns },
-              { label: "Distance", value: `${totalKm}km`, color: "green.500", delta: totalKm - prevTotalKm },
-            ].map(({ label, value, color, delta }) => (
-              <Card.Root key={label} shadow="sm" borderWidth="1px" borderColor="card.border" bg="card.bg">
-                <Card.Body p="3" textAlign="center">
-                  <Skeleton loading={isLoading} height="6" mx="auto" width="12">
-                    <Text fontWeight="extrabold" fontSize="xl" color={color} lineHeight="1">
-                      {value}
-                    </Text>
-                  </Skeleton>
-                  <Text color="fg.muted" fontSize="2xs" mt="1" lineHeight="1">{label}</Text>
-                  {prevRunners && prevRunners.length > 0 && (
-                    <Text
-                      fontSize="2xs"
-                      mt="1"
-                      lineHeight="1"
-                      color={delta >= 0 ? "green.500" : "red.500"}
-                      fontWeight="semibold"
-                    >
-                      {delta >= 0 ? "+" : ""}{delta} vs {edition - 1}
-                    </Text>
-                  )}
-                </Card.Body>
-              </Card.Root>
-            ))}
+            <PublicStatCard
+              label="Coureurs"
+              value={totalRunners}
+              icon={LuUsers}
+              color="primary.500"
+              loading={isLoading}
+              delta={prevRunners && prevRunners.length > 0 && totalRunners - prevTotalRunners !== 0
+                ? `${totalRunners - prevTotalRunners >= 0 ? "+" : ""}${totalRunners - prevTotalRunners} vs ${edition - 1}`
+                : undefined}
+              deltaPositive={(totalRunners - prevTotalRunners) >= 0}
+            />
+            <PublicStatCard
+              label="Tours"
+              value={totalRuns}
+              icon={LuRefreshCw}
+              color="blue.500"
+              loading={isLoading}
+              delta={prevRunners && prevRunners.length > 0 && totalRuns - prevTotalRuns !== 0
+                ? `${totalRuns - prevTotalRuns >= 0 ? "+" : ""}${totalRuns - prevTotalRuns} vs ${edition - 1}`
+                : undefined}
+              deltaPositive={(totalRuns - prevTotalRuns) >= 0}
+            />
+            <PublicStatCard
+              label="Distance"
+              value={`${totalKm}km`}
+              icon={LuMapPin}
+              color="green.500"
+              loading={isLoading}
+              delta={prevRunners && prevRunners.length > 0 && totalKm - prevTotalKm !== 0
+                ? `${totalKm - prevTotalKm >= 0 ? "+" : ""}${totalKm - prevTotalKm}km vs ${edition - 1}`
+                : undefined}
+              deltaPositive={(totalKm - prevTotalKm) >= 0}
+            />
           </SimpleGrid>
 
           <HStack gap="3">

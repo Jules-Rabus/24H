@@ -1,10 +1,14 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { screen, waitFor } from "@testing-library/react";
 import { render } from "../test-utils/render";
 import PublicRaceStatusPage from "../../app/public-race-status/page";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn() }),
+}));
+
+vi.mock("embla-carousel-react", () => ({
+  default: () => [() => null, { scrollPrev: vi.fn(), scrollNext: vi.fn() }],
 }));
 
 describe("PublicRaceStatusPage", () => {

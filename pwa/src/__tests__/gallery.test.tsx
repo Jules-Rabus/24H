@@ -7,7 +7,7 @@ import GalleryPage from "../../app/gallery/page";
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
   usePathname: () => "/gallery",
-  useSearchParams: () => new URLSearchParams("edition=2026"),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 describe("GalleryPage", () => {
@@ -15,64 +15,77 @@ describe("GalleryPage", () => {
     localStorage.clear();
   });
 
-  it("affiche le titre Galerie et le compteur", async () => {
+  it("affiche le titre Galerie et le bouton Partager", async () => {
     render(<GalleryPage />);
     await waitFor(() => {
-      expect(
-        screen.getByRole("heading", { name: "Galerie" }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Galerie" })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /partager/i })).toBeInTheDocument();
     });
   });
 
-  it("affiche le bouton Partager dans la top bar", async () => {
+  it("affiche les commentaires directement dans la grille sans clic", async () => {
     render(<GalleryPage />);
     await waitFor(() => {
-      expect(
-        screen.getByRole("button", { name: /partager/i }),
-      ).toBeInTheDocument();
+      expect(screen.getByText("Super course !")).toBeInTheDocument();
+      expect(screen.getByText("Allez les bleus")).toBeInTheDocument();
     });
   });
 
-  it("trie les médias par likesCount desc", async () => {
+  it("affiche les likes directement dans la grille sans clic", async () => {
     render(<GalleryPage />);
     await waitFor(() => {
-      const images = screen.getAllByRole("img");
-      expect(images.length).toBeGreaterThan(0);
+      // mockLikesCount: média 1 = 12 likes, média 2 = 4 likes, média 3 = 0 likes
+      expect(screen.getByText("12")).toBeInTheDocument();
+      expect(screen.getByText("4")).toBeInTheDocument();
     });
   });
 
-  it("ouvre la lightbox au clic sur un média", async () => {
+  it("tap sur une card affiche le bouton fermer", async () => {
     const user = userEvent.setup();
     render(<GalleryPage />);
-
-    await waitFor(() => {
-      expect(screen.getAllByRole("img").length).toBeGreaterThan(0);
-    });
+    await waitFor(() => expect(screen.getAllByRole("img").length).toBeGreaterThan(0));
 
     await user.click(screen.getAllByRole("img")[0]);
 
     await waitFor(() => {
-      expect(screen.getByText(/1 \/ /)).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /fermer/i })).toBeInTheDocument();
     });
   });
 
-  it("like un média et bloque le re-like", async () => {
+  it("bouton fermer referme la card agrandie", async () => {
     const user = userEvent.setup();
     render(<GalleryPage />);
-
-    await waitFor(() => {
-      expect(screen.getAllByRole("img").length).toBeGreaterThan(0);
-    });
+    await waitFor(() => expect(screen.getAllByRole("img").length).toBeGreaterThan(0));
 
     await user.click(screen.getAllByRole("img")[0]);
+    await waitFor(() => expect(screen.getByRole("button", { name: /fermer/i })).toBeInTheDocument());
+
+    await user.click(screen.getByRole("button", { name: /fermer/i }));
 
     await waitFor(() => {
-      expect(screen.getByText(/1 \/ /)).toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: /fermer/i })).not.toBeInTheDocument();
     });
+  });
 
-    const likeBtn = screen.getByRole("button", { name: /like/i });
+  it("like un média en mode agrandi et bloque le re-like", async () => {
+    const user = userEvent.setup();
+    render(<GalleryPage />);
+    await waitFor(() => expect(screen.getAllByRole("img").length).toBeGreaterThan(0));
+
+    // Ouvrir la première card
+    await user.click(screen.getAllByRole("img")[0]);
+    await waitFor(() => expect(screen.getByRole("button", { name: /fermer/i })).toBeInTheDocument());
+
+    // Liker
+    const likeBtn = screen.getByRole("button", { name: /j'aime|liker|like/i });
     await user.click(likeBtn);
 
-    expect(JSON.parse(localStorage.getItem("24h_likes")!)).toHaveLength(1);
+    // localStorage mis à jour
+    await waitFor(() => {
+      expect(JSON.parse(localStorage.getItem("24h_likes")!)).toHaveLength(1);
+    });
+
+    // Bouton désactivé après like
+    expect(likeBtn).toBeDisabled();
   });
 });

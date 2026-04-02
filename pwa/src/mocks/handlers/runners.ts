@@ -1,6 +1,60 @@
 import { http, HttpResponse } from "msw";
+import { z } from "zod";
+import {
+  publicRunnerSchema,
+  publicParticipationSchema,
+} from "@/state/public/schemas";
 
-const mockRunners = [
+type MockParticipation = z.infer<typeof publicParticipationSchema>;
+type MockRunner = z.infer<typeof publicRunnerSchema> & {
+  "@id": string;
+  "@type": string;
+};
+
+const mockParticipations: MockParticipation[] = [
+  {
+    id: 1,
+    runId: 1,
+    runStartDate: "2026-03-15T08:00:00Z",
+    runEndDate: "2026-03-15T08:30:00Z",
+    runEdition: 2026,
+    arrivalTime: "2026-03-15T08:24:00Z",
+    totalTime: 1440,
+    status: "FINISHED",
+  },
+  {
+    id: 2,
+    runId: 2,
+    runStartDate: "2026-03-15T09:00:00Z",
+    runEndDate: "2026-03-15T09:30:00Z",
+    runEdition: 2026,
+    arrivalTime: "2026-03-15T09:30:00Z",
+    totalTime: 1800,
+    status: "FINISHED",
+  },
+  {
+    id: 101,
+    runId: 101,
+    runStartDate: "2025-03-15T08:00:00Z",
+    runEndDate: "2025-03-15T08:30:00Z",
+    runEdition: 2025,
+    arrivalTime: "2025-03-15T08:26:00Z",
+    totalTime: 1560,
+    status: "FINISHED",
+  },
+  {
+    id: 3,
+    runId: 1,
+    runStartDate: "2026-03-15T08:00:00Z",
+    runEndDate: "2026-03-15T08:30:00Z",
+    runEdition: 2026,
+    arrivalTime: "2026-03-15T08:22:00Z",
+    totalTime: 1320,
+    status: "FINISHED",
+  },
+];
+
+const mockRunners: MockRunner[] = [
   {
     "@id": "/users/1",
     "@type": "User",
@@ -14,38 +68,7 @@ const mockRunners = [
     totalTime: 14400,
     bestTime: 1440,
     averageTime: 1800,
-    participations: [
-      {
-        id: 1,
-        runId: 1,
-        runStartDate: "2026-03-15T08:00:00Z",
-        runEndDate: "2026-03-15T08:30:00Z",
-        runEdition: 2026,
-        arrivalTime: "2026-03-15T08:24:00Z",
-        totalTime: 1440,
-        status: "FINISHED",
-      },
-      {
-        id: 2,
-        runId: 2,
-        runStartDate: "2026-03-15T09:00:00Z",
-        runEndDate: "2026-03-15T09:30:00Z",
-        runEdition: 2026,
-        arrivalTime: "2026-03-15T09:30:00Z",
-        totalTime: 1800,
-        status: "FINISHED",
-      },
-      {
-        id: 101,
-        runId: 101,
-        runStartDate: "2025-03-15T08:00:00Z",
-        runEndDate: "2025-03-15T08:30:00Z",
-        runEdition: 2025,
-        arrivalTime: "2025-03-15T08:26:00Z",
-        totalTime: 1560,
-        status: "FINISHED",
-      },
-    ],
+    participations: mockParticipations.filter((p) => p.id !== 3),
   },
   {
     "@id": "/users/2",
@@ -60,18 +83,7 @@ const mockRunners = [
     totalTime: 20400,
     bestTime: 1320,
     averageTime: 1700,
-    participations: [
-      {
-        id: 3,
-        runId: 1,
-        runStartDate: "2026-03-15T08:00:00Z",
-        runEndDate: "2026-03-15T08:30:00Z",
-        runEdition: 2026,
-        arrivalTime: "2026-03-15T08:22:00Z",
-        totalTime: 1320,
-        status: "FINISHED",
-      },
-    ],
+    participations: mockParticipations.filter((p) => p.id === 3),
   },
 ];
 

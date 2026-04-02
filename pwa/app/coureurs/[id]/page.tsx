@@ -17,7 +17,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { LuArrowLeft, LuActivity, LuScale } from "react-icons/lu";
+import { LuArrowLeft, LuActivity } from "react-icons/lu";
 import { PublicNav } from "@/components/public/PublicNav";
 import { RunnerStatCards } from "@/components/public/RunnerStatCards";
 import { EditionCompareTable } from "@/components/public/EditionCompareTable";
@@ -25,6 +25,7 @@ import { PaceChart } from "@/components/public/PaceChart";
 import { ParticipationsDetail } from "@/components/public/ParticipationsDetail";
 import { usePublicRunnerQuery } from "@/state/public/queries";
 import { useRunnerStats } from "@/hooks/useRunnerStats";
+import type { EditionStats, PublicParticipation } from "@/state/public/schemas";
 const BibDownloadButton = dynamic(
   () => import("@/components/classement/BibDownloadButton"),
   { ssr: false },
@@ -33,6 +34,42 @@ const QrCodeDisplay = dynamic(
   () => import("@/components/classement/QrCodeDisplay"),
   { ssr: false },
 );
+
+type ChartPoint = { name: string; pace2026: number | null; pace2025: number | null };
+
+function TabContent({
+  stats,
+  prevStats,
+  participations,
+  edition,
+  chartData,
+}: {
+  stats: EditionStats;
+  prevStats: EditionStats;
+  participations: PublicParticipation[];
+  edition: number;
+  chartData: ChartPoint[];
+}) {
+  return (
+    <VStack align="stretch" gap="4" mt="4">
+      <RunnerStatCards stats={stats} prevStats={prevStats} />
+      {chartData.length >= 2 && (
+        <Card.Root shadow="sm" borderWidth="1px" borderColor="card.border" bg="card.bg">
+          <Card.Body p={{ base: "3", md: "4" }}>
+            <HStack mb="2" gap="2" align="center">
+              <LuActivity size={14} />
+              <Text fontSize="xs" color="fg.muted" textTransform="uppercase" letterSpacing="wider" fontWeight="semibold">
+                Allure par tour (min/km)
+              </Text>
+            </HStack>
+            <PaceChart data={chartData} />
+          </Card.Body>
+        </Card.Root>
+      )}
+      <ParticipationsDetail participations={participations} edition={edition} />
+    </VStack>
+  );
+}
 
 function CoureurContent({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -72,7 +109,7 @@ function CoureurContent({ params }: { params: Promise<{ id: string }> }) {
             </Card.Root>
             <VStack align="stretch" gap="4">
               <HStack gap="2">
-                {Array.from({ length: 3 }).map((_, i) => (
+                {Array.from({ length: 2 }).map((_, i) => (
                   <Skeleton key={i} height="9" flex="1" rounded="md" />
                 ))}
               </HStack>
@@ -81,6 +118,7 @@ function CoureurContent({ params }: { params: Promise<{ id: string }> }) {
                   <Skeleton key={i} height="24" flex="1" rounded="xl" />
                 ))}
               </HStack>
+              <Skeleton height="32" rounded="xl" />
               <Skeleton height="40" rounded="xl" />
             </VStack>
           </VStack>
@@ -126,18 +164,10 @@ function CoureurContent({ params }: { params: Promise<{ id: string }> }) {
           </HStack>
 
           {/* Hero card */}
-          <Card.Root
-            shadow="sm"
-            borderWidth="1px"
-            borderColor="card.border"
-            bg="card.bg"
-          >
+          <Card.Root shadow="sm" borderWidth="1px" borderColor="card.border" bg="card.bg">
             <Card.Body p={{ base: "4", md: "6" }}>
               <HStack gap={{ base: "3", md: "5" }} align="flex-start">
-                <Avatar.Root
-                  size={{ base: "lg", md: "xl" }}
-                  colorPalette="primary"
-                >
+                <Avatar.Root size={{ base: "lg", md: "xl" }} colorPalette="primary">
                   <Avatar.Fallback>{initials}</Avatar.Fallback>
                 </Avatar.Root>
 
@@ -171,11 +201,7 @@ function CoureurContent({ params }: { params: Promise<{ id: string }> }) {
               {/* Action buttons */}
               <HStack gap="2" mt="4" flexWrap="wrap">
                 {runner.id && (
-                  <QrCodeDisplay
-                    userId={runner.id}
-                    open={qrOpen}
-                    onOpenChange={setQrOpen}
-                  />
+                  <QrCodeDisplay userId={runner.id} open={qrOpen} onOpenChange={setQrOpen} />
                 )}
                 {runner.id && runner.firstName && runner.lastName && (
                   <BibDownloadButton
@@ -194,85 +220,52 @@ function CoureurContent({ params }: { params: Promise<{ id: string }> }) {
           {/* Edition tabs */}
           <Tabs.Root defaultValue={defaultTab}>
             <Tabs.List>
-              <Tabs.Trigger value="2026">2026</Tabs.Trigger>
-              <Tabs.Trigger value="2025">2025</Tabs.Trigger>
-              <Tabs.Trigger value="compare">
-                <LuScale size={14} />
-                <Text ml="1">Comparer</Text>
+              <Tabs.Trigger value="2026">
+                2026
+                <Badge colorPalette="teal" size="xs" ml="1" variant="subtle">
+                  en cours
+                </Badge>
               </Tabs.Trigger>
+              <Tabs.Trigger value="2025">2025</Tabs.Trigger>
             </Tabs.List>
 
-            {/* 2026 tab */}
             <Tabs.Content value="2026">
-              <VStack align="stretch" gap="6" mt="4">
-                <RunnerStatCards stats={stats2026} />
-                <ParticipationsDetail participations={participations2026} />
-              </VStack>
+              <TabContent
+                stats={stats2026}
+                prevStats={stats2025}
+                participations={participations2026}
+                edition={2026}
+                chartData={chartData}
+              />
             </Tabs.Content>
 
-            {/* 2025 tab */}
             <Tabs.Content value="2025">
-              <VStack align="stretch" gap="6" mt="4">
-                <RunnerStatCards stats={stats2025} />
-                <ParticipationsDetail participations={participations2025} />
-              </VStack>
-            </Tabs.Content>
-
-            {/* Compare tab */}
-            <Tabs.Content value="compare">
-              <VStack align="stretch" gap="6" mt="4">
-                <Card.Root
-                  shadow="sm"
-                  borderWidth="1px"
-                  borderColor="card.border"
-                  bg="card.bg"
-                >
-                  <Card.Body p={{ base: "3", md: "6" }}>
-                    <Text
-                      fontSize="xs"
-                      color="fg.muted"
-                      textTransform="uppercase"
-                      letterSpacing="wider"
-                      fontWeight="semibold"
-                      mb="4"
-                    >
-                      Comparaison des editions
-                    </Text>
-                    <EditionCompareTable
-                      stats2026={stats2026}
-                      stats2025={stats2025}
-                    />
-                  </Card.Body>
-                </Card.Root>
-              </VStack>
+              <TabContent
+                stats={stats2025}
+                prevStats={stats2026}
+                participations={participations2025}
+                edition={2025}
+                chartData={chartData}
+              />
             </Tabs.Content>
           </Tabs.Root>
 
-          {/* Dual pace chart */}
-          {chartData.length >= 2 && (
-            <Card.Root
-              shadow="sm"
-              borderWidth="1px"
-              borderColor="card.border"
-              bg="card.bg"
-            >
-              <Card.Body p={{ base: "3", md: "6" }}>
-                <HStack mb="3" gap="2" align="center">
-                  <LuActivity size={16} />
-                  <Text
-                    fontSize="xs"
-                    color="fg.muted"
-                    textTransform="uppercase"
-                    letterSpacing="wider"
-                    fontWeight="semibold"
-                  >
-                    Allure par tour (min/km)
-                  </Text>
-                </HStack>
-                <PaceChart data={chartData} />
-              </Card.Body>
-            </Card.Root>
-          )}
+          {/* Comparison — always visible */}
+          <Card.Root shadow="sm" borderWidth="1px" borderColor="card.border" bg="card.bg">
+            <Card.Body p={{ base: "3", md: "5" }}>
+              <Text
+                fontSize="xs"
+                color="fg.muted"
+                textTransform="uppercase"
+                letterSpacing="wider"
+                fontWeight="semibold"
+                mb="4"
+              >
+                Comparaison 2026 vs 2025
+              </Text>
+              <EditionCompareTable stats2026={stats2026} stats2025={stats2025} />
+            </Card.Body>
+          </Card.Root>
         </VStack>
       </Box>
     </Box>

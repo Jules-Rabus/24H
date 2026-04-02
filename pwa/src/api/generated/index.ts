@@ -34,6 +34,7 @@ export {
   type Options,
   postForgotPassword,
   postForgotPasswordToken,
+  raceMediaLike,
 } from "./sdk.gen";
 export type {
   ApiMediasGetCollectionData,
@@ -208,6 +209,11 @@ export type {
   PostForgotPasswordTokenResponse,
   PostForgotPasswordTokenResponses,
   RaceMedia,
+  RaceMediaLikeData,
+  RaceMediaLikeError,
+  RaceMediaLikeErrors,
+  RaceMediaLikeResponse,
+  RaceMediaLikeResponses,
   RaceMediaMultipart,
   RaceMediaRaceMediaCollection,
   RaceMediaRaceMediaCollectionMultipart,

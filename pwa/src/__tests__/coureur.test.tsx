@@ -94,7 +94,7 @@ describe("CoureurPage", () => {
   it("affiche les StatCards tours et distance", async () => {
     await renderPage();
     await waitFor(() => {
-      expect(screen.getAllByText("Tours termines").length).toBeGreaterThan(0);
+      expect(screen.getAllByText("Tours terminés").length).toBeGreaterThan(0);
       expect(screen.getAllByText("Distance").length).toBeGreaterThan(0);
       expect(screen.getAllByText("Meilleur temps").length).toBeGreaterThan(0);
     });
@@ -105,7 +105,6 @@ describe("CoureurPage", () => {
     await waitFor(() => {
       expect(screen.getAllByText("2026").length).toBeGreaterThan(0);
       expect(screen.getAllByText("2025").length).toBeGreaterThan(0);
-      expect(screen.getByText(/comparer/i)).toBeInTheDocument();
     });
   });
 
