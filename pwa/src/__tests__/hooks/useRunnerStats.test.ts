@@ -1,13 +1,17 @@
 import { describe, it, expect } from "vitest";
 import { renderHook } from "@testing-library/react";
 import { useRunnerStats } from "@/hooks/useRunnerStats";
-import { publicRunnerSchema } from "@/state/public/schemas";
+import { userCollectionSchema } from "@/state/public/schemas";
 import type { PublicRunner } from "@/state/public/schemas";
 
-const runner: PublicRunner = publicRunnerSchema.parse({
+const runner: PublicRunner = userCollectionSchema.parse({
   id: 1,
   firstName: "Jean",
   lastName: "Dupont",
+  surname: null,
+  email: null,
+  organization: null,
+  image: null,
   finishedParticipationsCount: 2,
   totalTime: 3240,
   bestTime: 1440,
@@ -20,7 +24,7 @@ const runner: PublicRunner = publicRunnerSchema.parse({
       totalTime: 1440,
       status: "FINISHED",
       runStartDate: "2026-01-01T08:00:00Z",
-      runEndDate: null,
+      runEndDate: "2026-01-01T09:00:00Z",
       arrivalTime: null,
     },
     {
@@ -30,7 +34,7 @@ const runner: PublicRunner = publicRunnerSchema.parse({
       totalTime: 1800,
       status: "FINISHED",
       runStartDate: "2026-01-01T09:00:00Z",
-      runEndDate: null,
+      runEndDate: "2026-01-01T10:00:00Z",
       arrivalTime: null,
     },
     {
@@ -40,7 +44,7 @@ const runner: PublicRunner = publicRunnerSchema.parse({
       totalTime: 1560,
       status: "FINISHED",
       runStartDate: "2025-01-01T08:00:00Z",
-      runEndDate: null,
+      runEndDate: "2025-01-01T09:00:00Z",
       arrivalTime: null,
     },
   ],

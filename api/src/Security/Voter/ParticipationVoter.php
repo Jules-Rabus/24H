@@ -2,7 +2,6 @@
 
 namespace App\Security\Voter;
 
-use ApiPlatform\Metadata\IriConverterInterface;
 use App\ApiResource\Participation\ParticipationApi;
 use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -12,10 +11,6 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 final class ParticipationVoter extends Voter
 {
     public const string VIEW = 'PARTICIPATION_VIEW';
-
-    public function __construct(private readonly IriConverterInterface $iriConverter)
-    {
-    }
 
     protected function supports(string $attribute, mixed $subject): bool
     {
@@ -30,8 +25,6 @@ final class ParticipationVoter extends Voter
         }
 
         /** @var ParticipationApi $subject */
-        $userIri = $this->iriConverter->getIriFromResource($currentUser);
-
-        return $subject->user === $userIri;
+        return $subject->user->id === $currentUser->getId();
     }
 }

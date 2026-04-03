@@ -9,11 +9,11 @@ use Symfony\Component\ObjectMapper\Attribute\Map;
 #[Map(source: User::class)]
 final class UserRef
 {
-    public ?int $id = null;
+    public int $id;
 
-    public ?string $firstName = null;
+    public string $firstName;
 
-    public ?string $lastName = null;
+    public string $lastName;
 
     public ?string $surname = null;
 

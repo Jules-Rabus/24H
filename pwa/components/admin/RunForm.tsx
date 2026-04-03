@@ -2,8 +2,8 @@
 
 import { Button, Dialog, Field, Input, VStack } from "@chakra-ui/react";
 import { useForm } from "@tanstack/react-form";
-import { z } from "zod";
 import type { AdminRun } from "@/state/admin/runs/queries";
+import { createRunSchema } from "@/state/admin/runs/schemas";
 import {
   useCreateRunMutation,
   useUpdateRunMutation,
@@ -30,6 +30,9 @@ export function RunForm({
         ? new Date(run.endDate).toISOString().slice(0, 16)
         : "",
     },
+    validators: {
+      onChange: createRunSchema,
+    },
     onSubmit: async ({ value }) => {
       const body = {
         startDate: new Date(value.startDate).toISOString(),
@@ -54,18 +57,7 @@ export function RunForm({
     >
       <Dialog.Body>
         <VStack gap="4">
-          <form.Field
-            name="startDate"
-            validators={{
-              onChange: ({ value }) => {
-                const r = z
-                  .string()
-                  .min(1, "Date de début requise")
-                  .safeParse(value);
-                return r.success ? undefined : r.error.issues[0].message;
-              },
-            }}
-          >
+          <form.Field name="startDate">
             {(field) => (
               <Field.Root required invalid={!!field.state.meta.errors.length}>
                 <Field.Label>Date de début</Field.Label>
@@ -75,27 +67,13 @@ export function RunForm({
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
                 />
-                <Field.ErrorText>{field.state.meta.errors[0]}</Field.ErrorText>
+                <Field.ErrorText>
+                  {field.state.meta.errors[0]?.message}
+                </Field.ErrorText>
               </Field.Root>
             )}
           </form.Field>
-          <form.Field
-            name="endDate"
-            validators={{
-              onChange: ({ value }) => {
-                const r = z
-                  .string()
-                  .min(1, "Date de fin requise")
-                  .safeParse(value);
-                if (!r.success) return r.error.issues[0].message;
-                const start = form.getFieldValue("startDate");
-                if (start && new Date(value) <= new Date(start)) {
-                  return "La fin doit être après le début";
-                }
-                return undefined;
-              },
-            }}
-          >
+          <form.Field name="endDate">
             {(field) => (
               <Field.Root required invalid={!!field.state.meta.errors.length}>
                 <Field.Label>Date de fin</Field.Label>
@@ -105,7 +83,9 @@ export function RunForm({
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
                 />
-                <Field.ErrorText>{field.state.meta.errors[0]}</Field.ErrorText>
+                <Field.ErrorText>
+                  {field.state.meta.errors[0]?.message}
+                </Field.ErrorText>
               </Field.Root>
             )}
           </form.Field>
@@ -120,9 +100,18 @@ export function RunForm({
         >
           Annuler
         </Button>
-        <Button type="submit" colorPalette="primary" loading={isLoading}>
-          {run ? "Modifier" : "Créer"}
-        </Button>
+        <form.Subscribe selector={(s) => s.canSubmit}>
+          {(canSubmit) => (
+            <Button
+              type="submit"
+              colorPalette="primary"
+              loading={isLoading}
+              disabled={!canSubmit}
+            >
+              {run ? "Modifier" : "Créer"}
+            </Button>
+          )}
+        </form.Subscribe>
       </Dialog.Footer>
     </form>
   );

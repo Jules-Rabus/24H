@@ -8,9 +8,9 @@ use Symfony\Component\ObjectMapper\Attribute\Map;
 #[Map(source: Run::class)]
 final class RunRef
 {
-    public ?int $id = null;
+    public int $id;
 
-    public ?\DateTimeInterface $startDate = null;
+    public \DateTimeInterface $startDate;
 
-    public ?\DateTimeInterface $endDate = null;
+    public \DateTimeInterface $endDate;
 }

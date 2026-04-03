@@ -1,11 +1,11 @@
 import { z } from "zod";
 import {
-  publicRunnerSchema,
+  userCollectionSchema,
   publicParticipationSchema,
 } from "@/state/public/schemas";
 
 type PublicParticipation = z.infer<typeof publicParticipationSchema>;
-type PublicRunner = z.infer<typeof publicRunnerSchema>;
+type PublicRunner = z.infer<typeof userCollectionSchema>;
 type MockRunner = PublicRunner & { "@id": string; "@type": string };
 
 let participationId = 1;
@@ -36,6 +36,7 @@ export function buildRunner(overrides: Partial<MockRunner> = {}): MockRunner {
     firstName: "Jean",
     lastName: "Dupont",
     surname: null,
+    email: null,
     organization: "ACBB",
     image: null,
     finishedParticipationsCount: 8,

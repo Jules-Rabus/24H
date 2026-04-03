@@ -18,6 +18,7 @@ use App\Dto\Medias\MediasCollection;
 use App\Entity\Medias;
 use App\Entity\User;
 use App\ObjectMapper\MediasContentUrlTransformer;
+use App\State\MediasDeleteProcessor;
 use App\State\MediasProcessor;
 use Symfony\Component\ObjectMapper\Attribute\Map;
 
@@ -62,6 +63,15 @@ use Symfony\Component\ObjectMapper\Attribute\Map;
         ),
         new Delete(
             security: 'is_granted("ROLE_ADMIN")',
+        ),
+        new Delete(
+            uriTemplate: '/users/{userId}/image',
+            uriVariables: [
+                'userId' => new Link(fromClass: User::class, identifiers: ['id']),
+            ],
+            security: 'is_granted("ROLE_ADMIN")',
+            processor: MediasDeleteProcessor::class,
+            read: false,
         ),
     ],
 )]

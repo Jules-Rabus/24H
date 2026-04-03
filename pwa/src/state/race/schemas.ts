@@ -1,33 +1,33 @@
 import { z } from "zod";
+import {
+  runRefSchema as participationRunSchema,
+  userRefSchema as participationUserSchema,
+} from "@/state/shared/schemas";
+
+export { participationRunSchema, participationUserSchema };
+
+// ---------------------------------------------------------------------------
+// Read — matches RunCollection DTO (public subset)
+// ---------------------------------------------------------------------------
 
 export const runSchema = z.object({
-  id: z.number().optional(),
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
-  participantsCount: z.number().optional(),
+  id: z.number(),
+  startDate: z.string(),
+  endDate: z.string(),
+  participantsCount: z.number(),
 });
 
-export const participationRunSchema = z.object({
-  id: z.number().nullish(),
-  startDate: z.string().nullish(),
-  endDate: z.string().nullish(),
-});
-
-export const participationUserSchema = z.object({
-  id: z.number().nullish(),
-  firstName: z.string().nullish(),
-  lastName: z.string().nullish(),
-  surname: z.string().nullish(),
-  image: z.string().nullish(),
-});
+// ---------------------------------------------------------------------------
+// Read — matches ParticipationCollection DTO
+// ---------------------------------------------------------------------------
 
 export const participationSchema = z.object({
-  id: z.number().optional(),
-  run: participationRunSchema.nullish(),
-  user: participationUserSchema.nullish(),
-  arrivalTime: z.string().nullish(),
-  status: z.string().optional(),
-  totalTime: z.number().nullish(),
+  id: z.number(),
+  run: participationRunSchema,
+  user: participationUserSchema,
+  arrivalTime: z.string().nullable(),
+  status: z.string(),
+  totalTime: z.number().nullable(),
 });
 
 export const runsCollectionSchema = z.object({

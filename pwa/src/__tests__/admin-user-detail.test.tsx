@@ -1,8 +1,11 @@
 import { Suspense } from "react";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { screen, waitFor, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { http, HttpResponse } from "msw";
 import { render } from "../test-utils/render";
+import { server } from "../mocks/server";
+import { buildAdminUser, buildAdminParticipation } from "../mocks/factories";
 import UserDetailPage from "../../app/admin/users/[id]/page";
 
 vi.mock("next/navigation", () => ({
@@ -145,5 +148,35 @@ describe("AdminUserDetailPage", () => {
         screen.getByText(/cette action est irréversible/i),
       ).toBeInTheDocument();
     });
+  });
+
+  it("affiche le bouton supprimer image quand l'utilisateur a une image", async () => {
+    const userWithImage = buildAdminUser({
+      id: 10,
+      firstName: "Photo",
+      lastName: "User",
+      image: "/s3/users/photo.jpg",
+    });
+    server.use(
+      http.get("*/users/10", () => HttpResponse.json(userWithImage)),
+      http.get("*/participations", () => HttpResponse.json([])),
+    );
+
+    await renderDetail("10");
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: /supprimer l'image/i }),
+      ).toBeInTheDocument();
+    });
+  });
+
+  it("n'affiche pas le bouton supprimer image quand pas d'image", async () => {
+    await renderDetail("1");
+    await waitFor(() => {
+      expect(screen.getByText("Photo de profil")).toBeInTheDocument();
+    });
+    expect(
+      screen.queryByRole("button", { name: /supprimer l'image/i }),
+    ).not.toBeInTheDocument();
   });
 });

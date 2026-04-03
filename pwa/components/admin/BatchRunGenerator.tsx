@@ -11,6 +11,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useForm } from "@tanstack/react-form";
+import { batchRunFormSchema } from "@/state/admin/runs/schemas";
 import { useCreateRunMutation } from "@/state/admin/runs/mutations";
 
 export function BatchRunGenerator({ onClose }: { onClose: () => void }) {
@@ -22,6 +23,9 @@ export function BatchRunGenerator({ onClose }: { onClose: () => void }) {
 
   const form = useForm({
     defaultValues: { firstHour: "", lastHour: "" },
+    validators: {
+      onChange: batchRunFormSchema,
+    },
     onSubmit: async ({ value }) => {
       const start = new Date(value.firstHour);
       const end = new Date(value.lastHour);
@@ -72,13 +76,7 @@ export function BatchRunGenerator({ onClose }: { onClose: () => void }) {
     >
       <Dialog.Body>
         <VStack gap="4">
-          <form.Field
-            name="firstHour"
-            validators={{
-              onChange: ({ value }) =>
-                value ? undefined : "Heure de départ requise",
-            }}
-          >
+          <form.Field name="firstHour">
             {(field) => (
               <Field.Root required invalid={!!field.state.meta.errors.length}>
                 <Field.Label>Première heure</Field.Label>
@@ -91,23 +89,13 @@ export function BatchRunGenerator({ onClose }: { onClose: () => void }) {
                   }}
                   onBlur={field.handleBlur}
                 />
-                <Field.ErrorText>{field.state.meta.errors[0]}</Field.ErrorText>
+                <Field.ErrorText>
+                  {field.state.meta.errors[0]?.message}
+                </Field.ErrorText>
               </Field.Root>
             )}
           </form.Field>
-          <form.Field
-            name="lastHour"
-            validators={{
-              onChange: ({ value }) => {
-                if (!value) return "Heure de fin requise";
-                const start = form.getFieldValue("firstHour");
-                if (start && new Date(value) <= new Date(start)) {
-                  return "Doit être après la première heure";
-                }
-                return undefined;
-              },
-            }}
-          >
+          <form.Field name="lastHour">
             {(field) => (
               <Field.Root required invalid={!!field.state.meta.errors.length}>
                 <Field.Label>Dernière heure</Field.Label>
@@ -120,7 +108,9 @@ export function BatchRunGenerator({ onClose }: { onClose: () => void }) {
                   }}
                   onBlur={field.handleBlur}
                 />
-                <Field.ErrorText>{field.state.meta.errors[0]}</Field.ErrorText>
+                <Field.ErrorText>
+                  {field.state.meta.errors[0]?.message}
+                </Field.ErrorText>
               </Field.Root>
             )}
           </form.Field>
@@ -159,14 +149,18 @@ export function BatchRunGenerator({ onClose }: { onClose: () => void }) {
         >
           Annuler
         </Button>
-        <Button
-          type="submit"
-          colorPalette="primary"
-          loading={!!progress}
-          disabled={previewCount === 0}
-        >
-          Générer {previewCount} run{previewCount > 1 ? "s" : ""}
-        </Button>
+        <form.Subscribe selector={(s) => s.canSubmit}>
+          {(canSubmit) => (
+            <Button
+              type="submit"
+              colorPalette="primary"
+              loading={!!progress}
+              disabled={!canSubmit || previewCount === 0}
+            >
+              Générer {previewCount} run{previewCount > 1 ? "s" : ""}
+            </Button>
+          )}
+        </form.Subscribe>
       </Dialog.Footer>
     </form>
   );

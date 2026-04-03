@@ -10,8 +10,8 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useForm } from "@tanstack/react-form";
-import { z } from "zod";
 import type { AdminUser } from "@/state/admin/users/queries";
+import { createUserSchema } from "@/state/admin/users/schemas";
 import {
   useCreateUserMutation,
   useUpdateUserMutation,
@@ -38,6 +38,9 @@ export function UserForm({
       plainPassword: "",
       organization: user?.organization ?? "",
       isAdmin: user?.roles?.includes("ROLE_ADMIN") ?? false,
+    },
+    validators: {
+      onChange: createUserSchema,
     },
     onSubmit: async ({ value }) => {
       const roles: string[] = value.isAdmin
@@ -76,15 +79,7 @@ export function UserForm({
     >
       <Dialog.Body>
         <VStack gap="4">
-          <form.Field
-            name="firstName"
-            validators={{
-              onChange: ({ value }) => {
-                const r = z.string().min(1, "Prénom requis").safeParse(value);
-                return r.success ? undefined : r.error.issues[0].message;
-              },
-            }}
-          >
+          <form.Field name="firstName">
             {(field) => (
               <Field.Root required invalid={!!field.state.meta.errors.length}>
                 <Field.Label>Prénom</Field.Label>
@@ -94,20 +89,14 @@ export function UserForm({
                   onBlur={field.handleBlur}
                   placeholder="Prénom"
                 />
-                <Field.ErrorText>{field.state.meta.errors[0]}</Field.ErrorText>
+                <Field.ErrorText>
+                  {field.state.meta.errors[0]?.message}
+                </Field.ErrorText>
               </Field.Root>
             )}
           </form.Field>
 
-          <form.Field
-            name="lastName"
-            validators={{
-              onChange: ({ value }) => {
-                const r = z.string().min(1, "Nom requis").safeParse(value);
-                return r.success ? undefined : r.error.issues[0].message;
-              },
-            }}
-          >
+          <form.Field name="lastName">
             {(field) => (
               <Field.Root required invalid={!!field.state.meta.errors.length}>
                 <Field.Label>Nom</Field.Label>
@@ -117,7 +106,9 @@ export function UserForm({
                   onBlur={field.handleBlur}
                   placeholder="Nom"
                 />
-                <Field.ErrorText>{field.state.meta.errors[0]}</Field.ErrorText>
+                <Field.ErrorText>
+                  {field.state.meta.errors[0]?.message}
+                </Field.ErrorText>
               </Field.Root>
             )}
           </form.Field>
@@ -136,16 +127,7 @@ export function UserForm({
             )}
           </form.Field>
 
-          <form.Field
-            name="email"
-            validators={{
-              onChange: ({ value }) => {
-                if (!value) return undefined;
-                const r = z.string().email("Email invalide").safeParse(value);
-                return r.success ? undefined : r.error.issues[0].message;
-              },
-            }}
-          >
+          <form.Field name="email">
             {(field) => (
               <Field.Root invalid={!!field.state.meta.errors.length}>
                 <Field.Label>Email</Field.Label>
@@ -156,7 +138,9 @@ export function UserForm({
                   onBlur={field.handleBlur}
                   placeholder="email@exemple.fr"
                 />
-                <Field.ErrorText>{field.state.meta.errors[0]}</Field.ErrorText>
+                <Field.ErrorText>
+                  {field.state.meta.errors[0]?.message}
+                </Field.ErrorText>
               </Field.Root>
             )}
           </form.Field>
@@ -224,9 +208,18 @@ export function UserForm({
         >
           Annuler
         </Button>
-        <Button type="submit" colorPalette="primary" loading={isLoading}>
-          {user ? "Modifier" : "Créer"}
-        </Button>
+        <form.Subscribe selector={(s) => s.canSubmit}>
+          {(canSubmit) => (
+            <Button
+              type="submit"
+              colorPalette="primary"
+              loading={isLoading}
+              disabled={!canSubmit}
+            >
+              {user ? "Modifier" : "Créer"}
+            </Button>
+          )}
+        </form.Subscribe>
       </Dialog.Footer>
     </form>
   );

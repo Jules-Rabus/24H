@@ -88,8 +88,8 @@ export type MediasMultipart = {
 
 export type Participation = {
   id?: number | null;
-  run?: RunRef | null;
-  user?: UserRef | null;
+  run?: RunRef;
+  user?: UserRef;
   arrivalTime?: string | null;
   totalTime?: number | null;
   status?: string;
@@ -113,8 +113,8 @@ export type ParticipationDataMatrixInput = {
 
 export type ParticipationParticipationCollection = {
   id?: number;
-  run?: RunRef | null;
-  user?: UserRef | null;
+  run?: RunRef;
+  user?: UserRef;
   arrivalTime?: string | null;
   status?: string;
   totalTime?: number | null;
@@ -122,8 +122,8 @@ export type ParticipationParticipationCollection = {
 
 export type ParticipationParticipationCollectionMultipart = {
   id?: number;
-  run?: RunRefMultipart | null;
-  user?: UserRefMultipart | null;
+  run?: RunRefMultipart;
+  user?: UserRefMultipart;
   arrivalTime?: string | null;
   status?: string;
   totalTime?: number | null;
@@ -135,8 +135,8 @@ export type ParticipationUpdateParticipationJsonMergePatch = {
 
 export type ParticipationMultipart = {
   id?: number | null;
-  run?: RunRefMultipart | null;
-  user?: UserRefMultipart | null;
+  run?: RunRefMultipart;
+  user?: UserRefMultipart;
   arrivalTime?: string | null;
   totalTime?: number | null;
   status?: string;
@@ -204,6 +204,10 @@ export type RunRunCollection = {
   startDate?: string;
   endDate?: string;
   participantsCount?: number;
+  inProgressParticipantsCount?: number;
+  finishedParticipantsCount?: number;
+  averageTime?: number | null;
+  fastestTime?: number | null;
 };
 
 export type RunRunCollectionMultipart = {
@@ -211,6 +215,10 @@ export type RunRunCollectionMultipart = {
   startDate?: string;
   endDate?: string;
   participantsCount?: number;
+  inProgressParticipantsCount?: number;
+  finishedParticipantsCount?: number;
+  averageTime?: number | null;
+  fastestTime?: number | null;
 };
 
 export type RunUpdateRunJsonMergePatch = {
@@ -234,15 +242,15 @@ export type RunMultipart = {
 };
 
 export type RunRef = {
-  id?: number | null;
-  startDate?: string | null;
-  endDate?: string | null;
+  id?: number;
+  startDate?: string;
+  endDate?: string;
 };
 
 export type RunRefMultipart = {
-  id?: number | null;
-  startDate?: string | null;
-  endDate?: string | null;
+  id?: number;
+  startDate?: string;
+  endDate?: string;
 };
 
 export type User = {
@@ -356,17 +364,17 @@ export type UserMultipart = {
 };
 
 export type UserRef = {
-  id?: number | null;
-  firstName?: string | null;
-  lastName?: string | null;
+  id?: number;
+  firstName?: string;
+  lastName?: string;
   surname?: string | null;
   image?: string | null;
 };
 
 export type UserRefMultipart = {
-  id?: number | null;
-  firstName?: string | null;
-  lastName?: string | null;
+  id?: number;
+  firstName?: string;
+  lastName?: string;
   surname?: string | null;
   image?: string | null;
 };
@@ -647,6 +655,42 @@ export type ApiMediasIdGetResponses = {
 
 export type ApiMediasIdGetResponse =
   ApiMediasIdGetResponses[keyof ApiMediasIdGetResponses];
+
+export type ApiUsersUserIdimageDeleteData = {
+  body?: never;
+  path: {
+    /**
+     * Medias identifier
+     */
+    userId: string;
+  };
+  query?: never;
+  url: "/users/{userId}/image";
+};
+
+export type ApiUsersUserIdimageDeleteErrors = {
+  /**
+   * Forbidden
+   */
+  403: Error;
+  /**
+   * Not found
+   */
+  404: Error;
+};
+
+export type ApiUsersUserIdimageDeleteError =
+  ApiUsersUserIdimageDeleteErrors[keyof ApiUsersUserIdimageDeleteErrors];
+
+export type ApiUsersUserIdimageDeleteResponses = {
+  /**
+   * Medias resource deleted
+   */
+  204: void;
+};
+
+export type ApiUsersUserIdimageDeleteResponse =
+  ApiUsersUserIdimageDeleteResponses[keyof ApiUsersUserIdimageDeleteResponses];
 
 export type ApiUsersUserIdimagePostData = {
   /**
@@ -1000,10 +1044,6 @@ export type ApiRaceMediasPostErrors = {
    * Invalid input
    */
   400: Error;
-  /**
-   * Forbidden
-   */
-  403: Error;
   /**
    * An error occurred
    */
@@ -1505,6 +1545,10 @@ export type ApiUserspublicGetCollectionData = {
     "order[surname]"?: "asc" | "desc";
     "order[email]"?: "asc" | "desc";
     "order[organization]"?: "asc" | "desc";
+    /**
+     * User edition
+     */
+    "edition[]"?: Array<string>;
   };
   url: "/users/public";
 };

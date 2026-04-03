@@ -14,10 +14,10 @@ final class ParticipationCollection
     public int $id;
 
     #[Map(transform: RelationTransformer::class)]
-    public ?RunRef $run = null;
+    public RunRef $run;
 
     #[Map(transform: RelationTransformer::class)]
-    public ?UserRef $user = null;
+    public UserRef $user;
 
     public ?\DateTimeInterface $arrivalTime = null;
 

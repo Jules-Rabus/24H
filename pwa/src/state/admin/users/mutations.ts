@@ -4,6 +4,7 @@ import {
   apiUsersIdPatch,
   apiUsersIdDelete,
   apiUsersUserIdimagePost,
+  apiUsersUserIdimageDelete,
 } from "@/api/generated/sdk.gen";
 import { adminUserKeys } from "./queries";
 
@@ -60,6 +61,21 @@ export function useDeleteUserMutation() {
     },
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: adminUserKeys.all }),
+  });
+}
+
+export function useDeleteUserImageMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (userId: number) => {
+      await apiUsersUserIdimageDelete({
+        path: { userId: String(userId) },
+      });
+    },
+    onSuccess: (_, userId) => {
+      queryClient.invalidateQueries({ queryKey: adminUserKeys.detail(userId) });
+      queryClient.invalidateQueries({ queryKey: adminUserKeys.all });
+    },
   });
 }
 

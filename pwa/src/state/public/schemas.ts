@@ -1,35 +1,44 @@
 import { z } from "zod";
 
+// ---------------------------------------------------------------------------
+// Read — matches ParticipationPublic DTO
+// ---------------------------------------------------------------------------
+
 export const publicParticipationSchema = z.object({
   id: z.number(),
-  runId: z.number().nullish(),
-  runStartDate: z.string().nullish(),
-  runEndDate: z.string().nullish(),
-  runEdition: z.number().nullish(),
-  arrivalTime: z.string().nullish(),
-  totalTime: z.number().nullish(),
+  runId: z.number(),
+  runStartDate: z.string(),
+  runEndDate: z.string(),
+  runEdition: z.number().nullable(),
+  arrivalTime: z.string().nullable(),
+  totalTime: z.number().nullable(),
   status: z.string(),
 });
 
 export type PublicParticipation = z.infer<typeof publicParticipationSchema>;
 
-export const publicRunnerSchema = z.object({
-  id: z.number().optional(),
-  firstName: z.string().optional(),
-  lastName: z.string().optional(),
-  surname: z.string().nullish(),
-  organization: z.string().nullish(),
-  image: z.string().nullish(),
-  participations: z.array(publicParticipationSchema).optional(),
-  finishedParticipationsCount: z.number().optional(),
-  totalTime: z.number().nullish(),
-  bestTime: z.number().nullish(),
-  averageTime: z.number().nullish(),
+// ---------------------------------------------------------------------------
+// Read — matches UserCollection DTO (public routes)
+// ---------------------------------------------------------------------------
+
+export const userCollectionSchema = z.object({
+  id: z.number(),
+  firstName: z.string(),
+  lastName: z.string(),
+  surname: z.string().nullable(),
+  email: z.string().nullable(),
+  organization: z.string().nullable(),
+  image: z.string().nullable(),
+  participations: z.array(publicParticipationSchema),
+  finishedParticipationsCount: z.number(),
+  totalTime: z.number().nullable(),
+  bestTime: z.number().nullable(),
+  averageTime: z.number().nullable(),
 });
 
-export type PublicRunner = z.infer<typeof publicRunnerSchema>;
+export type PublicRunner = z.infer<typeof userCollectionSchema>;
 
-export const rankedRunnerSchema = publicRunnerSchema.extend({
+export const rankedRunnerSchema = userCollectionSchema.extend({
   rank: z.number(),
 });
 export type RankedRunner = z.infer<typeof rankedRunnerSchema>;

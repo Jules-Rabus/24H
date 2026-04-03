@@ -1,31 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { apiParticipationsGetCollection } from "@/api/generated/sdk.gen";
 import { z } from "zod";
+import {
+  participationCollectionSchema,
+  type AdminParticipation,
+} from "./schemas";
 
-const runRefSchema = z.object({
-  id: z.number().nullish(),
-  startDate: z.string().nullish(),
-  endDate: z.string().nullish(),
-});
-
-const userRefSchema = z.object({
-  id: z.number().nullish(),
-  firstName: z.string().nullish(),
-  lastName: z.string().nullish(),
-  surname: z.string().nullish(),
-  image: z.string().nullish(),
-});
-
-const participationSchema = z.object({
-  id: z.number().optional(),
-  run: runRefSchema.nullish(),
-  user: userRefSchema.nullish(),
-  arrivalTime: z.string().nullish(),
-  totalTime: z.number().nullish(),
-  status: z.string().optional(),
-});
-
-export type AdminParticipation = z.infer<typeof participationSchema>;
+export type { AdminParticipation };
 
 export const adminParticipationKeys = {
   all: ["admin", "participations"] as const,
@@ -79,7 +60,7 @@ export function useAdminParticipationsQuery(
           ...(userId ? { "user.id": userId } : {}),
         },
       });
-      const member = z.array(participationSchema).parse(data);
+      const member = z.array(participationCollectionSchema).parse(data);
       return { member, totalItems: member.length };
     },
   });
@@ -92,7 +73,7 @@ export function useAdminUserParticipationsQuery(userId: number) {
       const { data } = await apiParticipationsGetCollection({
         query: { "user.id": userId, itemsPerPage: 200 },
       });
-      const member = z.array(participationSchema).parse(data);
+      const member = z.array(participationCollectionSchema).parse(data);
       return { member, totalItems: member.length };
     },
     enabled: !!userId,
@@ -106,7 +87,7 @@ export function useAdminRunParticipationsQuery(runId: number) {
       const { data } = await apiParticipationsGetCollection({
         query: { "run.id": runId, itemsPerPage: 200 },
       });
-      const member = z.array(participationSchema).parse(data);
+      const member = z.array(participationCollectionSchema).parse(data);
       return { member, totalItems: member.length };
     },
     enabled: !!runId,

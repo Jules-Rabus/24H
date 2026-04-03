@@ -24,6 +24,7 @@ const mockRunner = {
   firstName: "Jean",
   lastName: "Dupont",
   surname: null,
+  email: null,
   organization: "ACBB",
   image: null,
   finishedParticipationsCount: 8,

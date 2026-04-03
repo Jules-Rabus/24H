@@ -45,8 +45,8 @@ const BibDownloadButton = dynamic(
   { ssr: false },
 );
 import { useForm } from "@tanstack/react-form";
-import { z } from "zod";
 import { useAdminUserQuery, type AdminUser } from "@/state/admin/users/queries";
+import { editUserSchema } from "@/state/admin/users/schemas";
 import {
   useAdminUserParticipationsQuery,
   type AdminParticipation,
@@ -55,6 +55,7 @@ import {
   useUpdateUserMutation,
   useDeleteUserMutation,
   useUploadUserImageMutation,
+  useDeleteUserImageMutation,
 } from "@/state/admin/users/mutations";
 import { ConfirmDialog } from "@/components/admin/ui/ConfirmDialog";
 import { StatCard } from "@/components/admin/ui/StatCard";
@@ -80,6 +81,9 @@ function UserForm({ user, onClose }: { user: AdminUser; onClose: () => void }) {
       email: user.email ?? "",
       organization: user.organization ?? "",
       isAdmin: user.roles?.includes("ROLE_ADMIN") ?? false,
+    },
+    validators: {
+      onChange: editUserSchema,
     },
     onSubmit: async ({ value }) => {
       const roles: string[] = value.isAdmin
@@ -111,15 +115,7 @@ function UserForm({ user, onClose }: { user: AdminUser; onClose: () => void }) {
     >
       <Dialog.Body>
         <VStack gap="4">
-          <form.Field
-            name="firstName"
-            validators={{
-              onChange: ({ value }) => {
-                const r = z.string().min(1, "Prénom requis").safeParse(value);
-                return r.success ? undefined : r.error.issues[0].message;
-              },
-            }}
-          >
+          <form.Field name="firstName">
             {(field) => (
               <Field.Root required invalid={!!field.state.meta.errors.length}>
                 <Field.Label>Prénom</Field.Label>
@@ -129,20 +125,14 @@ function UserForm({ user, onClose }: { user: AdminUser; onClose: () => void }) {
                   onBlur={field.handleBlur}
                   placeholder="Prénom"
                 />
-                <Field.ErrorText>{field.state.meta.errors[0]}</Field.ErrorText>
+                <Field.ErrorText>
+                  {field.state.meta.errors[0]?.message}
+                </Field.ErrorText>
               </Field.Root>
             )}
           </form.Field>
 
-          <form.Field
-            name="lastName"
-            validators={{
-              onChange: ({ value }) => {
-                const r = z.string().min(1, "Nom requis").safeParse(value);
-                return r.success ? undefined : r.error.issues[0].message;
-              },
-            }}
-          >
+          <form.Field name="lastName">
             {(field) => (
               <Field.Root required invalid={!!field.state.meta.errors.length}>
                 <Field.Label>Nom</Field.Label>
@@ -152,7 +142,9 @@ function UserForm({ user, onClose }: { user: AdminUser; onClose: () => void }) {
                   onBlur={field.handleBlur}
                   placeholder="Nom"
                 />
-                <Field.ErrorText>{field.state.meta.errors[0]}</Field.ErrorText>
+                <Field.ErrorText>
+                  {field.state.meta.errors[0]?.message}
+                </Field.ErrorText>
               </Field.Root>
             )}
           </form.Field>
@@ -171,16 +163,7 @@ function UserForm({ user, onClose }: { user: AdminUser; onClose: () => void }) {
             )}
           </form.Field>
 
-          <form.Field
-            name="email"
-            validators={{
-              onChange: ({ value }) => {
-                if (!value) return undefined;
-                const r = z.string().email("Email invalide").safeParse(value);
-                return r.success ? undefined : r.error.issues[0].message;
-              },
-            }}
-          >
+          <form.Field name="email">
             {(field) => (
               <Field.Root invalid={!!field.state.meta.errors.length}>
                 <Field.Label>Email</Field.Label>
@@ -191,7 +174,9 @@ function UserForm({ user, onClose }: { user: AdminUser; onClose: () => void }) {
                   onBlur={field.handleBlur}
                   placeholder="email@exemple.fr"
                 />
-                <Field.ErrorText>{field.state.meta.errors[0]}</Field.ErrorText>
+                <Field.ErrorText>
+                  {field.state.meta.errors[0]?.message}
+                </Field.ErrorText>
               </Field.Root>
             )}
           </form.Field>
@@ -240,9 +225,18 @@ function UserForm({ user, onClose }: { user: AdminUser; onClose: () => void }) {
         >
           Annuler
         </Button>
-        <Button type="submit" colorPalette="primary" loading={isLoading}>
-          Modifier
-        </Button>
+        <form.Subscribe selector={(s) => s.canSubmit}>
+          {(canSubmit) => (
+            <Button
+              type="submit"
+              colorPalette="primary"
+              loading={isLoading}
+              disabled={!canSubmit}
+            >
+              Modifier
+            </Button>
+          )}
+        </form.Subscribe>
       </Dialog.Footer>
     </form>
   );
@@ -265,10 +259,12 @@ export default function UserDetailPage({
   const { data: participationsData, isLoading: isLoadingParticipations } =
     useAdminUserParticipationsQuery(userId);
   const uploadImageMutation = useUploadUserImageMutation();
+  const deleteImageMutation = useDeleteUserImageMutation();
   const deleteUserMutation = useDeleteUserMutation();
 
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteImageOpen, setDeleteImageOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Chart data: pace per participation (finished only, sorted by run date)
@@ -658,17 +654,29 @@ export default function UserDetailPage({
                 style={{ display: "none" }}
                 onChange={handleImageUpload}
               />
-              <Button
-                size="sm"
-                variant="outline"
-                colorPalette="primary"
-                loading={uploadImageMutation.isPending}
-                loadingText="Envoi…"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <LuCamera />{" "}
-                {user.image ? "Changer l'image" : "Ajouter une image"}
-              </Button>
+              <HStack gap="2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  colorPalette="primary"
+                  loading={uploadImageMutation.isPending}
+                  loadingText="Envoi…"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <LuCamera />{" "}
+                  {user.image ? "Changer l'image" : "Ajouter une image"}
+                </Button>
+                {user.image && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    colorPalette="red"
+                    onClick={() => setDeleteImageOpen(true)}
+                  >
+                    <LuTrash2 /> Supprimer l&apos;image
+                  </Button>
+                )}
+              </HStack>
             </VStack>
           </HStack>
         </Card.Body>
@@ -739,6 +747,19 @@ export default function UserDetailPage({
         title="Supprimer l'utilisateur"
         description={`Êtes-vous sûr de vouloir supprimer ${fullName} ? Cette action est irréversible.`}
         loading={deleteUserMutation.isPending}
+      />
+
+      {/* Delete image confirmation */}
+      <ConfirmDialog
+        open={deleteImageOpen}
+        onClose={() => setDeleteImageOpen(false)}
+        onConfirm={async () => {
+          await deleteImageMutation.mutateAsync(userId);
+          setDeleteImageOpen(false);
+        }}
+        title="Supprimer la photo"
+        description="Êtes-vous sûr de vouloir supprimer la photo de profil ?"
+        loading={deleteImageMutation.isPending}
       />
     </VStack>
   );

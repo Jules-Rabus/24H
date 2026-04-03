@@ -39,14 +39,10 @@ export function CreateParticipationDialog({
           <form.Field
             name="userId"
             validators={{
-              onChange: ({ value }) => {
-                const r = z
-                  .string()
-                  .min(1, "ID du coureur requis")
-                  .regex(/^\d+$/, "Doit être un nombre")
-                  .safeParse(value);
-                return r.success ? undefined : r.error.issues[0].message;
-              },
+              onChange: z
+                .string()
+                .min(1, "ID du coureur requis")
+                .regex(/^\d+$/, "Doit être un nombre"),
             }}
           >
             {(field) => (
@@ -59,21 +55,19 @@ export function CreateParticipationDialog({
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
                 />
-                <Field.ErrorText>{field.state.meta.errors[0]}</Field.ErrorText>
+                <Field.ErrorText>
+                  {field.state.meta.errors[0]?.message}
+                </Field.ErrorText>
               </Field.Root>
             )}
           </form.Field>
           <form.Field
             name="runId"
             validators={{
-              onChange: ({ value }) => {
-                const r = z
-                  .string()
-                  .min(1, "ID du run requis")
-                  .regex(/^\d+$/, "Doit être un nombre")
-                  .safeParse(value);
-                return r.success ? undefined : r.error.issues[0].message;
-              },
+              onChange: z
+                .string()
+                .min(1, "ID du run requis")
+                .regex(/^\d+$/, "Doit être un nombre"),
             }}
           >
             {(field) => (
@@ -86,7 +80,9 @@ export function CreateParticipationDialog({
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
                 />
-                <Field.ErrorText>{field.state.meta.errors[0]}</Field.ErrorText>
+                <Field.ErrorText>
+                  {field.state.meta.errors[0]?.message}
+                </Field.ErrorText>
               </Field.Root>
             )}
           </form.Field>

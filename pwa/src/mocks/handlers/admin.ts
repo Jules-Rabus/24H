@@ -194,6 +194,11 @@ export const adminHandlers = [
     return HttpResponse.json({ image: "/media/images/uploaded.jpg" });
   }),
 
+  // User image delete
+  http.delete("*/users/:id/image", () => {
+    return new HttpResponse(null, { status: 204 });
+  }),
+
   // Participations
   http.get("*/participations", ({ request }) => {
     const url = new URL(request.url);

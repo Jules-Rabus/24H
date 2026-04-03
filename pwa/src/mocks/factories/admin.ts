@@ -1,63 +1,8 @@
-import { z } from "zod";
+import type { AdminRun } from "@/state/admin/runs/schemas";
+import type { AdminUser } from "@/state/admin/users/schemas";
+import type { AdminParticipation } from "@/state/admin/participations/schemas";
 
-// Mirror the Zod schemas from admin query files for type inference
-const adminRunSchema = z.object({
-  id: z.number().optional(),
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
-  participantsCount: z.number().optional(),
-  inProgressParticipantsCount: z.number().optional(),
-  finishedParticipantsCount: z.number().optional(),
-  averageTime: z.number().nullish(),
-  fastestTime: z.number().nullish(),
-  createdAt: z.string().optional(),
-  updatedAt: z.string().optional(),
-});
-
-const adminUserSchema = z.object({
-  id: z.number().optional(),
-  firstName: z.string().optional(),
-  lastName: z.string().optional(),
-  surname: z.string().nullish(),
-  email: z.string().nullish(),
-  roles: z.array(z.string()).optional(),
-  organization: z.string().nullish(),
-  participations: z.array(z.number()).optional(),
-  finishedParticipationsCount: z.number().optional(),
-  totalTime: z.number().nullish(),
-  bestTime: z.number().nullish(),
-  averageTime: z.number().nullish(),
-  image: z.string().nullish(),
-  createdAt: z.string().optional(),
-  updatedAt: z.string().optional(),
-});
-
-const runRefSchema = z.object({
-  id: z.number().nullish(),
-  startDate: z.string().nullish(),
-  endDate: z.string().nullish(),
-});
-
-const userRefSchema = z.object({
-  id: z.number().nullish(),
-  firstName: z.string().nullish(),
-  lastName: z.string().nullish(),
-  surname: z.string().nullish(),
-  image: z.string().nullish(),
-});
-
-const adminParticipationSchema = z.object({
-  id: z.number().optional(),
-  run: runRefSchema.nullish(),
-  user: userRefSchema.nullish(),
-  arrivalTime: z.string().nullish(),
-  totalTime: z.number().nullish(),
-  status: z.string().optional(),
-});
-
-export type AdminRun = z.infer<typeof adminRunSchema>;
-export type AdminUser = z.infer<typeof adminUserSchema>;
-export type AdminParticipation = z.infer<typeof adminParticipationSchema>;
+export type { AdminRun, AdminUser, AdminParticipation };
 
 let adminRunId = 1;
 let adminUserId = 1;

@@ -4,7 +4,7 @@ import {
   apiUserspublicIdGet,
 } from "@/api/generated/sdk.gen";
 import { z } from "zod";
-import { publicRunnerSchema, type PublicRunner } from "./schemas";
+import { userCollectionSchema, type PublicRunner } from "./schemas";
 
 export const publicKeys = {
   all: ["public"] as const,
@@ -23,7 +23,7 @@ export function usePublicRunnersQuery(edition?: number) {
           ...(edition ? { edition: String(edition) } : undefined),
         },
       });
-      return z.array(publicRunnerSchema).parse(data);
+      return z.array(userCollectionSchema).parse(data);
     },
   });
 }
@@ -35,7 +35,7 @@ export function usePublicRunnerQuery(id: number) {
       const { data } = await apiUserspublicIdGet({
         path: { id: String(id) },
       });
-      return publicRunnerSchema.parse(data);
+      return userCollectionSchema.parse(data);
     },
     enabled: !!id,
   });

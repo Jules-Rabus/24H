@@ -151,4 +151,50 @@ final class MediasTest extends AbstractTestCase
 
         $this->assertResponseStatusCodeSame(403);
     }
+
+    public function testDeleteUserImageAsAdmin(): void
+    {
+        $media = MediasFactory::createOne();
+        $user = $media->getRunner();
+        $mediaId = $media->getId();
+        $route = '/users/'.$user->getId().'/image';
+
+        $this->createClientWithCredentials()->request('DELETE', $route);
+
+        $this->assertResponseStatusCodeSame(204);
+        // Media entity should be removed
+        $this->assertNull(
+            static::getContainer()->get('doctrine')->getRepository(Medias::class)->find($mediaId)
+        );
+    }
+
+    public function testDeleteUserImageWhenNoImage(): void
+    {
+        $user = UserFactory::createOne();
+        $route = '/users/'.$user->getId().'/image';
+
+        $this->createClientWithCredentials()->request('DELETE', $route);
+
+        $this->assertResponseStatusCodeSame(204);
+    }
+
+    public function testDeleteUserImageNotFound(): void
+    {
+        $route = '/users/999999/image';
+
+        $this->createClientWithCredentials()->request('DELETE', $route);
+
+        $this->assertResponseStatusCodeSame(404);
+    }
+
+    public function testDeleteUserImageForbiddenForNonAdmin(): void
+    {
+        $media = MediasFactory::createOne();
+        $user = $media->getRunner();
+        $route = '/users/'.$user->getId().'/image';
+
+        $this->createClientWithCredentials($user)->request('DELETE', $route);
+
+        $this->assertResponseStatusCodeSame(403);
+    }
 }

@@ -51,7 +51,11 @@ export function StatCard({
           </Box>
         </HStack>
 
-        <Skeleton loading={loading ?? false} height="8" width="60%">
+        <Skeleton
+          loading={loading ?? false}
+          height="8"
+          width={loading ? "60%" : "auto"}
+        >
           <Text
             fontSize={{ base: "lg", md: "2xl" }}
             fontWeight="extrabold"

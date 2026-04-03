@@ -3,6 +3,7 @@
 import { Button, Dialog, Field, Input } from "@chakra-ui/react";
 import { useForm } from "@tanstack/react-form";
 import type { AdminParticipation } from "@/state/admin/participations/queries";
+import { editParticipationSchema } from "@/state/admin/participations/schemas";
 import { useUpdateParticipationMutation } from "@/state/admin/participations/mutations";
 
 export function EditParticipationDialog({
@@ -19,6 +20,9 @@ export function EditParticipationDialog({
       arrivalTime: participation.arrivalTime
         ? new Date(participation.arrivalTime).toISOString().slice(0, 16)
         : "",
+    },
+    validators: {
+      onChange: editParticipationSchema,
     },
     onSubmit: async ({ value }) => {
       if (!participation.id) return;
@@ -62,13 +66,18 @@ export function EditParticipationDialog({
         <Button variant="outline" onClick={onClose} type="button">
           Annuler
         </Button>
-        <Button
-          type="submit"
-          colorPalette="primary"
-          loading={updateMutation.isPending}
-        >
-          Enregistrer
-        </Button>
+        <form.Subscribe selector={(s) => s.canSubmit}>
+          {(canSubmit) => (
+            <Button
+              type="submit"
+              colorPalette="primary"
+              loading={updateMutation.isPending}
+              disabled={!canSubmit}
+            >
+              Enregistrer
+            </Button>
+          )}
+        </form.Subscribe>
       </Dialog.Footer>
     </form>
   );

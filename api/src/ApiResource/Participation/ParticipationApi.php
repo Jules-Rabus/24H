@@ -60,10 +60,10 @@ final class ParticipationApi
     public ?int $id = null;
 
     #[Map(transform: RelationTransformer::class)]
-    public ?RunRef $run = null;
+    public RunRef $run;
 
     #[Map(transform: RelationTransformer::class)]
-    public ?UserRef $user = null;
+    public UserRef $user;
 
     public ?\DateTimeInterface $arrivalTime = null;
 

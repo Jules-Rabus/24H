@@ -45,7 +45,25 @@
       "Read(//c/Users/Jules/Downloads/24h/pwa/**)",
       "Bash(cat:*)",
       "Bash(bash -c \"./node_modules/.bin/vitest run src/ 2>&1\")",
-      "Bash(docker ps:*)"
+      "Bash(docker ps:*)",
+      "Bash(python3:*)",
+      "mcp__plugin_context7_context7__resolve-library-id",
+      "mcp__plugin_context7_context7__query-docs",
+      "mcp__plugin_playwright_playwright__browser_navigate",
+      "mcp__plugin_playwright_playwright__browser_take_screenshot",
+      "Bash(npx playwright:*)",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm install:*)",
+      "Bash(pnpm run:*)",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm test:coverage)",
+      "Bash(sort -t'|' -k5 -n)",
+      "Bash(wc:*)",
+      "Bash(pnpm lint:*)",
+      "Bash(pnpm type:check)",
+      "Bash(pnpm format:*)",
+      "Bash(pnpm generate-api:*)",
+      "Bash(pnpm vitest:*)"
     ]
   }
 }

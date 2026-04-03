@@ -81,6 +81,9 @@ import type {
   ApiUserspublicIdGetData,
   ApiUserspublicIdGetErrors,
   ApiUserspublicIdGetResponses,
+  ApiUsersUserIdimageDeleteData,
+  ApiUsersUserIdimageDeleteErrors,
+  ApiUsersUserIdimageDeleteResponses,
   ApiUsersUserIdimagePostData,
   ApiUsersUserIdimagePostErrors,
   ApiUsersUserIdimagePostResponses,
@@ -248,6 +251,20 @@ export const apiMediasIdGet = <ThrowOnError extends boolean = false>(
     url: "/medias/{id}",
     ...options,
   });
+
+/**
+ * Removes the Medias resource.
+ *
+ * Removes the Medias resource.
+ */
+export const apiUsersUserIdimageDelete = <ThrowOnError extends boolean = false>(
+  options: Options<ApiUsersUserIdimageDeleteData, ThrowOnError>,
+) =>
+  (options.client ?? client).delete<
+    ApiUsersUserIdimageDeleteResponses,
+    ApiUsersUserIdimageDeleteErrors,
+    ThrowOnError
+  >({ url: "/users/{userId}/image", ...options });
 
 /**
  * Creates a Medias resource.
@@ -670,6 +687,10 @@ export const apiUserspublicGetCollection = <
     unknown,
     ThrowOnError
   >({
+    // @ts-expect-error — codegen outputs "deepObject" which is not in ArrayStyle
+    querySerializer: {
+      parameters: { "edition[]": { array: { style: "deepObject" } } },
+    },
     responseType: "json",
     url: "/users/public",
     ...options,

@@ -1,21 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { apiRunsGetCollection, apiRunsIdGet } from "@/api/generated/sdk.gen";
 import { z } from "zod";
+import { runCollectionSchema, type AdminRun } from "./schemas";
 
-const runSchema = z.object({
-  id: z.number().optional(),
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
-  participantsCount: z.number().optional(),
-  inProgressParticipantsCount: z.number().optional(),
-  finishedParticipantsCount: z.number().optional(),
-  averageTime: z.number().nullish(),
-  fastestTime: z.number().nullish(),
-  createdAt: z.string().optional(),
-  updatedAt: z.string().optional(),
-});
-
-export type AdminRun = z.infer<typeof runSchema>;
+export type { AdminRun };
 
 export const adminRunKeys = {
   all: ["admin", "runs"] as const,
@@ -35,7 +23,7 @@ export function useAdminRunsQuery(
       const { data } = await apiRunsGetCollection({
         query: { [orderKey]: orderDir, itemsPerPage: 100 },
       });
-      return z.array(runSchema).parse(data);
+      return z.array(runCollectionSchema).parse(data);
     },
   });
 }
@@ -45,7 +33,7 @@ export function useAdminRunQuery(id: number) {
     queryKey: adminRunKeys.detail(id),
     queryFn: async () => {
       const { data } = await apiRunsIdGet({ path: { id: String(id) } });
-      return runSchema.parse(data);
+      return runCollectionSchema.parse(data);
     },
     enabled: !!id,
   });
