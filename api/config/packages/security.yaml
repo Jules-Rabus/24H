@@ -40,6 +40,7 @@ security:
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/logout, roles: PUBLIC_ACCESS }
         - { path: ^/forgot-password, roles: PUBLIC_ACCESS }
+        - { path: ^/csrf-token, roles: PUBLIC_ACCESS }
         # - { path: ^/profile, roles: ROLE_USER }
 
 when@test:

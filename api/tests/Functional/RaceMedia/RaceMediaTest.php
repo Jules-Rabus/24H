@@ -6,6 +6,7 @@ use App\ApiResource\RaceMedia\RaceMediaApi;
 use App\Entity\RaceMedia;
 use App\Factory\UserFactory;
 use App\Tests\Functional\Api\AbstractTestCase;
+use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class RaceMediaTest extends AbstractTestCase
@@ -14,6 +15,9 @@ class RaceMediaTest extends AbstractTestCase
     {
         $user = UserFactory::createOne(['roles' => ['ROLE_ADMIN']]);
         $client = $this->createClientWithCredentials($user);
+
+        $csrfToken = bin2hex(random_bytes(32));
+        $client->getCookieJar()->set(new Cookie('XSRF-TOKEN', $csrfToken, null, '/', 'localhost'));
 
         // Create a dummy image file for upload
         $imageContent = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==');
@@ -32,6 +36,7 @@ class RaceMediaTest extends AbstractTestCase
             'headers' => [
                 'Content-Type' => 'multipart/form-data',
                 'Accept' => 'application/json',
+                'X-XSRF-TOKEN' => $csrfToken,
             ],
             'extra' => [
                 'files' => [
@@ -72,8 +77,14 @@ class RaceMediaTest extends AbstractTestCase
 
         $client = $this->createClientWithCredentials($user);
 
+        $csrfToken = bin2hex(random_bytes(32));
+        $client->getCookieJar()->set(new Cookie('XSRF-TOKEN', $csrfToken, null, '/', 'localhost'));
+
         $response = $client->request('GET', '/race_medias', [
-            'headers' => ['Accept' => 'application/json'],
+            'headers' => [
+                'Accept' => 'application/json',
+                'X-XSRF-TOKEN' => $csrfToken,
+            ],
         ]);
 
         $this->assertResponseStatusCodeSame(200);

@@ -2,17 +2,30 @@
 
 namespace App\Tests\Functional\Api\RaceMedia;
 
+use ApiPlatform\Symfony\Bundle\Test\Client;
 use App\ApiResource\RaceMedia\RaceMediaApi;
 use App\Entity\RaceMedia;
 use App\Factory\RaceMediaFactory;
 use App\Factory\UserFactory;
 use App\Tests\Functional\Api\AbstractTestCase;
+use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 final class RaceMediaTest extends AbstractTestCase
 {
     private const string ROUTE = '/race_medias';
     private const string FIXTURE_IMAGE = __DIR__.'/../Medias/fixtures/test-image.jpg';
+
+    /**
+     * Sets the XSRF-TOKEN cookie on the client and returns the token value for the header.
+     */
+    private function withCsrfToken(Client $client): string
+    {
+        $token = bin2hex(random_bytes(32));
+        $client->getCookieJar()->set(new Cookie('XSRF-TOKEN', $token, null, '/', 'localhost'));
+
+        return $token;
+    }
 
     protected function tearDown(): void
     {
@@ -58,12 +71,29 @@ final class RaceMediaTest extends AbstractTestCase
         $this->assertMatchesResourceItemJsonSchema(RaceMediaApi::class);
     }
 
-    public function testGetRaceMediaCollection(): void
+    public function testGetRaceMediaCollectionRequiresCsrf(): void
     {
         RaceMediaFactory::createMany(3);
 
-        $response = $this->createClientWithCredentials()->request('GET', self::ROUTE, [
+        $this->createClientWithCredentials()->request('GET', self::ROUTE, [
             'headers' => ['Accept' => 'application/json'],
+        ]);
+
+        $this->assertResponseStatusCodeSame(403);
+    }
+
+    public function testGetRaceMediaCollectionWithCsrf(): void
+    {
+        RaceMediaFactory::createMany(3);
+
+        $client = $this->createClientWithCredentials();
+        $csrfToken = $this->withCsrfToken($client);
+
+        $response = $client->request('GET', self::ROUTE, [
+            'headers' => [
+                'Accept' => 'application/json',
+                'X-XSRF-TOKEN' => $csrfToken,
+            ],
         ]);
 
         $this->assertResponseIsSuccessful();
@@ -73,10 +103,14 @@ final class RaceMediaTest extends AbstractTestCase
 
     public function testCreateRaceMediaAsAdmin(): void
     {
-        $response = $this->createClientWithCredentials()->request('POST', self::ROUTE, [
+        $client = $this->createClientWithCredentials();
+        $csrfToken = $this->withCsrfToken($client);
+
+        $response = $client->request('POST', self::ROUTE, [
             'headers' => [
                 'Accept' => 'application/json',
                 'Content-Type' => 'multipart/form-data',
+                'X-XSRF-TOKEN' => $csrfToken,
             ],
             'extra' => [
                 'files' => ['file' => $this->makeUploadedFile()],
@@ -92,7 +126,26 @@ final class RaceMediaTest extends AbstractTestCase
         $this->assertMatchesResourceItemJsonSchema(RaceMediaApi::class);
     }
 
-    public function testCreateRaceMediaAsAnonymous(): void
+    public function testCreateRaceMediaAsAnonymousWithCsrf(): void
+    {
+        $client = static::createClient();
+        $csrfToken = $this->withCsrfToken($client);
+
+        $client->request('POST', self::ROUTE, [
+            'headers' => [
+                'Accept' => 'application/json',
+                'Content-Type' => 'multipart/form-data',
+                'X-XSRF-TOKEN' => $csrfToken,
+            ],
+            'extra' => [
+                'files' => ['file' => $this->makeUploadedFile()],
+            ],
+        ]);
+
+        $this->assertResponseStatusCodeSame(201);
+    }
+
+    public function testCreateRaceMediaWithoutCsrfFails(): void
     {
         static::createClient()->request('POST', self::ROUTE, [
             'headers' => [
@@ -104,7 +157,7 @@ final class RaceMediaTest extends AbstractTestCase
             ],
         ]);
 
-        $this->assertResponseStatusCodeSame(201);
+        $this->assertResponseStatusCodeSame(403);
     }
 
     public function testDeleteRaceMediaAsAdmin(): void
