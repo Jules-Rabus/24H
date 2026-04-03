@@ -89,4 +89,27 @@ describe("ClassementPage", () => {
       expect(JSON.parse(stored!)).toHaveLength(1);
     });
   });
+
+  it("affiche l'état vide quand aucun coureur", async () => {
+    const { server } = await import("../mocks/server");
+    const { http, HttpResponse } = await import("msw");
+    server.use(
+      http.get("*/users/public", () => {
+        return HttpResponse.json([]);
+      }),
+    );
+
+    render(<ClassementPage />);
+    await waitFor(() => {
+      expect(screen.queryByText("Jean Dupont")).not.toBeInTheDocument();
+      expect(screen.queryByText("Marie Curie")).not.toBeInTheDocument();
+    });
+  });
+
+  it("affiche le champ de recherche", () => {
+    render(<ClassementPage />);
+    expect(
+      screen.getByPlaceholderText(/nom, prénom, surnom ou n° dossard/i),
+    ).toBeInTheDocument();
+  });
 });

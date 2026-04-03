@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { render } from "../test-utils/render";
+import { resetMediaHandlerState } from "../mocks/handlers/media";
 import GalleryPage from "../../app/gallery/page";
 
 vi.mock("next/navigation", () => ({
@@ -13,6 +14,7 @@ vi.mock("next/navigation", () => ({
 describe("GalleryPage", () => {
   beforeEach(() => {
     localStorage.clear();
+    resetMediaHandlerState();
   });
 
   it("affiche le titre Galerie et le bouton Partager", async () => {
@@ -109,5 +111,33 @@ describe("GalleryPage", () => {
 
     // Bouton désactivé après like
     expect(likeBtn).toBeDisabled();
+  });
+
+  it("affiche l'état vide quand aucun media", async () => {
+    const { server } = await import("../mocks/server");
+    const { http, HttpResponse } = await import("msw");
+    server.use(
+      http.get("*/race_medias", () => {
+        return HttpResponse.json([]);
+      }),
+    );
+
+    render(<GalleryPage />);
+    await waitFor(() => {
+      expect(
+        screen.getByText("Aucune photo pour le moment"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /envoyer une photo/i }),
+      ).toBeInTheDocument();
+    });
+  });
+
+  it("affiche le badge nombre de medias", async () => {
+    render(<GalleryPage />);
+    await waitFor(() => {
+      // 3 medias from MSW handlers (2 images + 1 video)
+      expect(screen.getByText("3")).toBeInTheDocument();
+    });
   });
 });

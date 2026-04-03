@@ -29,4 +29,25 @@ describe("PublicRaceStatusPage", () => {
     render(<PublicRaceStatusPage />);
     expect(screen.getByText(/Derniers Arrivés/i)).toBeInTheDocument();
   });
+
+  it("affiche la section photo wall QR", async () => {
+    render(<PublicRaceStatusPage />);
+    await waitFor(() => {
+      expect(screen.getByText(/Photo Wall/i)).toBeInTheDocument();
+    });
+  });
+
+  it("affiche les stat cards de course", async () => {
+    render(<PublicRaceStatusPage />);
+    await waitFor(() => {
+      expect(screen.getByText(/Run en cours/i)).toBeInTheDocument();
+    });
+  });
+
+  it("affiche le compteur de coureurs", async () => {
+    render(<PublicRaceStatusPage />);
+    await waitFor(() => {
+      expect(screen.getAllByText(/coureurs/i).length).toBeGreaterThan(0);
+    });
+  });
 });
