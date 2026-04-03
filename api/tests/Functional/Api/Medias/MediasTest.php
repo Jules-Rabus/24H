@@ -4,6 +4,7 @@ namespace App\Tests\Functional\Api\Medias;
 
 use App\ApiResource\Medias\MediasApi;
 use App\Entity\Medias;
+use App\Entity\User;
 use App\Factory\MediasFactory;
 use App\Factory\UserFactory;
 use App\Tests\Functional\Api\AbstractTestCase;
@@ -142,6 +143,28 @@ final class MediasTest extends AbstractTestCase
         );
     }
 
+    public function testDeleteMediasDoesNotDeleteLinkedUser(): void
+    {
+        $media = MediasFactory::createOne();
+        $user = $media->getRunner();
+        $this->assertNotNull($user);
+        $userId = $user->getId();
+        $mediaId = $media->getId();
+
+        $this->createClientWithCredentials()->request('DELETE', self::MEDIAS_ROUTE.'/'.$mediaId);
+
+        $this->assertResponseStatusCodeSame(204);
+        // Media must be gone
+        $this->assertNull(
+            static::getContainer()->get('doctrine')->getRepository(Medias::class)->find($mediaId)
+        );
+        // User must still exist — the critical regression test
+        $this->assertNotNull(
+            static::getContainer()->get('doctrine')->getRepository(User::class)->find($userId),
+            'Deleting a Medias entity must NOT delete the linked User'
+        );
+    }
+
     public function testDeleteMediasForbiddenForNonAdmin(): void
     {
         $media = MediasFactory::createOne();
@@ -156,6 +179,8 @@ final class MediasTest extends AbstractTestCase
     {
         $media = MediasFactory::createOne();
         $user = $media->getRunner();
+        $this->assertNotNull($user);
+        $userId = $user->getId();
         $mediaId = $media->getId();
         $route = '/users/'.$user->getId().'/image';
 
@@ -165,6 +190,11 @@ final class MediasTest extends AbstractTestCase
         // Media entity should be removed
         $this->assertNull(
             static::getContainer()->get('doctrine')->getRepository(Medias::class)->find($mediaId)
+        );
+        // User must still exist — the critical regression test
+        $this->assertNotNull(
+            static::getContainer()->get('doctrine')->getRepository(User::class)->find($userId),
+            'Deleting a user image must NOT delete the User'
         );
     }
 

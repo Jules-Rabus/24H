@@ -63,6 +63,7 @@ use Symfony\Component\ObjectMapper\Attribute\Map;
         ),
         new Delete(
             security: 'is_granted("ROLE_ADMIN")',
+            processor: MediasDeleteProcessor::class,
         ),
         new Delete(
             uriTemplate: '/users/{userId}/image',

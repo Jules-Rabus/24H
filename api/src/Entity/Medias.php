@@ -19,7 +19,7 @@ class Medias
     #[ORM\Column(nullable: true)]
     public ?string $filePath = null;
 
-    #[ORM\OneToOne(mappedBy: 'image', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(mappedBy: 'image')]
     private ?User $runner = null;
 
     public function getId(): ?int

@@ -4,12 +4,13 @@ namespace App\State;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
+use App\Entity\Medias;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
- * @implements ProcessorInterface<null, null>
+ * @implements ProcessorInterface<Medias|null, null>
  */
 final readonly class MediasDeleteProcessor implements ProcessorInterface
 {
@@ -26,14 +27,24 @@ final readonly class MediasDeleteProcessor implements ProcessorInterface
     {
         $userId = $uriVariables['userId'] ?? null;
 
-        $user = $this->entityManager->getRepository(User::class)->find($userId);
-        if (!$user instanceof User) {
-            throw new NotFoundHttpException(sprintf('User "%s" not found.', $userId));
+        if (null !== $userId) {
+            // DELETE /users/{userId}/image — find image via user
+            $user = $this->entityManager->getRepository(User::class)->find($userId);
+            if (!$user instanceof User) {
+                throw new NotFoundHttpException(sprintf('User "%s" not found.', $userId));
+            }
+            $image = $user->getImage();
+        } else {
+            // DELETE /medias/{id} — $data is the Medias entity loaded by API Platform
+            $image = $data;
         }
 
-        $image = $user->getImage();
         if (null !== $image) {
-            $user->setImage(null);
+            $runner = $image->getRunner();
+            if (null !== $runner) {
+                $runner->setImage(null);
+                $this->entityManager->flush();
+            }
             $this->entityManager->remove($image);
             $this->entityManager->flush();
         }
