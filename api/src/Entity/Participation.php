@@ -22,7 +22,7 @@ class Participation
     private ?Run $run = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'participations', cascade: ['persist'])]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?User $user = null;
 
     #[ORM\Column(type: 'datetime', nullable: true)]

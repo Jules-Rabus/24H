@@ -2,7 +2,9 @@
 
 namespace App\Tests\Functional\Api\User;
 
+use App\Entity\Participation;
 use App\Entity\User;
+use App\Factory\ParticipationFactory;
 use App\Factory\UserFactory;
 use App\Tests\Functional\Api\AbstractTestCase;
 
@@ -21,6 +23,20 @@ final class UserDeleteTest extends AbstractTestCase
         $this->assertNull(
             static::getContainer()->get('doctrine')->getRepository(User::class)->find($id)
         );
+    }
+
+    public function testDeleteUserWithParticipationsCascades(): void
+    {
+        $user = UserFactory::createOne();
+        $id = $user->getId();
+        ParticipationFactory::createOne(['user' => $user]);
+
+        $this->createClientWithCredentials()->request('DELETE', self::ROUTE.'/'.$id);
+
+        $this->assertResponseStatusCodeSame(204);
+        $em = static::getContainer()->get('doctrine')->getManager();
+        $this->assertNull($em->getRepository(User::class)->find($id));
+        $this->assertEmpty($em->getRepository(Participation::class)->findBy(['user' => $id]));
     }
 
     public function testDeleteUserForbiddenForOwner(): void
