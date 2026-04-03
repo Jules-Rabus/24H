@@ -44,19 +44,7 @@ import {
 import { DataTable, type Column } from "@/components/admin/ui/DataTable";
 import { ConfirmDialog } from "@/components/admin/ui/ConfirmDialog";
 import { StatCard } from "@/components/admin/ui/StatCard";
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function formatTime(seconds: number | null | undefined): string {
-  if (!seconds) return "-";
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  const s = seconds % 60;
-  if (h > 0) return `${h}h ${m.toString().padStart(2, "0")}m`;
-  return `${m}m ${s.toString().padStart(2, "0")}s`;
-}
+import { formatTimeVerbose as formatTime } from "@/utils/race";
 
 // ---------------------------------------------------------------------------
 // EditArrivalTimeForm — inline dialog to edit a participation's arrivalTime

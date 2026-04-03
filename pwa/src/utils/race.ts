@@ -11,6 +11,24 @@ export function formatTimeMinutes(seconds: number | null | undefined): string {
   return formatTime(seconds);
 }
 
+/** Format seconds as "Xh YYm" or "Xm YYs" (used in admin tables). */
+export function formatTimeVerbose(seconds: number | null | undefined): string {
+  if (!seconds) return "-";
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  if (h > 0) return `${h}h ${m.toString().padStart(2, "0")}m`;
+  return `${m}m ${s.toString().padStart(2, "0")}s`;
+}
+
+/** Format seconds as "Xm YYs" (minutes only, used in participation tables). */
+export function formatTimeShort(seconds: number | null | undefined): string {
+  if (!seconds) return "-";
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}m ${s.toString().padStart(2, "0")}s`;
+}
+
 export function formatPace(seconds: number | null | undefined): string {
   if (!seconds) return "-";
   const paceMin = seconds / 60 / 4; // min/km (4km per tour)
