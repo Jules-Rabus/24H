@@ -25,9 +25,9 @@ export const participationSchema = z.object({
   id: z.number(),
   run: participationRunSchema,
   user: participationUserSchema,
-  arrivalTime: z.string().nullable(),
+  arrivalTime: z.string().nullish(),
   status: z.string(),
-  totalTime: z.number().nullable(),
+  totalTime: z.number().nullish(),
 });
 
 export const runsCollectionSchema = z.object({

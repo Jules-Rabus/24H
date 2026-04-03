@@ -11,8 +11,8 @@ export const runCollectionSchema = z.object({
   participantsCount: z.number(),
   inProgressParticipantsCount: z.number(),
   finishedParticipantsCount: z.number(),
-  averageTime: z.number().nullable(),
-  fastestTime: z.number().nullable(),
+  averageTime: z.number().nullish(),
+  fastestTime: z.number().nullish(),
   createdAt: z.string().optional(),
   updatedAt: z.string().optional(),
 });

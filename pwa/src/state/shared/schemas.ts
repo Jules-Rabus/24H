@@ -20,8 +20,8 @@ export const userRefSchema = z.object({
   id: z.number(),
   firstName: z.string(),
   lastName: z.string(),
-  surname: z.string().nullable(),
-  image: z.string().nullable(),
+  surname: z.string().nullish(),
+  image: z.string().nullish(),
 });
 
 export type UserRef = z.infer<typeof userRefSchema>;
