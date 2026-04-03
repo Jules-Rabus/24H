@@ -1,4 +1,5 @@
 import { http, HttpResponse } from "msw";
+import { buildRun } from "../factories";
 
 export const raceHandlers = [
   http.get("*/runs", () => {
@@ -6,16 +7,7 @@ export const raceHandlers = [
       "@context": "/contexts/Run",
       "@id": "/runs",
       "@type": "hydra:Collection",
-      member: [
-        {
-          "@id": "/runs/1",
-          "@type": "Run",
-          id: 1,
-          startDate: "2024-06-01T08:00:00+00:00",
-          endDate: "2024-06-01T08:30:00+00:00",
-          participantsCount: 5,
-        },
-      ],
+      member: [buildRun({ id: 1, participantsCount: 5 })],
       "hydra:totalItems": 1,
     });
   }),

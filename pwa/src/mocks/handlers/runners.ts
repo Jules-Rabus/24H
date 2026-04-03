@@ -1,90 +1,65 @@
 import { http, HttpResponse } from "msw";
-import { z } from "zod";
-import {
-  publicRunnerSchema,
-  publicParticipationSchema,
-} from "@/state/public/schemas";
+import { buildRunner, buildParticipation } from "../factories";
 
-type MockParticipation = z.infer<typeof publicParticipationSchema>;
-type MockRunner = z.infer<typeof publicRunnerSchema> & {
-  "@id": string;
-  "@type": string;
-};
-
-const mockParticipations: MockParticipation[] = [
-  {
+const mockParticipations = [
+  buildParticipation({
     id: 1,
     runId: 1,
-    runStartDate: "2026-03-15T08:00:00Z",
-    runEndDate: "2026-03-15T08:30:00Z",
     runEdition: 2026,
-    arrivalTime: "2026-03-15T08:24:00Z",
     totalTime: 1440,
-    status: "FINISHED",
-  },
-  {
+    arrivalTime: "2026-03-15T08:24:00Z",
+  }),
+  buildParticipation({
     id: 2,
     runId: 2,
+    runEdition: 2026,
     runStartDate: "2026-03-15T09:00:00Z",
     runEndDate: "2026-03-15T09:30:00Z",
-    runEdition: 2026,
     arrivalTime: "2026-03-15T09:30:00Z",
     totalTime: 1800,
-    status: "FINISHED",
-  },
-  {
+  }),
+  buildParticipation({
     id: 101,
     runId: 101,
+    runEdition: 2025,
     runStartDate: "2025-03-15T08:00:00Z",
     runEndDate: "2025-03-15T08:30:00Z",
-    runEdition: 2025,
     arrivalTime: "2025-03-15T08:26:00Z",
     totalTime: 1560,
-    status: "FINISHED",
-  },
-  {
+  }),
+  buildParticipation({
     id: 3,
     runId: 1,
-    runStartDate: "2026-03-15T08:00:00Z",
-    runEndDate: "2026-03-15T08:30:00Z",
     runEdition: 2026,
     arrivalTime: "2026-03-15T08:22:00Z",
     totalTime: 1320,
-    status: "FINISHED",
-  },
+  }),
 ];
 
-const mockRunners: MockRunner[] = [
-  {
-    "@id": "/users/1",
-    "@type": "User",
+const mockRunners = [
+  buildRunner({
     id: 1,
     firstName: "Jean",
     lastName: "Dupont",
-    surname: null,
     organization: "ACBB",
-    image: null,
     finishedParticipationsCount: 8,
     totalTime: 14400,
     bestTime: 1440,
     averageTime: 1800,
     participations: mockParticipations.filter((p) => p.id !== 3),
-  },
-  {
-    "@id": "/users/2",
-    "@type": "User",
+  }),
+  buildRunner({
     id: 2,
     firstName: "Marie",
     lastName: "Curie",
     surname: "Radium",
     organization: null,
-    image: null,
     finishedParticipationsCount: 12,
     totalTime: 20400,
     bestTime: 1320,
     averageTime: 1700,
     participations: mockParticipations.filter((p) => p.id === 3),
-  },
+  }),
 ];
 
 export const runnersHandlers = [

@@ -1,4 +1,5 @@
 import { http, HttpResponse } from "msw";
+import { buildMe } from "../factories";
 
 export const authHandlers = [
   http.post("*/login", () => {
@@ -20,13 +21,7 @@ export const authHandlers = [
   }),
 
   http.get("*/me", () => {
-    return HttpResponse.json({
-      id: 1,
-      email: "admin@example.com",
-      firstName: "Admin",
-      lastName: "User",
-      roles: ["ROLE_ADMIN"],
-    });
+    return HttpResponse.json(buildMe());
   }),
 
   http.post("*/forgot-password/", () => {
