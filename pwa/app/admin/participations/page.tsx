@@ -19,8 +19,6 @@ import {
 } from "@chakra-ui/react";
 import Link from "next/link";
 import { LuPencil, LuTrash2, LuX } from "react-icons/lu";
-import { useForm } from "@tanstack/react-form";
-import { z } from "zod";
 import { useDebounce } from "@/hooks/useDebounce";
 import {
   useAdminParticipationsQuery,
@@ -28,205 +26,12 @@ import {
   type ParticipationFilters,
 } from "@/state/admin/participations/queries";
 import { type SortState } from "@/components/admin/ui/DataTable";
-import {
-  useCreateParticipationMutation,
-  useUpdateParticipationMutation,
-  useDeleteParticipationMutation,
-} from "@/state/admin/participations/mutations";
+import { useDeleteParticipationMutation } from "@/state/admin/participations/mutations";
 import { DataTable, type Column } from "@/components/admin/ui/DataTable";
 import { ConfirmDialog } from "@/components/admin/ui/ConfirmDialog";
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function formatTime(seconds: number | null | undefined): string {
-  if (!seconds) return "-";
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return `${m}m ${s.toString().padStart(2, "0")}s`;
-}
-
-// ---------------------------------------------------------------------------
-// Create dialog
-// ---------------------------------------------------------------------------
-
-function CreateParticipationDialog({ onClose }: { onClose: () => void }) {
-  const createMutation = useCreateParticipationMutation();
-
-  const form = useForm({
-    defaultValues: {
-      userId: "",
-      runId: "",
-    },
-    onSubmit: async ({ value }) => {
-      await createMutation.mutateAsync({
-        user: `/users/${value.userId}`,
-        run: `/runs/${value.runId}`,
-      });
-      onClose();
-    },
-  });
-
-  return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        form.handleSubmit();
-      }}
-    >
-      <Dialog.Body>
-        <VStack gap="4">
-          <form.Field
-            name="userId"
-            validators={{
-              onChange: ({ value }) => {
-                const r = z
-                  .string()
-                  .min(1, "ID du coureur requis")
-                  .regex(/^\d+$/, "Doit être un nombre")
-                  .safeParse(value);
-                return r.success ? undefined : r.error.issues[0].message;
-              },
-            }}
-          >
-            {(field) => (
-              <Field.Root required invalid={!!field.state.meta.errors.length}>
-                <Field.Label>ID du coureur</Field.Label>
-                <Input
-                  type="number"
-                  placeholder="Ex : 12"
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  onBlur={field.handleBlur}
-                />
-                <Field.ErrorText>{field.state.meta.errors[0]}</Field.ErrorText>
-              </Field.Root>
-            )}
-          </form.Field>
-          <form.Field
-            name="runId"
-            validators={{
-              onChange: ({ value }) => {
-                const r = z
-                  .string()
-                  .min(1, "ID du run requis")
-                  .regex(/^\d+$/, "Doit être un nombre")
-                  .safeParse(value);
-                return r.success ? undefined : r.error.issues[0].message;
-              },
-            }}
-          >
-            {(field) => (
-              <Field.Root required invalid={!!field.state.meta.errors.length}>
-                <Field.Label>ID du run</Field.Label>
-                <Input
-                  type="number"
-                  placeholder="Ex : 3"
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  onBlur={field.handleBlur}
-                />
-                <Field.ErrorText>{field.state.meta.errors[0]}</Field.ErrorText>
-              </Field.Root>
-            )}
-          </form.Field>
-        </VStack>
-      </Dialog.Body>
-      <Dialog.Footer gap="3">
-        <Button
-          variant="outline"
-          onClick={onClose}
-          type="button"
-          disabled={createMutation.isPending}
-        >
-          Annuler
-        </Button>
-        <Button
-          type="submit"
-          colorPalette="primary"
-          loading={createMutation.isPending}
-        >
-          Créer
-        </Button>
-      </Dialog.Footer>
-    </form>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Edit dialog
-// ---------------------------------------------------------------------------
-
-function EditParticipationDialog({
-  participation,
-  onClose,
-}: {
-  participation: AdminParticipation;
-  onClose: () => void;
-}) {
-  const updateMutation = useUpdateParticipationMutation();
-
-  const form = useForm({
-    defaultValues: {
-      arrivalTime: participation.arrivalTime
-        ? new Date(participation.arrivalTime).toISOString().slice(0, 16)
-        : "",
-    },
-    onSubmit: async ({ value }) => {
-      if (!participation.id) return;
-      await updateMutation.mutateAsync({
-        id: participation.id,
-        arrivalTime: value.arrivalTime
-          ? new Date(value.arrivalTime).toISOString()
-          : null,
-      });
-      onClose();
-    },
-  });
-
-  return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        form.handleSubmit();
-      }}
-    >
-      <Dialog.Body>
-        <form.Field name="arrivalTime">
-          {(field) => (
-            <Field.Root>
-              <Field.Label>Heure d&apos;arrivée</Field.Label>
-              <Input
-                type="datetime-local"
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-                onBlur={field.handleBlur}
-              />
-              <Field.HelperText>
-                Laisser vide pour remettre en IN_PROGRESS
-              </Field.HelperText>
-            </Field.Root>
-          )}
-        </form.Field>
-      </Dialog.Body>
-      <Dialog.Footer gap="3">
-        <Button variant="outline" onClick={onClose} type="button">
-          Annuler
-        </Button>
-        <Button
-          type="submit"
-          colorPalette="primary"
-          loading={updateMutation.isPending}
-        >
-          Enregistrer
-        </Button>
-      </Dialog.Footer>
-    </form>
-  );
-}
+import { CreateParticipationDialog } from "@/components/admin/CreateParticipationDialog";
+import { EditParticipationDialog } from "@/components/admin/EditParticipationDialog";
+import { formatTimeShort } from "@/utils/race";
 
 // ---------------------------------------------------------------------------
 // Page
@@ -326,7 +131,7 @@ export default function ParticipationsPage() {
       key: "totalTime",
       header: "Temps total",
       render: (row) => (
-        <Text fontFamily="mono">{formatTime(row.totalTime)}</Text>
+        <Text fontFamily="mono">{formatTimeShort(row.totalTime)}</Text>
       ),
       width: "130px",
       sortField: "totalTime",

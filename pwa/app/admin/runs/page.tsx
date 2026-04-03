@@ -4,16 +4,12 @@ import { useState } from "react";
 import Link from "next/link";
 import {
   Badge,
-  Box,
   Button,
   Dialog,
-  Field,
   Heading,
   HStack,
   IconButton,
-  Input,
   Portal,
-  Progress,
   SimpleGrid,
   Text,
   VStack,
@@ -31,311 +27,15 @@ import {
   LuGauge,
   LuZap,
 } from "react-icons/lu";
-import { useForm } from "@tanstack/react-form";
-import { z } from "zod";
 import { useAdminRunsQuery, type AdminRun } from "@/state/admin/runs/queries";
 import { type SortState } from "@/components/admin/ui/DataTable";
-import {
-  useCreateRunMutation,
-  useUpdateRunMutation,
-  useDeleteRunMutation,
-} from "@/state/admin/runs/mutations";
+import { useDeleteRunMutation } from "@/state/admin/runs/mutations";
 import { DataTable, type Column } from "@/components/admin/ui/DataTable";
 import { ConfirmDialog } from "@/components/admin/ui/ConfirmDialog";
 import { StatCard } from "@/components/admin/ui/StatCard";
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function formatTime(seconds: number | null | undefined): string {
-  if (!seconds) return "-";
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  const s = seconds % 60;
-  if (h > 0) return `${h}h ${m.toString().padStart(2, "0")}m`;
-  return `${m}m ${s.toString().padStart(2, "0")}s`;
-}
-
-// ---------------------------------------------------------------------------
-// RunForm — TanStack Form + Zod
-// ---------------------------------------------------------------------------
-
-function RunForm({ run, onClose }: { run?: AdminRun; onClose: () => void }) {
-  const createMutation = useCreateRunMutation();
-  const updateMutation = useUpdateRunMutation();
-
-  const isLoading = createMutation.isPending || updateMutation.isPending;
-
-  const form = useForm({
-    defaultValues: {
-      startDate: run?.startDate
-        ? new Date(run.startDate).toISOString().slice(0, 16)
-        : "",
-      endDate: run?.endDate
-        ? new Date(run.endDate).toISOString().slice(0, 16)
-        : "",
-    },
-    onSubmit: async ({ value }) => {
-      const body = {
-        startDate: new Date(value.startDate).toISOString(),
-        endDate: new Date(value.endDate).toISOString(),
-      };
-      if (run?.id) {
-        await updateMutation.mutateAsync({ id: run.id, body });
-      } else {
-        await createMutation.mutateAsync(body);
-      }
-      onClose();
-    },
-  });
-
-  return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        form.handleSubmit();
-      }}
-    >
-      <Dialog.Body>
-        <VStack gap="4">
-          <form.Field
-            name="startDate"
-            validators={{
-              onChange: ({ value }) => {
-                const r = z
-                  .string()
-                  .min(1, "Date de début requise")
-                  .safeParse(value);
-                return r.success ? undefined : r.error.issues[0].message;
-              },
-            }}
-          >
-            {(field) => (
-              <Field.Root required invalid={!!field.state.meta.errors.length}>
-                <Field.Label>Date de début</Field.Label>
-                <Input
-                  type="datetime-local"
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  onBlur={field.handleBlur}
-                />
-                <Field.ErrorText>{field.state.meta.errors[0]}</Field.ErrorText>
-              </Field.Root>
-            )}
-          </form.Field>
-          <form.Field
-            name="endDate"
-            validators={{
-              onChange: ({ value }) => {
-                const r = z
-                  .string()
-                  .min(1, "Date de fin requise")
-                  .safeParse(value);
-                if (!r.success) return r.error.issues[0].message;
-                const start = form.getFieldValue("startDate");
-                if (start && new Date(value) <= new Date(start)) {
-                  return "La fin doit être après le début";
-                }
-                return undefined;
-              },
-            }}
-          >
-            {(field) => (
-              <Field.Root required invalid={!!field.state.meta.errors.length}>
-                <Field.Label>Date de fin</Field.Label>
-                <Input
-                  type="datetime-local"
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  onBlur={field.handleBlur}
-                />
-                <Field.ErrorText>{field.state.meta.errors[0]}</Field.ErrorText>
-              </Field.Root>
-            )}
-          </form.Field>
-        </VStack>
-      </Dialog.Body>
-      <Dialog.Footer gap="3">
-        <Button
-          variant="outline"
-          onClick={onClose}
-          type="button"
-          disabled={isLoading}
-        >
-          Annuler
-        </Button>
-        <Button type="submit" colorPalette="primary" loading={isLoading}>
-          {run ? "Modifier" : "Créer"}
-        </Button>
-      </Dialog.Footer>
-    </form>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// BatchRunGenerator — generates 1 run per hour between two dates
-// ---------------------------------------------------------------------------
-
-function BatchRunGenerator({ onClose }: { onClose: () => void }) {
-  const createMutation = useCreateRunMutation();
-  const [progress, setProgress] = useState<{
-    current: number;
-    total: number;
-  } | null>(null);
-
-  const form = useForm({
-    defaultValues: { firstHour: "", lastHour: "" },
-    onSubmit: async ({ value }) => {
-      const start = new Date(value.firstHour);
-      const end = new Date(value.lastHour);
-      const runs: { startDate: string; endDate: string }[] = [];
-      const cursor = new Date(start);
-      while (cursor < end) {
-        const runStart = new Date(cursor);
-        cursor.setHours(cursor.getHours() + 1);
-        runs.push({
-          startDate: runStart.toISOString(),
-          endDate: new Date(cursor).toISOString(),
-        });
-      }
-      setProgress({ current: 0, total: runs.length });
-      for (let i = 0; i < runs.length; i++) {
-        await createMutation.mutateAsync(runs[i]);
-        setProgress({ current: i + 1, total: runs.length });
-      }
-      onClose();
-    },
-  });
-
-  const [previewCount, setPreviewCount] = useState(0);
-  const updatePreview = () => {
-    const fh = form.getFieldValue("firstHour");
-    const lh = form.getFieldValue("lastHour");
-    if (fh && lh) {
-      setPreviewCount(
-        Math.max(
-          0,
-          Math.ceil(
-            (new Date(lh).getTime() - new Date(fh).getTime()) / 3_600_000,
-          ),
-        ),
-      );
-    } else {
-      setPreviewCount(0);
-    }
-  };
-
-  return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        form.handleSubmit();
-      }}
-    >
-      <Dialog.Body>
-        <VStack gap="4">
-          <form.Field
-            name="firstHour"
-            validators={{
-              onChange: ({ value }) =>
-                value ? undefined : "Heure de départ requise",
-            }}
-          >
-            {(field) => (
-              <Field.Root required invalid={!!field.state.meta.errors.length}>
-                <Field.Label>Première heure</Field.Label>
-                <Input
-                  type="datetime-local"
-                  value={field.state.value}
-                  onChange={(e) => {
-                    field.handleChange(e.target.value);
-                    setTimeout(updatePreview, 0);
-                  }}
-                  onBlur={field.handleBlur}
-                />
-                <Field.ErrorText>{field.state.meta.errors[0]}</Field.ErrorText>
-              </Field.Root>
-            )}
-          </form.Field>
-          <form.Field
-            name="lastHour"
-            validators={{
-              onChange: ({ value }) => {
-                if (!value) return "Heure de fin requise";
-                const start = form.getFieldValue("firstHour");
-                if (start && new Date(value) <= new Date(start)) {
-                  return "Doit être après la première heure";
-                }
-                return undefined;
-              },
-            }}
-          >
-            {(field) => (
-              <Field.Root required invalid={!!field.state.meta.errors.length}>
-                <Field.Label>Dernière heure</Field.Label>
-                <Input
-                  type="datetime-local"
-                  value={field.state.value}
-                  onChange={(e) => {
-                    field.handleChange(e.target.value);
-                    setTimeout(updatePreview, 0);
-                  }}
-                  onBlur={field.handleBlur}
-                />
-                <Field.ErrorText>{field.state.meta.errors[0]}</Field.ErrorText>
-              </Field.Root>
-            )}
-          </form.Field>
-
-          {previewCount > 0 && (
-            <Text fontSize="sm" color="fg.muted">
-              Cela créera <strong>{previewCount}</strong> run
-              {previewCount > 1 ? "s" : ""} (1 par heure)
-            </Text>
-          )}
-
-          {progress && (
-            <VStack gap="2" w="full">
-              <Progress.Root
-                value={(progress.current / progress.total) * 100}
-                size="sm"
-                colorPalette="primary"
-              >
-                <Progress.Track>
-                  <Progress.Range />
-                </Progress.Track>
-              </Progress.Root>
-              <Text fontSize="xs" color="fg.muted">
-                {progress.current} / {progress.total} runs créés
-              </Text>
-            </VStack>
-          )}
-        </VStack>
-      </Dialog.Body>
-      <Dialog.Footer gap="3">
-        <Button
-          variant="outline"
-          onClick={onClose}
-          type="button"
-          disabled={!!progress}
-        >
-          Annuler
-        </Button>
-        <Button
-          type="submit"
-          colorPalette="primary"
-          loading={!!progress}
-          disabled={previewCount === 0}
-        >
-          Générer {previewCount} run{previewCount > 1 ? "s" : ""}
-        </Button>
-      </Dialog.Footer>
-    </form>
-  );
-}
+import { RunForm } from "@/components/admin/RunForm";
+import { BatchRunGenerator } from "@/components/admin/BatchRunGenerator";
+import { formatTimeVerbose } from "@/utils/race";
 
 // ---------------------------------------------------------------------------
 // AdminRunsPage
@@ -448,7 +148,7 @@ export default function AdminRunsPage() {
       header: "Temps moy.",
       render: (r) => (
         <Text fontFamily="mono" fontSize="sm">
-          {formatTime(r.averageTime)}
+          {formatTimeVerbose(r.averageTime)}
         </Text>
       ),
       width: "120px",
@@ -458,7 +158,7 @@ export default function AdminRunsPage() {
       header: "Plus rapide",
       render: (r) => (
         <Text fontFamily="mono" fontSize="sm" color="stat.green">
-          {formatTime(r.fastestTime)}
+          {formatTimeVerbose(r.fastestTime)}
         </Text>
       ),
       width: "120px",
@@ -579,7 +279,7 @@ export default function AdminRunsPage() {
         />
         <StatCard
           label="Temps moyen"
-          value={formatTime(globalAverageTime)}
+          value={formatTimeVerbose(globalAverageTime)}
           icon={LuGauge}
           color="stat.orange"
           loading={isLoading}
@@ -587,7 +287,7 @@ export default function AdminRunsPage() {
         />
         <StatCard
           label="Plus rapide"
-          value={formatTime(globalFastestTime)}
+          value={formatTimeVerbose(globalFastestTime)}
           icon={LuZap}
           color="stat.green"
           loading={isLoading}
