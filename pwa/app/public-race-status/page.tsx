@@ -156,8 +156,9 @@ export default function PublicRaceStatusPage() {
   }, [emblaApi, mediaCount]);
 
   useEffect(() => {
-    setCurrentTime(new Date());
-    const t = setInterval(() => setCurrentTime(new Date()), 1000);
+    const update = () => setCurrentTime(new Date());
+    update();
+    const t = setInterval(update, 1000);
     return () => clearInterval(t);
   }, []);
 
