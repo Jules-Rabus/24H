@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import {
   Badge,
   Box,
@@ -40,12 +40,19 @@ import { formatTimeShort } from "@/utils/race";
 export default function ParticipationsPage() {
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState<SortState>({ field: "run.id", dir: "asc" });
-  const [search, setSearch] = useState({
+  const [search, setSearchRaw] = useState({
     firstName: "",
     lastName: "",
     dossard: "",
     status: "",
   });
+  const setSearch: typeof setSearchRaw = useCallback(
+    (value) => {
+      setSearchRaw(value);
+      setPage(1);
+    },
+    [setPage],
+  );
 
   const debouncedSearch = useDebounce(search, 300);
 

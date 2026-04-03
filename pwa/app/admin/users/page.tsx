@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import {
@@ -46,12 +46,19 @@ export default function AdminUsersPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string | number>>(
     new Set(),
   );
-  const [search, setSearch] = useState({
+  const [search, setSearchRaw] = useState({
     firstName: "",
     lastName: "",
     email: "",
     dossard: "",
   });
+  const setSearch: typeof setSearchRaw = useCallback(
+    (value) => {
+      setSearchRaw(value);
+      setPage(1);
+    },
+    [setPage],
+  );
   const [sort, setSort] = useState<SortState>({
     field: "lastName",
     dir: "asc",
