@@ -261,6 +261,7 @@ function CoureurContent({ params }: { params: Promise<{ id: string }> }) {
                       lastName: runner.lastName,
                       surname: runner.surname,
                     }}
+                    edition={Number(defaultTab)}
                   />
                 )}
               </HStack>
