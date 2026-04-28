@@ -335,20 +335,27 @@ export default function UserDetailPage({
       header: "Run",
       render: (row) =>
         row.run?.id ? (
-          <Link href={`/admin/runs/${row.run.id}`}>
-            <Text
-              fontWeight="medium"
-              color="primary.fg"
-              _hover={{ textDecoration: "underline" }}
-              cursor="pointer"
-            >
-              Run #{row.run.id}
-            </Text>
-          </Link>
+          <HStack gap="2">
+            <Link href={`/admin/runs/${row.run.id}`}>
+              <Text
+                fontWeight="medium"
+                color="primary.fg"
+                _hover={{ textDecoration: "underline" }}
+                cursor="pointer"
+              >
+                Run #{row.run.id}
+              </Text>
+            </Link>
+            {row.run.edition != null && (
+              <Badge colorPalette="primary" size="sm">
+                {row.run.edition}
+              </Badge>
+            )}
+          </HStack>
         ) : (
           <Text>-</Text>
         ),
-      width: "100px",
+      width: "160px",
     },
     {
       key: "runDate",

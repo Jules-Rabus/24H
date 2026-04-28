@@ -13,6 +13,7 @@ import {
   HStack,
   IconButton,
   Input,
+  NativeSelect,
   Portal,
   Text,
   VStack,
@@ -51,6 +52,7 @@ export default function AdminUsersPage() {
     lastName: "",
     email: "",
     dossard: "",
+    edition: "",
   });
   const setSearch: typeof setSearchRaw = useCallback(
     (value) => {
@@ -73,6 +75,9 @@ export default function AdminUsersPage() {
     lastName: debouncedSearch.lastName || undefined,
     email: debouncedSearch.email || undefined,
     id: debouncedSearch.dossard ? Number(debouncedSearch.dossard) : undefined,
+    edition: debouncedSearch.edition
+      ? Number(debouncedSearch.edition)
+      : undefined,
     orderField: sort.field,
     orderDir: sort.dir,
   };
@@ -130,6 +135,29 @@ export default function AdminUsersPage() {
       header: "Organisation",
       render: (u) => u.organization ?? "-",
       sortField: "organization",
+    },
+    {
+      key: "editions",
+      header: "Éditions",
+      width: "140px",
+      render: (u) =>
+        u.editions && u.editions.length > 0 ? (
+          <HStack gap="1" flexWrap="wrap">
+            {u.editions.map((ed) => (
+              <Badge
+                key={ed}
+                colorPalette={
+                  ed === Math.max(...u.editions!) ? "primary" : "gray"
+                }
+                size="sm"
+              >
+                {ed}
+              </Badge>
+            ))}
+          </HStack>
+        ) : (
+          <Text color="fg.muted">-</Text>
+        ),
     },
     {
       key: "roles",
@@ -284,6 +312,23 @@ export default function AdminUsersPage() {
             />
           </Field.Root>
 
+          <Field.Root flex="0 0 140px" minW="140px">
+            <Field.Label fontSize="sm">Édition</Field.Label>
+            <NativeSelect.Root size="sm">
+              <NativeSelect.Field
+                value={search.edition}
+                onChange={(e) =>
+                  setSearch((s) => ({ ...s, edition: e.target.value }))
+                }
+              >
+                <option value="">Toutes</option>
+                <option value="2026">2026</option>
+                <option value="2025">2025</option>
+              </NativeSelect.Field>
+              <NativeSelect.Indicator />
+            </NativeSelect.Root>
+          </Field.Root>
+
           <Box pt="6">
             <Button
               type="button"
@@ -295,6 +340,7 @@ export default function AdminUsersPage() {
                   lastName: "",
                   email: "",
                   dossard: "",
+                  edition: "",
                 });
                 setPage(1);
               }}

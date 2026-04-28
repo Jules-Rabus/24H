@@ -100,9 +100,9 @@ function PublicNavContent() {
       >
         <Link href="/classement" style={{ textDecoration: "none" }}>
           <HStack gap="2">
-            <Image src="/logo.png" alt="24H Race" width={28} height={28} />
+            <Image src="/logo.png" alt="Défi des 24h" width={28} height={28} />
             <Text fontWeight="extrabold" fontSize="lg" color="primary.fg">
-              24H Race
+              Défi des 24h
             </Text>
           </HStack>
         </Link>

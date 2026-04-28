@@ -109,7 +109,7 @@ function Sidebar({ me }: { me: Me }) {
     >
       <Box px="3" mb="6">
         <Text fontWeight="bold" fontSize="lg" color="primary.fg">
-          24H Race
+          Défi des 24h
         </Text>
         <Text fontSize="xs" color="fg.muted">
           Administration

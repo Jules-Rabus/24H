@@ -17,8 +17,14 @@ export default function HomePage() {
     <Box minH="100vh" bg="bg.subtle" display="flex" flexDirection="column">
       {/* Header */}
       <Box bg="#0f929a" py="10" px="4" textAlign="center">
-        <HStack justify="center" gap="2" mb="1">
-          <Image src="/logo.png" alt="24H Race" width={28} height={28} />
+        <VStack gap="3" mb="1">
+          <Image
+            src="/logo.png"
+            alt="Défi des 24h"
+            width={96}
+            height={96}
+            priority
+          />
           <Text
             fontWeight="extrabold"
             fontSize="3xl"
@@ -26,9 +32,9 @@ export default function HomePage() {
             letterSpacing="widest"
             textTransform="uppercase"
           >
-            24H Race
+            Défi des 24h
           </Text>
-        </HStack>
+        </VStack>
         <Text color="cyan.100" fontSize="md">
           Bienvenue
         </Text>
@@ -117,7 +123,7 @@ export default function HomePage() {
         <HStack justify="center" gap="1">
           <LuZap size={14} color="#0f929a" />
           <Text fontSize="xs" color="fg.muted">
-            24H Race
+            Défi des 24h
           </Text>
         </HStack>
       </Box>

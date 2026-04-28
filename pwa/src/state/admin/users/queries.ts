@@ -18,6 +18,7 @@ export interface UserFilters {
   lastName?: string;
   surname?: string;
   email?: string;
+  edition?: number;
   page?: number;
   itemsPerPage?: number;
   orderField?: string;

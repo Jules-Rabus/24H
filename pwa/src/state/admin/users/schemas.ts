@@ -17,6 +17,7 @@ export const userApiSchema = z.object({
   bestTime: z.number().nullish(),
   averageTime: z.number().nullish(),
   image: z.string().nullish(),
+  editions: z.array(z.number()).optional().default([]),
   createdAt: z.string().optional(),
   updatedAt: z.string().optional(),
 });

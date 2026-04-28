@@ -13,4 +13,6 @@ final class RunRef
     public \DateTimeInterface $startDate;
 
     public \DateTimeInterface $endDate;
+
+    public ?int $edition = null;
 }

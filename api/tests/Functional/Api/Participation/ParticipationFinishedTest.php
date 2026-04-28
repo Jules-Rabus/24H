@@ -75,4 +75,40 @@ final class ParticipationFinishedTest extends AbstractTestCase
 
         $this->assertResponseStatusCodeSame(400);
     }
+
+    public function testScansArrivalForCurrentEditionWhenUserHasMultipleParticipations(): void
+    {
+        $pastRun = RunFactory::createOne([
+            'startDate' => new \DateTime('-2 days'),
+            'endDate' => new \DateTime('-1 day'),
+        ]);
+        $currentRun = RunFactory::createOne([
+            'startDate' => new \DateTime('-1 hour'),
+            'endDate' => new \DateTime('+1 hour'),
+        ]);
+        $user = UserFactory::createOne();
+        ParticipationFactory::createOne([
+            'run' => $pastRun,
+            'user' => $user,
+            'arrivalTime' => new \DateTime('-1 day -30 minutes'),
+        ]);
+        $currentParticipation = ParticipationFactory::createOne([
+            'run' => $currentRun,
+            'user' => $user,
+            'arrivalTime' => null,
+        ]);
+
+        $this->createClientWithCredentials()->request('POST', self::ROUTE, [
+            'headers' => ['Content-Type' => 'application/json'],
+            'json' => [
+                'rawValue' => json_encode(['originId' => (string) $user->getId()]),
+            ],
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains([
+            'id' => $currentParticipation->getId(),
+            'status' => 'FINISHED',
+        ]);
+    }
 }

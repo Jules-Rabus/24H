@@ -8,8 +8,8 @@ use App\ApiResource\User\UserApi;
 use App\Dto\User\CreateUser;
 use App\Dto\User\UpdateUser;
 use App\Entity\Participation;
-use App\Entity\Run;
 use App\Entity\User;
+use App\Repository\RunRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\ObjectMapper\ObjectMapperInterface;
@@ -29,6 +29,7 @@ final readonly class UserProcessor implements ProcessorInterface
         private UserPasswordHasherInterface $passwordHasher,
         private EntityManagerInterface $entityManager,
         private ObjectMapperInterface $objectMapper,
+        private RunRepository $runRepository,
     ) {
     }
 
@@ -98,13 +99,14 @@ final readonly class UserProcessor implements ProcessorInterface
 
     private function addParticipation(User $user): void
     {
-        $runRepository = $this->entityManager->getRepository(Run::class);
-        $runs = $runRepository->findAll();
-        foreach ($runs as $run) {
-            $participation = new Participation();
-            $participation->setUser($user);
-            $participation->setRun($run);
-            $this->entityManager->persist($participation);
+        $run = $this->runRepository->findCurrentRun();
+        if (null === $run) {
+            return;
         }
+
+        $participation = new Participation();
+        $participation->setUser($user);
+        $participation->setRun($run);
+        $this->entityManager->persist($participation);
     }
 }

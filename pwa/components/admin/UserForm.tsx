@@ -1,21 +1,35 @@
 "use client";
 
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  Alert,
+  Box,
   Button,
   Checkbox,
   Dialog,
   Field,
   HStack,
   Input,
+  Text,
   VStack,
 } from "@chakra-ui/react";
+import { LuCamera, LuTrash2 } from "react-icons/lu";
 import { useForm } from "@tanstack/react-form";
-import type { AdminUser } from "@/state/admin/users/queries";
+import {
+  useAdminUsersQuery,
+  type AdminUser,
+} from "@/state/admin/users/queries";
 import { createUserSchema } from "@/state/admin/users/schemas";
 import {
+  useAddUserToCurrentRunMutation,
   useCreateUserMutation,
   useUpdateUserMutation,
+  useUploadUserImageMutation,
 } from "@/state/admin/users/mutations";
+import { useDebounce } from "@/hooks/useDebounce";
+import { toaster } from "@/components/ui/toaster";
+
+const norm = (s: string) => s.trim().toLowerCase();
 
 export function UserForm({
   user,
@@ -24,10 +38,33 @@ export function UserForm({
   user?: AdminUser;
   onClose: () => void;
 }) {
+  const isEdit = !!user?.id;
   const createMutation = useCreateUserMutation();
   const updateMutation = useUpdateUserMutation();
+  const uploadImageMutation = useUploadUserImageMutation();
+  const linkToRunMutation = useAddUserToCurrentRunMutation();
 
-  const isLoading = createMutation.isPending || updateMutation.isPending;
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [firstName, setFirstName] = useState(user?.firstName ?? "");
+  const [lastName, setLastName] = useState(user?.lastName ?? "");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!photoFile) {
+      setPhotoPreview(null);
+      return;
+    }
+    const url = URL.createObjectURL(photoFile);
+    setPhotoPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [photoFile]);
+
+  const isLoading =
+    createMutation.isPending ||
+    updateMutation.isPending ||
+    uploadImageMutation.isPending ||
+    linkToRunMutation.isPending;
 
   const form = useForm({
     defaultValues: {
@@ -57,17 +94,101 @@ export function UserForm({
         ...(value.plainPassword ? { plainPassword: value.plainPassword } : {}),
       };
 
-      if (user?.id) {
-        await updateMutation.mutateAsync({ id: user.id, body });
+      let createdId: number | null = null;
+      if (isEdit) {
+        await updateMutation.mutateAsync({ id: user!.id!, body });
+        createdId = user!.id!;
       } else {
-        await createMutation.mutateAsync({
+        const created = await createMutation.mutateAsync({
           ...body,
           plainPassword: value.plainPassword || null,
         });
+        createdId = (created as { id?: number })?.id ?? null;
       }
+
+      if (createdId && photoFile) {
+        try {
+          await uploadImageMutation.mutateAsync({
+            userId: createdId,
+            file: photoFile,
+          });
+        } catch {
+          toaster.create({
+            type: "error",
+            title: "Photo non uploadée",
+            description:
+              "Le coureur a été enregistré, mais la photo n'a pas pu être envoyée. Vous pouvez réessayer depuis la fiche du coureur.",
+          });
+        }
+      }
+
       onClose();
     },
   });
+
+  const debouncedFirstName = useDebounce(firstName, 300);
+  const debouncedLastName = useDebounce(lastName, 300);
+
+  const duplicateQueryEnabled =
+    !isEdit &&
+    debouncedFirstName.trim().length >= 2 &&
+    debouncedLastName.trim().length >= 2;
+
+  const { data: duplicateData } = useAdminUsersQuery(
+    duplicateQueryEnabled
+      ? {
+          firstName: debouncedFirstName.trim(),
+          lastName: debouncedLastName.trim(),
+          itemsPerPage: 5,
+        }
+      : {},
+  );
+
+  const exactMatches = useMemo(() => {
+    if (!duplicateQueryEnabled || !duplicateData?.member) return [];
+    const fn = norm(debouncedFirstName);
+    const ln = norm(debouncedLastName);
+    return duplicateData.member.filter(
+      (u) => norm(u.firstName) === fn && norm(u.lastName) === ln,
+    );
+  }, [
+    duplicateQueryEnabled,
+    duplicateData,
+    debouncedFirstName,
+    debouncedLastName,
+  ]);
+
+  const handleLink = async (existingUserId: number) => {
+    try {
+      await linkToRunMutation.mutateAsync(existingUserId);
+      if (photoFile) {
+        try {
+          await uploadImageMutation.mutateAsync({
+            userId: existingUserId,
+            file: photoFile,
+          });
+        } catch {
+          toaster.create({
+            type: "error",
+            title: "Photo non uploadée",
+            description:
+              "Le coureur a été inscrit à l'édition courante, mais la photo n'a pas pu être envoyée.",
+          });
+        }
+      }
+      toaster.create({
+        type: "success",
+        title: "Coureur inscrit à l'édition courante",
+      });
+      onClose();
+    } catch (e) {
+      toaster.create({
+        type: "error",
+        title: "Inscription impossible",
+        description: e instanceof Error ? e.message : undefined,
+      });
+    }
+  };
 
   return (
     <form
@@ -79,13 +200,47 @@ export function UserForm({
     >
       <Dialog.Body>
         <VStack gap="4">
+          {!isEdit && exactMatches.length > 0 && (
+            <Alert.Root status="warning">
+              <Alert.Indicator />
+              <Box flex="1">
+                <Alert.Title>Coureur déjà existant</Alert.Title>
+                <Alert.Description>
+                  <VStack align="stretch" gap="2" mt="1">
+                    {exactMatches.map((m) => (
+                      <HStack key={m.id} justify="space-between" gap="3">
+                        <Text fontSize="sm">
+                          {m.firstName} {m.lastName}
+                          {m.organization ? ` — ${m.organization}` : ""}
+                        </Text>
+                        <Button
+                          size="xs"
+                          variant="solid"
+                          colorPalette="primary"
+                          loading={linkToRunMutation.isPending}
+                          onClick={() => handleLink(m.id!)}
+                          type="button"
+                        >
+                          Inscrire à l&apos;édition courante
+                        </Button>
+                      </HStack>
+                    ))}
+                  </VStack>
+                </Alert.Description>
+              </Box>
+            </Alert.Root>
+          )}
+
           <form.Field name="firstName">
             {(field) => (
               <Field.Root required invalid={!!field.state.meta.errors.length}>
                 <Field.Label>Prénom</Field.Label>
                 <Input
                   value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
+                  onChange={(e) => {
+                    field.handleChange(e.target.value);
+                    setFirstName(e.target.value);
+                  }}
                   onBlur={field.handleBlur}
                   placeholder="Prénom"
                 />
@@ -102,7 +257,10 @@ export function UserForm({
                 <Field.Label>Nom</Field.Label>
                 <Input
                   value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
+                  onChange={(e) => {
+                    field.handleChange(e.target.value);
+                    setLastName(e.target.value);
+                  }}
                   onBlur={field.handleBlur}
                   placeholder="Nom"
                 />
@@ -149,7 +307,7 @@ export function UserForm({
             {(field) => (
               <Field.Root>
                 <Field.Label>
-                  {user ? "Nouveau mot de passe" : "Mot de passe"}
+                  {isEdit ? "Nouveau mot de passe" : "Mot de passe"}
                 </Field.Label>
                 <Input
                   type="password"
@@ -157,7 +315,7 @@ export function UserForm({
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
                   placeholder={
-                    user ? "Laisser vide pour ne pas changer" : "Mot de passe"
+                    isEdit ? "Laisser vide pour ne pas changer" : "Mot de passe"
                   }
                 />
               </Field.Root>
@@ -196,6 +354,73 @@ export function UserForm({
               </Field.Root>
             )}
           </form.Field>
+
+          {!isEdit && (
+            <Field.Root>
+              <Field.Label>Photo (optionnel)</Field.Label>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={(e) => setPhotoFile(e.target.files?.[0] ?? null)}
+              />
+              <HStack gap="3" align="center">
+                {photoPreview ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={photoPreview}
+                    alt="Aperçu"
+                    style={{
+                      width: "64px",
+                      height: "64px",
+                      objectFit: "cover",
+                      borderRadius: "8px",
+                      border: "1px solid var(--chakra-colors-border-subtle)",
+                    }}
+                  />
+                ) : (
+                  <Box
+                    boxSize="64px"
+                    rounded="md"
+                    bg="bg.subtle"
+                    borderWidth="1px"
+                    borderColor="border.subtle"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <LuCamera size={20} />
+                  </Box>
+                )}
+                <HStack gap="2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    {photoFile ? "Changer" : "Choisir une photo"}
+                  </Button>
+                  {photoFile && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      colorPalette="red"
+                      type="button"
+                      onClick={() => {
+                        setPhotoFile(null);
+                        if (fileInputRef.current)
+                          fileInputRef.current.value = "";
+                      }}
+                    >
+                      <LuTrash2 />
+                    </Button>
+                  )}
+                </HStack>
+              </HStack>
+            </Field.Root>
+          )}
         </VStack>
       </Dialog.Body>
 
@@ -214,9 +439,9 @@ export function UserForm({
               type="submit"
               colorPalette="primary"
               loading={isLoading}
-              disabled={!canSubmit}
+              disabled={!canSubmit || (!isEdit && exactMatches.length > 0)}
             >
-              {user ? "Modifier" : "Créer"}
+              {isEdit ? "Modifier" : "Créer"}
             </Button>
           )}
         </form.Subscribe>

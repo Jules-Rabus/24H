@@ -6,6 +6,7 @@ import {
   apiUsersUserIdimagePost,
   apiUsersUserIdimageDelete,
 } from "@/api/generated/sdk.gen";
+import { client } from "@/api/generated/client.gen";
 import { adminUserKeys } from "./queries";
 
 export interface CreateUserPayload {
@@ -75,6 +76,25 @@ export function useDeleteUserImageMutation() {
     onSuccess: (_, userId) => {
       queryClient.invalidateQueries({ queryKey: adminUserKeys.detail(userId) });
       queryClient.invalidateQueries({ queryKey: adminUserKeys.all });
+    },
+  });
+}
+
+export function useAddUserToCurrentRunMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (userId: number) => {
+      const { data } = await client.post({
+        url: `/users/${userId}/add_to_current_run`,
+        responseType: "json",
+        headers: { "Content-Type": "application/json" },
+        body: {},
+      });
+      return data;
+    },
+    onSuccess: (_, userId) => {
+      queryClient.invalidateQueries({ queryKey: adminUserKeys.all });
+      queryClient.invalidateQueries({ queryKey: adminUserKeys.detail(userId) });
     },
   });
 }

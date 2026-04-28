@@ -8,6 +8,7 @@ export const runRefSchema = z.object({
   id: z.number(),
   startDate: z.string(),
   endDate: z.string(),
+  edition: z.number().nullish(),
 });
 
 export type RunRef = z.infer<typeof runRefSchema>;

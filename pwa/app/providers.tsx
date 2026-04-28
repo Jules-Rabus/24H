@@ -9,6 +9,7 @@ import { useState } from "react";
 import { ZodError } from "zod";
 import { Provider as ChakraProvider } from "../components/ui/provider";
 import { Toaster, toaster } from "../components/ui/toaster";
+import { MswBootstrap } from "../components/MswBootstrap";
 import "../src/api/sdk-client"; // initialise le client hey-api (baseURL + JWT)
 
 function formatError(error: unknown): string {
@@ -65,11 +66,13 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <ChakraProvider>
-        {children}
-        <Toaster />
-      </ChakraProvider>
-    </QueryClientProvider>
+    <MswBootstrap>
+      <QueryClientProvider client={queryClient}>
+        <ChakraProvider>
+          {children}
+          <Toaster />
+        </ChakraProvider>
+      </QueryClientProvider>
+    </MswBootstrap>
   );
 }

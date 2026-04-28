@@ -40,14 +40,14 @@ describe("AdminLayout", () => {
     });
   });
 
-  it("affiche le titre 24H Race Administration", async () => {
+  it("affiche le titre Défi des 24h Administration", async () => {
     render(
       <AdminLayout>
         <div>Contenu</div>
       </AdminLayout>,
     );
     await waitFor(() => {
-      expect(screen.getByText("24H Race")).toBeInTheDocument();
+      expect(screen.getByText("Défi des 24h")).toBeInTheDocument();
       expect(screen.getByText("Administration")).toBeInTheDocument();
     });
   });

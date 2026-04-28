@@ -22,6 +22,7 @@ use App\Dto\User\UserCollection;
 use App\Entity\User;
 use App\ObjectMapper\ParticipationCollectionTransformer;
 use App\ObjectMapper\UserImageUrlTransformer;
+use App\State\User\AddUserToCurrentRunProcessor;
 use App\State\User\CurrentUserProvider;
 use App\State\UserProcessor;
 use Symfony\Component\ObjectMapper\Attribute\Map;
@@ -39,7 +40,15 @@ use Symfony\Component\ObjectMapper\Attribute\Map;
             security: "is_granted('ROLE_USER')",
             name: 'me',
         ),
-        new GetCollection(security: 'is_granted("ROLE_ADMIN")'),
+        new GetCollection(
+            security: 'is_granted("ROLE_ADMIN")',
+            parameters: [
+                'edition' => new QueryParameter(
+                    filter: new ExactFilter(),
+                    property: 'participations.run.edition',
+                ),
+            ],
+        ),
         new GetCollection(
             uriTemplate: 'users/public',
             output: UserCollection::class,
@@ -68,6 +77,15 @@ use Symfony\Component\ObjectMapper\Attribute\Map;
             security: 'is_granted("ROLE_ADMIN")',
             input: CreateUser::class,
             processor: UserProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/users/{id}/add_to_current_run',
+            requirements: ['id' => '\d+'],
+            security: 'is_granted("ROLE_ADMIN")',
+            input: false,
+            read: false,
+            deserialize: false,
+            processor: AddUserToCurrentRunProcessor::class,
         ),
         new Patch(
             security: 'is_granted("ROLE_ADMIN")',
@@ -121,4 +139,8 @@ final class UserApi
 
     #[Map(source: 'finishedParticipationsCount')]
     public int $finishedParticipationsCount = 0;
+
+    /** @var list<int> */
+    #[Map(source: 'editions')]
+    public array $editions = [];
 }

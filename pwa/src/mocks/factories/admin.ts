@@ -38,6 +38,7 @@ export function buildAdminUser(overrides: Partial<AdminUser> = {}): AdminUser {
     bestTime: 1440,
     averageTime: 1800,
     image: null,
+    editions: [],
     ...overrides,
   };
 }

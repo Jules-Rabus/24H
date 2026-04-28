@@ -96,7 +96,7 @@ export default function ForgotPasswordPage() {
                 letterSpacing="wider"
                 textTransform="uppercase"
               >
-                24H Race
+                Défi des 24h
               </Text>
             </Box>
             <Heading size="2xl" fontWeight="bold" textAlign="center">
