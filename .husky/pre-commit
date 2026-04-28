@@ -9,16 +9,16 @@ STAGED_API=$(echo "$STAGED" | grep "^api/" || true)
 # ── Frontend (pwa/) — runs locally ──────────────────────────────────────────
 if [ -n "$STAGED_PWA" ]; then
   echo "[pre-commit] pwa: lint..."
-  (cd pwa && pnpm run lint) || exit 1
+  (cd pwa && npm run lint) || exit 1
 
   echo "[pre-commit] pwa: format:check..."
-  (cd pwa && pnpm run format:check) || exit 1
+  (cd pwa && npm run format:check) || exit 1
 
   echo "[pre-commit] pwa: type:check..."
-  (cd pwa && pnpm run type:check) || exit 1
+  (cd pwa && npm run type:check) || exit 1
 
   echo "[pre-commit] pwa: test..."
-  (cd pwa && pnpm run test) || exit 1
+  (cd pwa && npm run test) || exit 1
 fi
 
 # ── Backend (api/) — runs in Docker ─────────────────────────────────────────

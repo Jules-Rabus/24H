@@ -359,7 +359,7 @@ export function UserForm({
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/*"
+                accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.jpg,.jpeg,.png,.webp,.heic,.heif"
                 style={{ display: "none" }}
                 onChange={(e) => setPhotoFile(e.target.files?.[0] ?? null)}
               />

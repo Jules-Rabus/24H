@@ -239,7 +239,7 @@ L'API doit être démarrée (`docker compose up`) avant de générer :
 
 ```bash
 # Depuis le container PWA (récupère l'OpenAPI spec en live depuis le container PHP)
-docker compose exec pwa pnpm run generate-api
+docker compose exec pwa npm run generate-api
 # → génère src/api/generated/ depuis http://php/docs.jsonopenapi
 ```
 
@@ -309,7 +309,7 @@ Chaque page legacy a un `page.tsx` (App Router) avec `"use client"` et `next/dyn
 ### Unitaires (Vitest + RTL)
 
 ```bash
-pnpm run test
+npm run test
 ```
 
 MSW est configuré dans `src/mocks/handlers.ts` — les handlers mockent :
@@ -334,11 +334,11 @@ Tests dans `e2e/navigation.spec.ts`. Requiert que `next dev` tourne sur le port 
 
 Le job `pwa-quality` dans `.github/workflows/ci.yml` exécute dans l'ordre :
 
-1. `pnpm run lint` — ESLint
-2. `pnpm run format:check` — vérification formatage Prettier
-3. `pnpm run type:check` — vérification TypeScript (`tsc --noEmit`)
-4. `pnpm run test` — Vitest (tests unitaires)
-5. `pnpm run build` — `next build` (production)
+1. `npm run lint` — ESLint
+2. `npm run format:check` — vérification formatage Prettier
+3. `npm run type:check` — vérification TypeScript (`tsc --noEmit`)
+4. `npm run test` — Vitest (tests unitaires)
+5. `npm run build` — `next build` (production)
 
 **Scripts disponibles dans `package.json`** :
 
@@ -360,13 +360,13 @@ Le hook `.husky/pre-commit` exécute localement avant chaque commit :
 
 ```sh
 cd pwa
-pnpm run lint
-pnpm run format:check
-pnpm run type:check
-pnpm run test
+npm run lint
+npm run format:check
+npm run type:check
+npm run test
 ```
 
-Activé via `pnpm install` (script `prepare` dans `package.json`).
+Activé via `npm install --legacy-peer-deps` (script `prepare` dans `package.json`).
 
 ---
 

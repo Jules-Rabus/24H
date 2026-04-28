@@ -48,27 +48,29 @@ docker compose exec php bin/console doctrine:fixtures:load
 
 ### PWA (Next.js — from `pwa/` directory)
 
-The PWA uses **pnpm** as its package manager.
+The PWA uses **npm** as its package manager.
 
 ```bash
 # Install dependencies
-cd pwa && pnpm install
+cd pwa && npm install --legacy-peer-deps
 
 # Dev server (runs inside Docker normally, but can run locally)
-pnpm dev
+npm run dev
+# Or with MSW mocks (no backend needed):
+npm run dev:mock
 
 # Unit tests (Vitest)
-pnpm test
-pnpm test:watch
+npm test
+npm run test:watch
 
 # Lint and format
-pnpm lint
-pnpm lint:fix
-pnpm format
-pnpm type:check
+npm run lint
+npm run lint:fix
+npm run format
+npm run type:check
 
 # Regenerate API client from OpenAPI spec (requires running API)
-pnpm generate-api
+npm run generate-api
 ```
 
 ### E2E Tests (Playwright — from `e2e/` directory)
@@ -127,7 +129,7 @@ src/
   ui/             ← UI primitives
 ```
 
-The API client under `src/api/generated/` is **auto-generated** from the OpenAPI spec via `pnpm generate-api`. Do not edit generated files manually.
+The API client under `src/api/generated/` is **auto-generated** from the OpenAPI spec via `npm run generate-api`. Do not edit generated files manually.
 
 ### File Storage
 

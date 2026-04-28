@@ -6,19 +6,19 @@ echo "🚀 Running pre-push checks for pwa..."
 
 if command -v docker >/dev/null 2>&1 && docker compose ps --status running pwa 2>/dev/null | grep -q pwa; then
   echo "🔍 Running format:check (Prettier) in Docker..."
-  docker compose exec -T pwa pnpm run format:check || exit 1
+  docker compose exec -T pwa npm run format:check || exit 1
 
   echo "🔍 Running lint (ESLint) in Docker..."
-  docker compose exec -T pwa pnpm run lint || exit 1
+  docker compose exec -T pwa npm run lint || exit 1
 
   echo "🔍 Running type:check (TypeScript) in Docker..."
-  docker compose exec -T pwa pnpm run type:check || exit 1
+  docker compose exec -T pwa npm run type:check || exit 1
 else
   echo "⚠️ Docker/pwa container not running. Running checks locally in pwa/ directory..."
   cd pwa || exit 1
-  pnpm run format:check || exit 1
-  pnpm run lint || exit 1
-  pnpm run type:check || exit 1
+  npm run format:check || exit 1
+  npm run lint || exit 1
+  npm run type:check || exit 1
 fi
 
 echo "✅ All pre-push checks passed!"
