@@ -489,6 +489,11 @@ export default function UserDetailPage({
                     lastName: user.lastName,
                     surname: user.surname,
                   }}
+                  edition={
+                    user.editions && user.editions.length > 0
+                      ? Math.max(...user.editions)
+                      : 2026
+                  }
                 />
               )}
               <Button

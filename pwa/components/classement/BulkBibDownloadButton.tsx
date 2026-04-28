@@ -30,6 +30,7 @@ const s = StyleSheet.create({
     alignItems: "center",
     padding: 20,
   },
+  edition: { fontSize: 32, fontWeight: "bold" },
   number: { fontSize: 100, fontWeight: "bold" },
   name: { fontSize: 40 },
   qr: { width: 160, height: 160 },
@@ -45,7 +46,13 @@ const generateQr = (userId: number) => {
   return canvas.toDataURL("image/png");
 };
 
-export default function BulkBibDownloadButton({ users }: { users: BibUser[] }) {
+export default function BulkBibDownloadButton({
+  users,
+  edition,
+}: {
+  users: BibUser[];
+  edition?: number;
+}) {
   if (users.length === 0) return null;
 
   const doc = (
@@ -57,6 +64,11 @@ export default function BulkBibDownloadButton({ users }: { users: BibUser[] }) {
         return (
           <Page key={user.id} size="A5" orientation="landscape" style={s.page}>
             <View style={s.bib}>
+              {edition != null && (
+                <Text style={s.edition}>
+                  {edition} / {user.id}
+                </Text>
+              )}
               <Text style={s.number}>{user.id}</Text>
               <Text style={s.name}>{displayName}</Text>
               <Image style={s.qr} src={qr} />

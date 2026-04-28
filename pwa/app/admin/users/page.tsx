@@ -41,6 +41,7 @@ const BulkBibDownloadButton = dynamic(
 // ---------------------------------------------------------------------------
 
 const ITEMS_PER_PAGE = 30;
+const CURRENT_EDITION = 2026;
 
 export default function AdminUsersPage() {
   const [page, setPage] = useState(1);
@@ -241,6 +242,11 @@ export default function AdminUsersPage() {
                   lastName: u.lastName!,
                   surname: u.surname,
                 }))}
+              edition={
+                debouncedSearch.edition
+                  ? Number(debouncedSearch.edition)
+                  : CURRENT_EDITION
+              }
             />
           )}
           <Button
