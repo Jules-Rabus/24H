@@ -14,14 +14,14 @@ if command -v docker >/dev/null 2>&1 && docker compose ps --status running pwa 2
   docker compose exec -T pwa npx lint-staged --allow-empty || exit 1
 
   echo "Running format:check..."
-  docker compose exec -T pwa pnpm run format:check || exit 1
+  docker compose exec -T pwa npm run format:check || exit 1
 
   echo "Running type:check..."
-  docker compose exec -T pwa pnpm run type:check || exit 1
+  docker compose exec -T pwa npm run type:check || exit 1
 
   echo "Running tests..."
-  docker compose exec -T pwa pnpm run test || exit 1
+  docker compose exec -T pwa npm run test || exit 1
 else
   echo "Docker/pwa container not running — skipping pre-commit checks"
-  echo "Run manually: docker compose exec pwa pnpm run lint && pnpm run format:check && pnpm run type:check && pnpm run test"
+  echo "Run manually: docker compose exec pwa npm run lint && npm run format:check && npm run type:check && npm run test"
 fi

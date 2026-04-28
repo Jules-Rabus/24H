@@ -32,25 +32,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22.x
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9
-          run_install: false
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
-      - uses: actions/cache@v4
-        with:
-          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('pwa/pnpm-lock.yaml') }}
-          restore-keys: ${{ runner.os }}-pnpm-
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm run lint
-      - run: pnpm run format:check
-      - run: pnpm run type:check
-      - run: pnpm run test
+          cache: npm
+          cache-dependency-path: pwa/package-lock.json
+      - run: npm ci --legacy-peer-deps
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run type:check
+      - run: npm run test
       - name: Build
-        run: pnpm run build
+        run: npm run build
       - name: Prepare Standalone Artifact
         run: |
           cp -r public .next/standalone/

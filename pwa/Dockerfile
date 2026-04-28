@@ -14,11 +14,6 @@ ENV NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/ZscalerRootCertificate-
 
 WORKDIR /srv/app
 
-RUN npm install -g corepack@latest && \
-    corepack enable && \
-	corepack prepare --activate pnpm@latest && \
-	pnpm config -g set store-dir /.pnpm-store
-
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
 # Delete the following line in case you want to enable telemetry during dev and build.
@@ -32,7 +27,7 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 
-CMD ["sh", "-c", "pnpm install; pnpm run dev"]
+CMD ["sh", "-c", "npm install --legacy-peer-deps; npm run dev"]
 
 
 FROM base AS builder
@@ -41,8 +36,8 @@ COPY --link . .
 # Use a unique placeholder during build that will be replaced at runtime
 ENV NEXT_PUBLIC_ENTRYPOINT="http://APP_ENTRYPOINT_PLACEHOLDER"
 ENV NEXT_PUBLIC_MERCURE_HUB_URL="http://APP_ENTRYPOINT_PLACEHOLDER/.well-known/mercure"
-RUN pnpm install && \
-	pnpm run build
+RUN npm ci --legacy-peer-deps && \
+	npm run build
 
 # Production image, copy all the files and run next
 FROM node_upstream AS prod

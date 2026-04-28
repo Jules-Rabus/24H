@@ -657,7 +657,7 @@ export default function UserDetailPage({
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/*"
+                accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.jpg,.jpeg,.png,.webp,.heic,.heif"
                 style={{ display: "none" }}
                 onChange={handleImageUpload}
               />
