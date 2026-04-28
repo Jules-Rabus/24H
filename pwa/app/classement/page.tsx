@@ -4,6 +4,7 @@ import { Suspense, useState, useMemo } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
+  Avatar,
   Badge,
   Box,
   Button,
