@@ -10,8 +10,10 @@ use App\Dto\User\UpdateUser;
 use App\Entity\Participation;
 use App\Entity\User;
 use App\Repository\RunRepository;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\ObjectMapper\ObjectMapperInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
@@ -92,7 +94,13 @@ final readonly class UserProcessor implements ProcessorInterface
             $entity->eraseCredentials();
         }
 
-        $entity = $this->processor->process($entity, $operation, $uriVariables, $context);
+        try {
+            $entity = $this->processor->process($entity, $operation, $uriVariables, $context);
+        } catch (UniqueConstraintViolationException) {
+            // The case-insensitive DB index on (LOWER(first_name), LOWER(last_name)) caught a duplicate
+            // that the case-sensitive Symfony UniqueEntity validator missed (e.g. "Jean"/"JEAN").
+            throw new UnprocessableEntityHttpException('Un coureur avec ce prénom et nom existe déjà.');
+        }
 
         return $this->objectMapper->map($entity, UserApi::class);
     }

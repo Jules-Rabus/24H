@@ -109,6 +109,16 @@ final class UserCreationByEditionTest extends AbstractTestCase
         $this->assertResponseStatusCodeSame(422);
     }
 
+    public function testCreatingDuplicateNameCaseInsensitiveReturns422(): void
+    {
+        UserFactory::createOne(['firstName' => 'Jean', 'lastName' => 'Dupont']);
+
+        // Case-mixed: bypasses Symfony's case-sensitive UniqueEntity, must be caught by the DB unique index.
+        $data = $this->postUser('JEAN', 'dupont');
+        $this->assertSame(422, $data['__status']);
+        $this->assertResponseStatusCodeSame(422);
+    }
+
     public function testCreatingUserWithImageUploadAfterwards(): void
     {
         RunFactory::createOne([

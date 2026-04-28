@@ -45,20 +45,18 @@ export function UserForm({
   const linkToRunMutation = useAddUserToCurrentRunMutation();
 
   const [photoFile, setPhotoFile] = useState<File | null>(null);
-  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [firstName, setFirstName] = useState(user?.firstName ?? "");
   const [lastName, setLastName] = useState(user?.lastName ?? "");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const photoPreview = useMemo(
+    () => (photoFile ? URL.createObjectURL(photoFile) : null),
+    [photoFile],
+  );
   useEffect(() => {
-    if (!photoFile) {
-      setPhotoPreview(null);
-      return;
-    }
-    const url = URL.createObjectURL(photoFile);
-    setPhotoPreview(url);
-    return () => URL.revokeObjectURL(url);
-  }, [photoFile]);
+    if (!photoPreview) return;
+    return () => URL.revokeObjectURL(photoPreview);
+  }, [photoPreview]);
 
   const isLoading =
     createMutation.isPending ||
