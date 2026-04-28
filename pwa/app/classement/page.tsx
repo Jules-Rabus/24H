@@ -4,7 +4,6 @@ import { Suspense, useState, useMemo } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
-  Avatar,
   Badge,
   Box,
   Button,
@@ -14,6 +13,7 @@ import {
   Input,
   SimpleGrid,
   Skeleton,
+  Table,
   Text,
   VStack,
 } from "@chakra-ui/react";
@@ -89,8 +89,10 @@ function ClassementContent() {
 
   const favCount = ranked.filter((r) => r.id && isFavorite(r.id)).length;
 
+  const qs = searchParams.toString();
+
   return (
-    <Box minH="100vh" bg="bg.subtle">
+    <Box minH="100vh" bg="bg.subtle" key={qs}>
       <PublicNav />
 
       <Box maxW="6xl" mx="auto" px="4" py="8">

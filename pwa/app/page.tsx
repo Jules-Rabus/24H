@@ -1,13 +1,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Box, HStack, Text, VStack } from "@chakra-ui/react";
 import {
   LuPersonStanding,
   LuSettings2,
   LuZap,
   LuChevronRight,
-  LuFlame,
 } from "react-icons/lu";
 
 export default function HomePage() {
@@ -18,7 +18,7 @@ export default function HomePage() {
       {/* Header */}
       <Box bg="#0f929a" py="10" px="4" textAlign="center">
         <HStack justify="center" gap="2" mb="1">
-          <LuFlame size={28} color="white" />
+          <Image src="/logo.png" alt="24H Race" width={28} height={28} />
           <Text
             fontWeight="extrabold"
             fontSize="3xl"

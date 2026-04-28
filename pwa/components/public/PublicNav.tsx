@@ -12,6 +12,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import {
   LuZap,
@@ -99,7 +100,7 @@ function PublicNavContent() {
       >
         <Link href="/classement" style={{ textDecoration: "none" }}>
           <HStack gap="2">
-            <LuZap size={20} color="#0f929a" />
+            <Image src="/logo.png" alt="24H Race" width={28} height={28} />
             <Text fontWeight="extrabold" fontSize="lg" color="primary.fg">
               24H Race
             </Text>
