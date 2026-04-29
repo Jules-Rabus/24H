@@ -7,7 +7,6 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -16,11 +15,6 @@ use Symfony\Component\Validator\Constraints\PasswordStrength;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
-#[UniqueEntity(
-    fields: ['firstName', 'lastName'],
-    message: 'Un coureur avec ce prénom et nom existe déjà.',
-    errorPath: 'lastName',
-)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     use Timestampable;

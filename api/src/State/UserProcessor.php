@@ -3,6 +3,7 @@
 namespace App\State;
 
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\State\ProcessorInterface;
 use App\ApiResource\User\UserApi;
 use App\Dto\User\CreateUser;
@@ -43,46 +44,20 @@ final readonly class UserProcessor implements ProcessorInterface
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): UserApi
     {
-        // For PATCH, we get the existing entity from context
-        if ($data instanceof UpdateUser) {
-            $entity = $context['previous_data'] ?? null;
-            if (!$entity instanceof User) {
-                throw new \LogicException('Expected previous_data to be a User entity.');
-            }
-            // Apply only non-null fields from DTO to entity
-            if (null !== $data->firstName) {
-                $entity->setFirstName($data->firstName);
-            }
-            if (null !== $data->lastName) {
-                $entity->setLastName($data->lastName);
-            }
-            if (null !== $data->surname) {
-                $entity->setSurname($data->surname);
-            }
-            if (null !== $data->email) {
-                $entity->setEmail($data->email);
-            }
-            if (null !== $data->organization) {
-                $entity->setOrganization($data->organization);
-            }
-            if (null !== $data->roles) {
-                $entity->setRoles($data->roles);
-            }
-            if (null !== $data->plainPassword) {
-                $entity->setPlainPassword($data->plainPassword);
-            }
+        // ObjectMapperInputProcessor has already mapped CreateUser/UpdateUser DTO → User entity.
+        if (!$data instanceof User) {
+            $entity = $this->objectMapper->map($data, User::class);
         } else {
-            // POST: ObjectMapperInputProcessor already mapped CreateUser DTO → Entity
-            if (!$data instanceof User) {
-                $entity = $this->objectMapper->map($data, User::class);
-            } else {
-                $entity = $data;
-            }
+            $entity = $data;
+        }
 
-            // Application-level case-insensitive duplicate check (Symfony's UniqueEntity is case-sensitive).
-            if (null !== $this->userRepository->findOneByLowerName($entity->getFirstName(), $entity->getLastName())) {
-                throw new UnprocessableEntityHttpException('Un coureur avec ce prénom et nom existe déjà.');
-            }
+        $isPatch = $operation instanceof Patch;
+
+        // POST only: case-insensitive duplicate check (Symfony's UniqueEntity is case-sensitive).
+        // On PATCH the entity already exists; the only risk is a rename collision, handled by the DB index + try/catch on flush.
+        if (!$isPatch
+            && null !== $this->userRepository->findOneByLowerName($entity->getFirstName(), $entity->getLastName())) {
+            throw new UnprocessableEntityHttpException('Un coureur avec ce prénom et nom existe déjà.');
         }
 
         // Auto-add participations for all runs if none exist
