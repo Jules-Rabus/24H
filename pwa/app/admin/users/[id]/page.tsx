@@ -1,7 +1,7 @@
 "use client";
 
 import { use, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import {
@@ -72,6 +72,8 @@ export default function UserDetailPage({
   const { id } = use(params);
   const userId = Number(id);
   const router = useRouter();
+  const editionParam = useSearchParams().get("edition");
+  const editionFromUrl = editionParam ? Number(editionParam) : null;
 
   const { data: user, isLoading } = useAdminUserQuery(userId);
   const { data: participationsData, isLoading: isLoadingParticipations } =
@@ -308,9 +310,10 @@ export default function UserDetailPage({
                     surname: user.surname,
                   }}
                   edition={
-                    user.editions && user.editions.length > 0
+                    editionFromUrl ??
+                    (user.editions && user.editions.length > 0
                       ? Math.max(...user.editions)
-                      : 2026
+                      : 2026)
                   }
                 />
               )}

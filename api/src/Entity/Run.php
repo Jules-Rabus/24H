@@ -15,6 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Run
 {
     use Timestampable;
+    public const string VALIDATION_GROUP_DELETE = 'Run:delete';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -25,6 +26,11 @@ class Run
     #[Assert\NotNull]
     #[Assert\LessThan(propertyPath: 'endDate')]
     #[Assert\GreaterThanOrEqual('now')]
+    #[Assert\GreaterThan(
+        'now',
+        message: 'Impossible de supprimer un run qui a déjà démarré ou qui est terminé.',
+        groups: [self::VALIDATION_GROUP_DELETE],
+    )]
     private \DateTimeInterface $startDate;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, unique: true)]

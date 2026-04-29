@@ -22,7 +22,6 @@ use Symfony\Component\ObjectMapper\Attribute\Map;
 
 #[ApiResource(
     shortName: 'Run',
-    stateOptions: new Options(entityClass: Run::class),
     operations: [
         new GetCollection(output: RunCollection::class),
         new Get(),
@@ -32,9 +31,13 @@ use Symfony\Component\ObjectMapper\Attribute\Map;
         new Patch(
             input: UpdateRun::class,
         ),
-        new Delete(),
+        new Delete(
+            validate: true,
+            validationContext: ['groups' => [Run::VALIDATION_GROUP_DELETE]],
+        ),
     ],
     security: 'is_granted("ROLE_ADMIN")',
+    stateOptions: new Options(entityClass: Run::class),
 )]
 #[Map(source: Run::class)]
 #[ApiFilter(SearchFilter::class, properties: ['id' => 'exact'])]

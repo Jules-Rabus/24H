@@ -9,6 +9,7 @@ import {
   Tooltip,
   CartesianGrid,
 } from "recharts";
+import { formatPaceSecPerKm } from "@/utils/race";
 
 type ChartPoint = {
   name: string;
@@ -59,9 +60,16 @@ export function PaceChart({ data }: { data: ChartPoint[] }) {
             tickLine={false}
             axisLine={false}
           />
-          <YAxis fontSize={10} tickLine={false} axisLine={false} />
+          <YAxis
+            fontSize={10}
+            tickLine={false}
+            axisLine={false}
+            tickFormatter={(v) =>
+              formatPaceSecPerKm(Number(v)).replace("/km", "")
+            }
+          />
           <Tooltip
-            formatter={(v) => [`${v} min/km`]}
+            formatter={(v) => [formatPaceSecPerKm(Number(v))]}
             labelFormatter={(l) => `Tour ${l.replace("T", "")}`}
           />
           <Line

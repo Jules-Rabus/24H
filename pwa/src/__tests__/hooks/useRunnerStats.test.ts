@@ -71,15 +71,16 @@ describe("useRunnerStats", () => {
     const chartData = result.current.chartData;
     // max(2 participations 2026, 1 participation 2025) = 2 entries
     expect(chartData.length).toBe(2);
+    // pace is now seconds/km (4km lap), no rounding to whole minutes.
     expect(chartData[0]).toMatchObject({
       name: "T1",
-      pace2026: 6,
-      pace2025: 7,
+      pace2026: 360, // 1440s / 4km
+      pace2025: 390, // 1560s / 4km
     });
     // T2 has no 2025 counterpart
     expect(chartData[1]).toMatchObject({
       name: "T2",
-      pace2026: 8,
+      pace2026: 450, // 1800s / 4km
       pace2025: null,
     });
   });

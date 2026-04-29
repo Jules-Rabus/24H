@@ -171,7 +171,7 @@ export function ParticipationsDetail({
             </>
           ) : (
             <>
-              <LuChevronDown /> Voir tous les {participations.length} tours
+              <LuChevronDown /> Voir tous les tours
             </>
           )}
         </Button>

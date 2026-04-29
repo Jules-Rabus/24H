@@ -55,15 +55,16 @@ export function useRunnerStats(runner: PublicRunner | undefined) {
       participations2025.length,
     );
     if (maxLen === 0) return [];
+    // pace = seconds per km, kept as float for chart precision (4 km lap).
+    const paceSecPerKm = (totalTimeSec: number | null | undefined) =>
+      totalTimeSec != null ? totalTimeSec / 4 : null;
     return Array.from({ length: maxLen }, (_, i) => {
       const p26 = participations2026[i];
       const p25 = participations2025[i];
       return {
         name: `T${i + 1}`,
-        pace2026:
-          p26?.totalTime != null ? Math.round(p26.totalTime / 60 / 4) : null,
-        pace2025:
-          p25?.totalTime != null ? Math.round(p25.totalTime / 60 / 4) : null,
+        pace2026: paceSecPerKm(p26?.totalTime),
+        pace2025: paceSecPerKm(p25?.totalTime),
       };
     });
   }, [participations2026, participations2025]);

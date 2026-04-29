@@ -190,7 +190,13 @@ export default function AdminUsersPage() {
       width: "120px",
       render: (u) => (
         <HStack gap="1">
-          <Link href={`/admin/users/${u.id}`}>
+          <Link
+            href={
+              debouncedSearch.edition
+                ? `/admin/users/${u.id}?edition=${debouncedSearch.edition}`
+                : `/admin/users/${u.id}`
+            }
+          >
             <IconButton size="sm" variant="ghost" aria-label="Détail">
               <LuEye />
             </IconButton>
