@@ -1,13 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Badge,
   Box,
   Button,
-  Dialog,
   HStack,
   IconButton,
+  Image,
   Input,
   Progress,
   Spinner,
@@ -15,7 +15,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { LuTrash2, LuPlus } from "react-icons/lu";
+import { LuTrash2, LuPlus, LuImage, LuX } from "react-icons/lu";
 import {
   useAdminUsersQuery,
   type AdminUser,
@@ -23,9 +23,13 @@ import {
 import {
   useAddUserToCurrentRunMutation,
   useCreateUserMutation,
+  useUploadUserImageMutation,
 } from "@/state/admin/users/mutations";
 import { useDebounce } from "@/hooks/useDebounce";
 import { toaster } from "@/components/ui/toaster";
+
+const PHOTO_ACCEPT =
+  "image/jpeg,image/png,image/webp,image/heic,image/heif,.jpg,.jpeg,.png,.webp,.heic,.heif";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -39,6 +43,8 @@ interface BulkRow {
   surname: string;
   email: string;
   organization: string;
+  /** Optional profile photo to upload right after the user is created/linked. */
+  photo: File | null;
   /**
    * Whether the user explicitly asked to link the existing match
    * to the current run instead of creating a new user.
@@ -73,6 +79,7 @@ const newRow = (): BulkRow => {
     surname: "",
     email: "",
     organization: "",
+    photo: null,
     linkExistingId: null,
     saved: false,
   };
@@ -158,6 +165,7 @@ export function BulkUserForm({ onClose }: { onClose: () => void }) {
 
   const createMutation = useCreateUserMutation();
   const linkMutation = useAddUserToCurrentRunMutation();
+  const uploadMutation = useUploadUserImageMutation();
 
   // ------------------------------------------------------------------
   // Mutators
@@ -348,8 +356,9 @@ export function BulkUserForm({ onClose }: { onClose: () => void }) {
     for (let i = 0; i < targets.length; i++) {
       const { row, status } = targets[i];
       try {
+        let userId: number | null = null;
         if (status.kind === "ok") {
-          await createMutation.mutateAsync({
+          const created = await createMutation.mutateAsync({
             firstName: row.firstName.trim(),
             lastName: row.lastName.trim(),
             surname: row.surname.trim() || null,
@@ -358,9 +367,27 @@ export function BulkUserForm({ onClose }: { onClose: () => void }) {
             roles: ["ROLE_USER"],
             plainPassword: null,
           });
+          userId = created?.id ?? null;
         } else if (status.kind === "existing") {
           await linkMutation.mutateAsync(status.existingId);
+          userId = status.existingId;
         }
+
+        if (userId != null && row.photo) {
+          try {
+            await uploadMutation.mutateAsync({ userId, file: row.photo });
+          } catch (uploadErr) {
+            toaster.create({
+              type: "warning",
+              title: `Photo non envoyée pour ${row.firstName} ${row.lastName}`,
+              description:
+                uploadErr instanceof Error
+                  ? uploadErr.message
+                  : "Vous pouvez réessayer depuis la fiche du coureur.",
+            });
+          }
+        }
+
         okCount += 1;
         setRows((prev) =>
           prev.map((r) => (r.uid === row.uid ? { ...r, saved: true } : r)),
@@ -394,7 +421,7 @@ export function BulkUserForm({ onClose }: { onClose: () => void }) {
 
   return (
     <>
-      <Dialog.Body>
+      <Box>
         <VStack align="stretch" gap="4">
           <Text color="fg.muted" fontSize="sm">
             Saisis plusieurs coureurs à la fois. Le statut de chaque ligne se
@@ -424,6 +451,7 @@ export function BulkUserForm({ onClose }: { onClose: () => void }) {
                   <Table.ColumnHeader minW="160px">
                     Organisation
                   </Table.ColumnHeader>
+                  <Table.ColumnHeader minW="120px">Photo</Table.ColumnHeader>
                   <Table.ColumnHeader minW="200px">Statut</Table.ColumnHeader>
                   <Table.ColumnHeader width="60px" />
                 </Table.Row>
@@ -514,6 +542,15 @@ export function BulkUserForm({ onClose }: { onClose: () => void }) {
                         />
                       </Table.Cell>
                       <Table.Cell>
+                        <BulkPhotoCell
+                          file={row.photo}
+                          disabled={row.saved || isBusy}
+                          onChange={(file) =>
+                            updateRow(row.uid, { photo: file })
+                          }
+                        />
+                      </Table.Cell>
+                      <Table.Cell>
                         <RowStatusBadge
                           status={status}
                           row={row}
@@ -577,9 +614,9 @@ export function BulkUserForm({ onClose }: { onClose: () => void }) {
             </VStack>
           )}
         </VStack>
-      </Dialog.Body>
+      </Box>
 
-      <Dialog.Footer gap="3">
+      <HStack gap="3" justify="flex-end" mt="6">
         <Button
           variant="outline"
           onClick={onClose}
@@ -597,7 +634,7 @@ export function BulkUserForm({ onClose }: { onClose: () => void }) {
         >
           Tout enregistrer
         </Button>
-      </Dialog.Footer>
+      </HStack>
     </>
   );
 }
@@ -673,4 +710,89 @@ function RowStatusBadge({
     case "ok":
       return <Badge colorPalette="green">OK</Badge>;
   }
+}
+
+// ---------------------------------------------------------------------------
+// Photo cell
+// ---------------------------------------------------------------------------
+
+interface BulkPhotoCellProps {
+  file: File | null;
+  disabled: boolean;
+  onChange: (file: File | null) => void;
+}
+
+function BulkPhotoCell({ file, disabled, onChange }: BulkPhotoCellProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const preview = useMemo(
+    () => (file ? URL.createObjectURL(file) : null),
+    [file],
+  );
+  useEffect(() => {
+    if (!preview) return;
+    return () => URL.revokeObjectURL(preview);
+  }, [preview]);
+
+  return (
+    <HStack gap="2">
+      <input
+        ref={inputRef}
+        type="file"
+        accept={PHOTO_ACCEPT}
+        style={{ display: "none" }}
+        onChange={(e) => onChange(e.target.files?.[0] ?? null)}
+      />
+      {preview ? (
+        <Image
+          src={preview}
+          alt=""
+          boxSize="40px"
+          borderRadius="md"
+          objectFit="cover"
+        />
+      ) : (
+        <Box
+          boxSize="40px"
+          borderRadius="md"
+          borderWidth="1px"
+          borderStyle="dashed"
+          borderColor="border.muted"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          color="fg.muted"
+        >
+          <LuImage />
+        </Box>
+      )}
+      <VStack align="stretch" gap="1">
+        <Button
+          size="xs"
+          variant="outline"
+          type="button"
+          disabled={disabled}
+          onClick={() => inputRef.current?.click()}
+          aria-label={file ? "Changer la photo" : "Ajouter une photo"}
+        >
+          {file ? "Changer" : "Ajouter"}
+        </Button>
+        {file && (
+          <IconButton
+            size="xs"
+            variant="ghost"
+            colorPalette="red"
+            type="button"
+            disabled={disabled}
+            aria-label="Retirer la photo"
+            onClick={() => {
+              onChange(null);
+              if (inputRef.current) inputRef.current.value = "";
+            }}
+          >
+            <LuX />
+          </IconButton>
+        )}
+      </VStack>
+    </HStack>
+  );
 }

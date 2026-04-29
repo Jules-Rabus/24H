@@ -30,7 +30,6 @@ import { useDeleteUserMutation } from "@/state/admin/users/mutations";
 import { DataTable, type Column } from "@/components/admin/ui/DataTable";
 import { ConfirmDialog } from "@/components/admin/ui/ConfirmDialog";
 import { UserForm } from "@/components/admin/UserForm";
-import { BulkUserForm } from "@/components/admin/BulkUserForm";
 
 const BulkBibDownloadButton = dynamic(
   () => import("@/components/classement/BulkBibDownloadButton"),
@@ -87,7 +86,6 @@ export default function AdminUsersPage() {
   const { data, isLoading } = useAdminUsersQuery(filters);
 
   const [formOpen, setFormOpen] = useState(false);
-  const [bulkOpen, setBulkOpen] = useState(false);
   const [editUser, setEditUser] = useState<AdminUser | undefined>(undefined);
   const [deleteUser, setDeleteUser] = useState<AdminUser | undefined>(
     undefined,
@@ -251,8 +249,8 @@ export default function AdminUsersPage() {
               }
             />
           )}
-          <Button variant="outline" onClick={() => setBulkOpen(true)}>
-            + Saisie en masse
+          <Button variant="outline" asChild>
+            <Link href="/admin/users/bulk">+ Saisie en masse</Link>
           </Button>
           <Button
             colorPalette="primary"
@@ -410,37 +408,6 @@ export default function AdminUsersPage() {
                 </Dialog.CloseTrigger>
               </Dialog.Header>
               <UserForm user={editUser} onClose={handleCloseForm} />
-            </Dialog.Content>
-          </Dialog.Positioner>
-        </Portal>
-      </Dialog.Root>
-
-      {/* Bulk user creation dialog */}
-      <Dialog.Root
-        open={bulkOpen}
-        onOpenChange={({ open }) => !open && setBulkOpen(false)}
-        size="full"
-      >
-        <Portal>
-          <Dialog.Backdrop />
-          <Dialog.Positioner>
-            <Dialog.Content>
-              <Dialog.Header>
-                <Dialog.Title>Saisie en masse d&apos;utilisateurs</Dialog.Title>
-                <Dialog.CloseTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    position="absolute"
-                    top="3"
-                    right="3"
-                    type="button"
-                  >
-                    <LuX />
-                  </Button>
-                </Dialog.CloseTrigger>
-              </Dialog.Header>
-              <BulkUserForm onClose={() => setBulkOpen(false)} />
             </Dialog.Content>
           </Dialog.Positioner>
         </Portal>
