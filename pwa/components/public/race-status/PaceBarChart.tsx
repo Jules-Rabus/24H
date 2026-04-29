@@ -68,6 +68,7 @@ export function PaceBarChart({ data }: PaceBarChartProps) {
                 tick={{ fontSize: 10, fill: "#6b7280" }}
                 axisLine={false}
                 tickLine={false}
+                reversed
                 tickFormatter={(v: number) => (v > 0 ? fmtPace(v) : "")}
                 width={52}
               />

@@ -400,6 +400,7 @@ export default function UserDetailPage({
                     fontSize={12}
                     tickLine={false}
                     axisLine={false}
+                    reversed
                     tickFormatter={(v: number) =>
                       `${Math.floor(v)}:${String(Math.round((v % 1) * 60)).padStart(2, "0")}`
                     }

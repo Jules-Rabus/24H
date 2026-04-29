@@ -64,6 +64,7 @@ export function PaceChart({ data }: { data: ChartPoint[] }) {
             fontSize={10}
             tickLine={false}
             axisLine={false}
+            reversed
             tickFormatter={(v) =>
               formatPaceSecPerKm(Number(v)).replace("/km", "")
             }
