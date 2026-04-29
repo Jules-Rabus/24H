@@ -2,9 +2,9 @@
 
 import { Box, Flex, Heading } from "@chakra-ui/react";
 import {
-  Bar,
-  BarChart,
-  Cell,
+  CartesianGrid,
+  Line,
+  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -22,6 +22,10 @@ type PaceBarChartProps = {
   data: PaceChartPoint[];
 };
 
+/**
+ * Line chart of average pace per Run, matching the runner detail PaceChart visual.
+ * Kept as `PaceBarChart` export to avoid touching the call site.
+ */
 export function PaceBarChart({ data }: PaceBarChartProps) {
   return (
     <Flex
@@ -45,10 +49,15 @@ export function PaceBarChart({ data }: PaceBarChartProps) {
       {data.some((d) => d.secPerKm > 0) ? (
         <Box flex="1">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart
+            <LineChart
               data={data}
               margin={{ top: 4, right: 8, bottom: 0, left: 8 }}
             >
+              <CartesianGrid
+                strokeDasharray="0"
+                stroke="rgba(255,255,255,0.08)"
+                strokeWidth={0.5}
+              />
               <XAxis
                 dataKey="name"
                 tick={{ fontSize: 11, fill: "#6b7280" }}
@@ -72,15 +81,35 @@ export function PaceBarChart({ data }: PaceBarChartProps) {
                 }}
                 formatter={(v) => [fmtPace(Number(v ?? 0)), "Allure moy."]}
               />
-              <Bar dataKey="secPerKm" radius={[3, 3, 0, 0]}>
-                {data.map((entry, i) => (
-                  <Cell
-                    key={i}
-                    fill={entry.isCurrent ? TEAL : "rgba(255,255,255,0.12)"}
-                  />
-                ))}
-              </Bar>
-            </BarChart>
+              <Line
+                type="monotone"
+                dataKey="secPerKm"
+                stroke={TEAL}
+                strokeWidth={2}
+                dot={(props) => {
+                  // Highlight the in-progress Run with a filled dot, others discreet.
+                  const { cx, cy, payload, index } = props as {
+                    cx: number;
+                    cy: number;
+                    payload: PaceChartPoint;
+                    index: number;
+                  };
+                  const isCurrent = payload?.isCurrent;
+                  return (
+                    <circle
+                      key={index}
+                      cx={cx}
+                      cy={cy}
+                      r={isCurrent ? 4 : 2}
+                      fill={isCurrent ? TEAL : "rgba(255,255,255,0.45)"}
+                      stroke={isCurrent ? TEAL : "rgba(255,255,255,0.45)"}
+                    />
+                  );
+                }}
+                activeDot={{ r: 5 }}
+                connectNulls
+              />
+            </LineChart>
           </ResponsiveContainer>
         </Box>
       ) : (

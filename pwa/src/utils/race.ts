@@ -36,3 +36,13 @@ export function formatPace(seconds: number | null | undefined): string {
   const s = Math.round((paceMin - m) * 60);
   return `${m}:${s.toString().padStart(2, "0")}/km`;
 }
+
+/** Formats a pace already expressed in seconds per km as `m:ss/km`. */
+export function formatPaceSecPerKm(
+  secondsPerKm: number | null | undefined,
+): string {
+  if (!secondsPerKm) return "-";
+  const m = Math.floor(secondsPerKm / 60);
+  const s = Math.round(secondsPerKm % 60);
+  return `${m}:${s.toString().padStart(2, "0")}/km`;
+}

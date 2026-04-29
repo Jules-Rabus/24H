@@ -220,6 +220,7 @@ function ClassementContent() {
                     <RunnerRow
                       key={r.id}
                       runner={r}
+                      edition={edition}
                       isFav={!!r.id && isFavorite(r.id)}
                       onToggleFav={() => r.id && toggle(r.id)}
                     />
@@ -244,10 +245,12 @@ export default function ClassementPage() {
 
 function RunnerRow({
   runner,
+  edition,
   isFav,
   onToggleFav,
 }: {
   runner: RankedRunner;
+  edition: number;
   isFav: boolean;
   onToggleFav: () => void;
 }) {
@@ -260,7 +263,10 @@ function RunnerRow({
   const medal = runner.rank <= 3 ? RANK_MEDALS[runner.rank - 1] : undefined;
 
   return (
-    <Link href={`/coureurs/${runner.id}`} style={{ textDecoration: "none" }}>
+    <Link
+      href={`/coureurs/${runner.id}?edition=${edition}`}
+      style={{ textDecoration: "none" }}
+    >
       <HStack
         px="3"
         py="3"
