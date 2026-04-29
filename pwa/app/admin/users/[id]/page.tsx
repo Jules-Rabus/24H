@@ -44,15 +44,12 @@ const BibDownloadButton = dynamic(
   () => import("@/components/classement/BibDownloadButton"),
   { ssr: false },
 );
-import { useForm } from "@tanstack/react-form";
-import { useAdminUserQuery, type AdminUser } from "@/state/admin/users/queries";
-import { editUserSchema } from "@/state/admin/users/schemas";
+import { useAdminUserQuery } from "@/state/admin/users/queries";
 import {
   useAdminUserParticipationsQuery,
   type AdminParticipation,
 } from "@/state/admin/participations/queries";
 import {
-  useUpdateUserMutation,
   useDeleteUserMutation,
   useUploadUserImageMutation,
   useDeleteUserImageMutation,
@@ -60,187 +57,8 @@ import {
 import { ConfirmDialog } from "@/components/admin/ui/ConfirmDialog";
 import { StatCard } from "@/components/admin/ui/StatCard";
 import { DataTable, type Column } from "@/components/admin/ui/DataTable";
+import { UserForm } from "@/components/admin/UserForm";
 import { formatTimeVerbose as formatTime, formatPace } from "@/utils/race";
-
-// ---------------------------------------------------------------------------
-// UserForm (inline, edit only on this detail page)
-// ---------------------------------------------------------------------------
-
-import { Checkbox, Field, Input } from "@chakra-ui/react";
-
-function UserForm({ user, onClose }: { user: AdminUser; onClose: () => void }) {
-  const updateMutation = useUpdateUserMutation();
-
-  const isLoading = updateMutation.isPending;
-
-  const form = useForm({
-    defaultValues: {
-      firstName: user.firstName ?? "",
-      lastName: user.lastName ?? "",
-      surname: user.surname ?? "",
-      email: user.email ?? "",
-      organization: user.organization ?? "",
-      isAdmin: user.roles?.includes("ROLE_ADMIN") ?? false,
-    },
-    validators: {
-      onChange: editUserSchema,
-    },
-    onSubmit: async ({ value }) => {
-      const roles: string[] = value.isAdmin
-        ? ["ROLE_USER", "ROLE_ADMIN"]
-        : ["ROLE_USER"];
-
-      await updateMutation.mutateAsync({
-        id: user.id!,
-        body: {
-          firstName: value.firstName,
-          lastName: value.lastName,
-          surname: value.surname || null,
-          email: value.email || null,
-          organization: value.organization || null,
-          roles,
-        },
-      });
-      onClose();
-    },
-  });
-
-  return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        form.handleSubmit();
-      }}
-    >
-      <Dialog.Body>
-        <VStack gap="4">
-          <form.Field name="firstName">
-            {(field) => (
-              <Field.Root required invalid={!!field.state.meta.errors.length}>
-                <Field.Label>Prénom</Field.Label>
-                <Input
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  onBlur={field.handleBlur}
-                  placeholder="Prénom"
-                />
-                <Field.ErrorText>
-                  {field.state.meta.errors[0]?.message}
-                </Field.ErrorText>
-              </Field.Root>
-            )}
-          </form.Field>
-
-          <form.Field name="lastName">
-            {(field) => (
-              <Field.Root required invalid={!!field.state.meta.errors.length}>
-                <Field.Label>Nom</Field.Label>
-                <Input
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  onBlur={field.handleBlur}
-                  placeholder="Nom"
-                />
-                <Field.ErrorText>
-                  {field.state.meta.errors[0]?.message}
-                </Field.ErrorText>
-              </Field.Root>
-            )}
-          </form.Field>
-
-          <form.Field name="surname">
-            {(field) => (
-              <Field.Root>
-                <Field.Label>Surnom</Field.Label>
-                <Input
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  onBlur={field.handleBlur}
-                  placeholder="Surnom (optionnel)"
-                />
-              </Field.Root>
-            )}
-          </form.Field>
-
-          <form.Field name="email">
-            {(field) => (
-              <Field.Root invalid={!!field.state.meta.errors.length}>
-                <Field.Label>Email</Field.Label>
-                <Input
-                  type="email"
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  onBlur={field.handleBlur}
-                  placeholder="email@exemple.fr"
-                />
-                <Field.ErrorText>
-                  {field.state.meta.errors[0]?.message}
-                </Field.ErrorText>
-              </Field.Root>
-            )}
-          </form.Field>
-
-          <form.Field name="organization">
-            {(field) => (
-              <Field.Root>
-                <Field.Label>Organisation</Field.Label>
-                <Input
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  onBlur={field.handleBlur}
-                  placeholder="Organisation (optionnel)"
-                />
-              </Field.Root>
-            )}
-          </form.Field>
-
-          <form.Field name="isAdmin">
-            {(field) => (
-              <Field.Root>
-                <HStack gap="3">
-                  <Checkbox.Root
-                    checked={field.state.value}
-                    onCheckedChange={({ checked }) =>
-                      field.handleChange(!!checked)
-                    }
-                  >
-                    <Checkbox.HiddenInput />
-                    <Checkbox.Control />
-                    <Checkbox.Label>Administrateur</Checkbox.Label>
-                  </Checkbox.Root>
-                </HStack>
-              </Field.Root>
-            )}
-          </form.Field>
-        </VStack>
-      </Dialog.Body>
-
-      <Dialog.Footer gap="3">
-        <Button
-          variant="outline"
-          onClick={onClose}
-          type="button"
-          disabled={isLoading}
-        >
-          Annuler
-        </Button>
-        <form.Subscribe selector={(s) => s.canSubmit}>
-          {(canSubmit) => (
-            <Button
-              type="submit"
-              colorPalette="primary"
-              loading={isLoading}
-              disabled={!canSubmit}
-            >
-              Modifier
-            </Button>
-          )}
-        </form.Subscribe>
-      </Dialog.Footer>
-    </form>
-  );
-}
 
 // ---------------------------------------------------------------------------
 // UserDetailPage

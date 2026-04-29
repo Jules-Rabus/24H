@@ -1,0 +1,34 @@
+#!/bin/sh
+# Pre-push: full test suites for branches being pushed.
+
+PUSHED_RANGE=$(git rev-list @{u}..HEAD 2>/dev/null || echo "")
+if [ -z "$PUSHED_RANGE" ]; then
+  CHANGED=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || true)
+else
+  CHANGED=$(git diff --name-only "$PUSHED_RANGE" 2>/dev/null || true)
+fi
+
+CHANGED_PWA=$(echo "$CHANGED" | grep "^pwa/" || true)
+CHANGED_API=$(echo "$CHANGED" | grep "^api/" || true)
+
+# ── Frontend tests ──────────────────────────────────────────────────────────
+if [ -n "$CHANGED_PWA" ]; then
+  if command -v docker >/dev/null 2>&1 && docker compose ps --status running pwa 2>/dev/null | grep -q pwa; then
+    echo "[pre-push] pwa: vitest..."
+    docker compose exec -T pwa npm test || exit 1
+  else
+    echo "[pre-push] pwa container not running — running tests locally..."
+    (cd pwa && npm test) || exit 1
+  fi
+fi
+
+# ── Backend tests ───────────────────────────────────────────────────────────
+if [ -n "$CHANGED_API" ]; then
+  if command -v docker >/dev/null 2>&1 && docker compose ps --status running php 2>/dev/null | grep -q php; then
+    echo "[pre-push] api: phpunit..."
+    docker compose exec -T php bin/phpunit --no-coverage || exit 1
+  else
+    echo "[pre-push] php container not running — skipping backend tests"
+    echo "  Start with: docker compose up php -d"
+  fi
+fi

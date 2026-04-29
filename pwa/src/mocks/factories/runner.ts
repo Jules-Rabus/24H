@@ -36,7 +36,6 @@ export function buildRunner(overrides: Partial<MockRunner> = {}): MockRunner {
     firstName: "Jean",
     lastName: "Dupont",
     surname: null,
-    email: null,
     organization: "ACBB",
     image: null,
     finishedParticipationsCount: 8,

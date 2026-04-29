@@ -10,6 +10,7 @@ use App\Dto\User\UpdateUser;
 use App\Entity\Participation;
 use App\Entity\User;
 use App\Repository\RunRepository;
+use App\Repository\UserRepository;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -32,6 +33,7 @@ final readonly class UserProcessor implements ProcessorInterface
         private EntityManagerInterface $entityManager,
         private ObjectMapperInterface $objectMapper,
         private RunRepository $runRepository,
+        private UserRepository $userRepository,
     ) {
     }
 
@@ -75,6 +77,11 @@ final readonly class UserProcessor implements ProcessorInterface
                 $entity = $this->objectMapper->map($data, User::class);
             } else {
                 $entity = $data;
+            }
+
+            // Application-level case-insensitive duplicate check (Symfony's UniqueEntity is case-sensitive).
+            if (null !== $this->userRepository->findOneByLowerName($entity->getFirstName(), $entity->getLastName())) {
+                throw new UnprocessableEntityHttpException('Un coureur avec ce prénom et nom existe déjà.');
             }
         }
 

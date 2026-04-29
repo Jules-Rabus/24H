@@ -26,7 +26,6 @@ export const userCollectionSchema = z.object({
   firstName: z.string(),
   lastName: z.string(),
   surname: z.string().nullish(),
-  email: z.string().nullish(),
   organization: z.string().nullish(),
   image: z.string().nullish(),
   participations: z.array(publicParticipationSchema),
