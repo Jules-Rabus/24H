@@ -96,7 +96,7 @@ function ClassementContent() {
     <Box minH="100vh" bg="bg.subtle" key={qs}>
       <PublicNav />
 
-      <Box maxW="6xl" mx="auto" px="4" py="8">
+      <Box maxW="6xl" mx="auto" px={{ base: "2", md: "4" }} py="8">
         <VStack align="stretch" gap="6">
           <Heading size="2xl" fontWeight="extrabold" letterSpacing="tight">
             Classement
@@ -268,9 +268,9 @@ function RunnerRow({
       style={{ textDecoration: "none" }}
     >
       <HStack
-        px="3"
-        py="3"
-        gap="2"
+        px={{ base: "1.5", md: "3" }}
+        py={{ base: "2", md: "3" }}
+        gap={{ base: "1.5", md: "2" }}
         borderBottom="1px solid"
         borderColor="border.subtle"
         bg={isFav ? { base: "yellow.50", _dark: "orange.900" } : undefined}
@@ -283,7 +283,7 @@ function RunnerRow({
         <Text
           fontWeight="bold"
           fontSize={medal ? "lg" : "sm"}
-          w="7"
+          w={{ base: "5", md: "7" }}
           textAlign="center"
           flexShrink={0}
           color={medal ? undefined : "fg.muted"}
@@ -318,30 +318,37 @@ function RunnerRow({
           <Badge colorPalette="primary" size="sm">
             {tours} tour{tours !== 1 ? "s" : ""}
           </Badge>
-          <HStack gap="2" fontSize="xs" color="fg.muted" fontFamily="mono">
+          <HStack
+            gap={{ base: "1", md: "2" }}
+            fontSize="xs"
+            color="fg.muted"
+            fontFamily="mono"
+          >
             <Text>{km} km</Text>
             <Text>{formatPace(runner.averageTime)}</Text>
           </HStack>
         </VStack>
 
-        <Button
-          variant="ghost"
-          size="xs"
-          aria-label="Toggle favori"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            onToggleFav();
-          }}
-          color={isFav ? "yellow.500" : "fg.subtle"}
-          flexShrink={0}
-        >
-          <LuStar fill={isFav ? "currentColor" : "none"} />
-        </Button>
-
-        <Box color={isFav ? "primary.fg" : "fg.subtle"} flexShrink={0}>
-          <LuChevronRight size={16} />
-        </Box>
+        <VStack gap="0" flexShrink={0}>
+          <Button
+            variant="ghost"
+            size="xs"
+            aria-label="Toggle favori"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onToggleFav();
+            }}
+            color={isFav ? "yellow.500" : "fg.subtle"}
+            px="1"
+            minW="0"
+          >
+            <LuStar fill={isFav ? "currentColor" : "none"} />
+          </Button>
+          <Box color={isFav ? "primary.fg" : "fg.subtle"} lineHeight="1">
+            <LuChevronRight size={14} />
+          </Box>
+        </VStack>
       </HStack>
     </Link>
   );
