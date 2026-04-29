@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: RunRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Run
 {
     use Timestampable;
@@ -61,6 +62,12 @@ class Run
         $this->startDate = $startDate instanceof \DateTimeImmutable
             ? \DateTime::createFromImmutable($startDate)
             : $startDate;
+    }
+
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+    public function syncEditionFromStartDate(): void
+    {
         $this->edition = (int) $this->startDate->format('Y');
     }
 

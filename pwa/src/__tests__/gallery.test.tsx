@@ -50,10 +50,14 @@ describe("GalleryPage", () => {
     const user = userEvent.setup();
     render(<GalleryPage />);
     await waitFor(() =>
-      expect(screen.getAllByRole("img").length).toBeGreaterThan(0),
+      expect(
+        screen.getAllByRole("button", { name: /agrandir le média/i }).length,
+      ).toBeGreaterThan(0),
     );
 
-    await user.click(screen.getAllByRole("img")[0]);
+    await user.click(
+      screen.getAllByRole("button", { name: /agrandir le média/i })[0],
+    );
 
     await waitFor(() => {
       expect(
@@ -66,10 +70,14 @@ describe("GalleryPage", () => {
     const user = userEvent.setup();
     render(<GalleryPage />);
     await waitFor(() =>
-      expect(screen.getAllByRole("img").length).toBeGreaterThan(0),
+      expect(
+        screen.getAllByRole("button", { name: /agrandir le média/i }).length,
+      ).toBeGreaterThan(0),
     );
 
-    await user.click(screen.getAllByRole("img")[0]);
+    await user.click(
+      screen.getAllByRole("button", { name: /agrandir le média/i })[0],
+    );
     await waitFor(() =>
       expect(
         screen.getByRole("button", { name: /fermer/i }),
@@ -89,11 +97,15 @@ describe("GalleryPage", () => {
     const user = userEvent.setup();
     render(<GalleryPage />);
     await waitFor(() =>
-      expect(screen.getAllByRole("img").length).toBeGreaterThan(0),
+      expect(
+        screen.getAllByRole("button", { name: /agrandir le média/i }).length,
+      ).toBeGreaterThan(0),
     );
 
     // Ouvrir la première card
-    await user.click(screen.getAllByRole("img")[0]);
+    await user.click(
+      screen.getAllByRole("button", { name: /agrandir le média/i })[0],
+    );
     await waitFor(() =>
       expect(
         screen.getByRole("button", { name: /fermer/i }),

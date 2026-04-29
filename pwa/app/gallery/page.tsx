@@ -158,8 +158,21 @@ export default function GalleryPage() {
                     display="flex"
                     alignItems="center"
                     justifyContent="center"
+                    role={isExpanded ? undefined : "button"}
+                    tabIndex={isExpanded ? undefined : 0}
+                    aria-label={isExpanded ? undefined : "Agrandir le média"}
                     onClick={
                       isExpanded ? undefined : () => setExpandedId(media.id!)
+                    }
+                    onKeyDown={
+                      isExpanded
+                        ? undefined
+                        : (e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              setExpandedId(media.id!);
+                            }
+                          }
                     }
                   >
                     {isVideo(media) ? (

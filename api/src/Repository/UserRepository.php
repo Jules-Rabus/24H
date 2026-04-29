@@ -19,6 +19,20 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         parent::__construct($registry, User::class);
     }
 
+    public function findOneByLowerName(string $firstName, string $lastName): ?User
+    {
+        $result = $this->createQueryBuilder('u')
+            ->andWhere('LOWER(u.firstName) = :fn')
+            ->andWhere('LOWER(u.lastName) = :ln')
+            ->setParameter('fn', mb_strtolower(trim($firstName)))
+            ->setParameter('ln', mb_strtolower(trim($lastName)))
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        return $result instanceof User ? $result : null;
+    }
+
     /**
      * Used to upgrade (rehash) the user's password automatically over time.
      */

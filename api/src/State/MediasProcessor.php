@@ -17,6 +17,12 @@ use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
  */
 final readonly class MediasProcessor implements ProcessorInterface
 {
+    private const ALLOWED_MIMES = [
+        'image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif',
+    ];
+
+    private const MAX_SIZE = 10 * 1024 * 1024; // 10 Mo
+
     /**
      * @param ProcessorInterface<Medias, Medias|void> $processor
      */
@@ -48,6 +54,15 @@ final readonly class MediasProcessor implements ProcessorInterface
         $file = $request?->files->get('file');
         if (null === $file) {
             throw new UnprocessableEntityHttpException('No file uploaded.');
+        }
+
+        if ($file->getSize() > self::MAX_SIZE) {
+            throw new UnprocessableEntityHttpException('La photo ne doit pas dépasser 10 Mo.');
+        }
+
+        $mime = $file->getMimeType();
+        if (!in_array($mime, self::ALLOWED_MIMES, true)) {
+            throw new UnprocessableEntityHttpException(sprintf('Format non supporté (%s). Formats acceptés : JPEG, PNG, WebP, HEIC, HEIF.', $mime ?? 'inconnu'));
         }
 
         // Reuse existing Medias entity if user already has one, otherwise create new

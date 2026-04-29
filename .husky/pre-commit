@@ -1,24 +1,29 @@
 #!/bin/sh
-# Pre-commit hook — mirrors Frontend CI and Backend CI static checks.
+# Pre-commit: fast static checks only (lint, format, types, phpstan, php-cs-fixer).
+# Test suites (vitest, phpunit) run in pre-push to keep commits snappy.
 
 STAGED=$(git diff --cached --name-only --diff-filter=ACM)
 
 STAGED_PWA=$(echo "$STAGED" | grep "^pwa/" || true)
 STAGED_API=$(echo "$STAGED" | grep "^api/" || true)
 
-# ── Frontend (pwa/) — runs locally ──────────────────────────────────────────
+# ── Frontend (pwa/) — prefer Docker (cross-platform); fallback local ────────
 if [ -n "$STAGED_PWA" ]; then
-  echo "[pre-commit] pwa: lint..."
-  (cd pwa && npm run lint) || exit 1
+  if command -v docker >/dev/null 2>&1 && docker compose ps --status running pwa 2>/dev/null | grep -q pwa; then
+    echo "[pre-commit] pwa: lint (docker)..."
+    docker compose exec -T pwa npm run lint || exit 1
 
-  echo "[pre-commit] pwa: format:check..."
-  (cd pwa && npm run format:check) || exit 1
+    echo "[pre-commit] pwa: format:check (docker)..."
+    docker compose exec -T pwa npm run format:check || exit 1
 
-  echo "[pre-commit] pwa: type:check..."
-  (cd pwa && npm run type:check) || exit 1
-
-  echo "[pre-commit] pwa: test..."
-  (cd pwa && npm run test) || exit 1
+    echo "[pre-commit] pwa: type:check (docker)..."
+    docker compose exec -T pwa npm run type:check || exit 1
+  else
+    echo "[pre-commit] pwa container not running — running locally..."
+    (cd pwa && npm run lint) || exit 1
+    (cd pwa && npm run format:check) || exit 1
+    (cd pwa && npm run type:check) || exit 1
+  fi
 fi
 
 # ── Backend (api/) — runs in Docker ─────────────────────────────────────────
@@ -29,9 +34,6 @@ if [ -n "$STAGED_API" ]; then
 
     echo "[pre-commit] api: phpstan..."
     docker compose exec -T php vendor/bin/phpstan analyse --configuration=phpstan.dist.neon --memory-limit=512M || exit 1
-
-    echo "[pre-commit] api: phpunit..."
-    docker compose exec -T php bin/phpunit --no-coverage || exit 1
   else
     echo "[pre-commit] php container not running — skipping backend checks"
     echo "  Start with: docker compose up php -d"

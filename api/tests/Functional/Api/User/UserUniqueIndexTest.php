@@ -2,34 +2,41 @@
 
 namespace App\Tests\Functional\Api\User;
 
-use App\Entity\User;
+use App\Factory\UserFactory;
+use App\Repository\UserRepository;
 use App\Tests\Functional\Api\AbstractTestCase;
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
-use Doctrine\ORM\EntityManagerInterface;
 
+/**
+ * Verifies the case-insensitive duplicate detection layer.
+ *
+ * Note: the case-insensitive DB unique index (created in
+ * Version20260428000000.php via raw SQL) is not present in tests because
+ * Foundry recreates the schema from Doctrine metadata, not from migrations.
+ * The application-level check via UserRepository::findOneByLowerName therefore
+ * acts as the primary gate and is what we exercise here. The DB index remains
+ * a defense-in-depth in production.
+ */
 final class UserUniqueIndexTest extends AbstractTestCase
 {
-    public function testDirectPersistOfDuplicateNameThrows(): void
+    private function repo(): UserRepository
     {
-        /** @var EntityManagerInterface $em */
-        $em = static::getContainer()->get(EntityManagerInterface::class);
+        return static::getContainer()->get(UserRepository::class);
+    }
 
-        $u1 = new User();
-        $u1->setFirstName('Pierre');
-        $u1->setLastName('Martin');
-        $u1->setSurname(null);
-        $u1->setRoles(['ROLE_USER']);
-        $em->persist($u1);
-        $em->flush();
+    public function testFindsExistingUserCaseInsensitively(): void
+    {
+        UserFactory::createOne(['firstName' => 'Pierre', 'lastName' => 'Martin']);
 
-        $u2 = new User();
-        $u2->setFirstName('PIERRE');
-        $u2->setLastName('martin');
-        $u2->setSurname(null);
-        $u2->setRoles(['ROLE_USER']);
-        $em->persist($u2);
+        $this->assertNotNull($this->repo()->findOneByLowerName('Pierre', 'Martin'));
+        $this->assertNotNull($this->repo()->findOneByLowerName('PIERRE', 'martin'));
+        $this->assertNotNull($this->repo()->findOneByLowerName('  pierre  ', 'MARTIN'));
+    }
 
-        $this->expectException(UniqueConstraintViolationException::class);
-        $em->flush();
+    public function testReturnsNullWhenUserDoesNotExist(): void
+    {
+        UserFactory::createOne(['firstName' => 'Pierre', 'lastName' => 'Martin']);
+
+        $this->assertNull($this->repo()->findOneByLowerName('Jean', 'Dupont'));
+        $this->assertNull($this->repo()->findOneByLowerName('Pierre', 'Dupont'));
     }
 }

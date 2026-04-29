@@ -20,7 +20,10 @@ use App\Dto\User\CreateUser;
 use App\Dto\User\UpdateUser;
 use App\Dto\User\UserCollection;
 use App\Entity\User;
+use App\ObjectMapper\AverageTimeTransformer;
+use App\ObjectMapper\BestTimeTransformer;
 use App\ObjectMapper\ParticipationCollectionTransformer;
+use App\ObjectMapper\TotalTimeTransformer;
 use App\ObjectMapper\UserImageUrlTransformer;
 use App\State\User\AddUserToCurrentRunProcessor;
 use App\State\User\CurrentUserProvider;
@@ -139,6 +142,15 @@ final class UserApi
 
     #[Map(source: 'finishedParticipationsCount')]
     public int $finishedParticipationsCount = 0;
+
+    #[Map(source: 'finishedParticipations', transform: TotalTimeTransformer::class)]
+    public ?int $totalTime = null;
+
+    #[Map(source: 'finishedParticipations', transform: BestTimeTransformer::class)]
+    public ?int $bestTime = null;
+
+    #[Map(source: 'finishedParticipations', transform: AverageTimeTransformer::class)]
+    public ?int $averageTime = null;
 
     /** @var list<int> */
     #[Map(source: 'editions')]

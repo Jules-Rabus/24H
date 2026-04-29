@@ -23,8 +23,6 @@ final class UserCollection
 
     public ?string $surname = null;
 
-    public ?string $email = null;
-
     public ?string $organization = null;
 
     #[Map(transform: UserImageUrlTransformer::class)]
