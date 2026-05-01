@@ -46,7 +46,7 @@ jobs:
           cp -r public .next/standalone/
           cp -r .next/static .next/standalone/.next/
       - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: pwa
           include-hidden-files: true
