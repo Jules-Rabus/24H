@@ -38,7 +38,7 @@ jobs:
         run: echo "IMAGE_NAME=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
 
       - name: Build and push API (PHP/FrankenPHP)
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: api
           file: api/Dockerfile
@@ -51,7 +51,7 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-api:${{ github.sha }}
 
       - name: Build and push PWA (Next.js)
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: pwa
           file: pwa/Dockerfile
