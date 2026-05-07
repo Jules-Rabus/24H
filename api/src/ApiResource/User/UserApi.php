@@ -27,6 +27,7 @@ use App\ObjectMapper\TotalTimeTransformer;
 use App\ObjectMapper\UserImageUrlTransformer;
 use App\State\User\AddUserToCurrentRunProcessor;
 use App\State\User\CurrentUserProvider;
+use App\State\User\EditionParameterProvider;
 use App\State\UserProcessor;
 use Symfony\Component\ObjectMapper\Attribute\Map;
 
@@ -49,6 +50,7 @@ use Symfony\Component\ObjectMapper\Attribute\Map;
                 'edition' => new QueryParameter(
                     filter: new ExactFilter(),
                     property: 'participations.run.edition',
+                    provider: EditionParameterProvider::class,
                 ),
             ],
         ),
@@ -60,6 +62,7 @@ use Symfony\Component\ObjectMapper\Attribute\Map;
                 'edition' => new QueryParameter(
                     filter: new ExactFilter(),
                     property: 'participations.run.edition',
+                    provider: EditionParameterProvider::class,
                 ),
             ],
         ),
@@ -67,6 +70,11 @@ use Symfony\Component\ObjectMapper\Attribute\Map;
             uriTemplate: 'users/public/{id}',
             output: UserCollection::class,
             cacheHeaders: ['max_age' => 60, 'shared_max_age' => 60, 'public' => true],
+            parameters: [
+                'edition' => new QueryParameter(
+                    provider: EditionParameterProvider::class,
+                ),
+            ],
         ),
         new Post(
             uriTemplate: '/logout',
