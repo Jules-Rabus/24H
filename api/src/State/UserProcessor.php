@@ -89,14 +89,16 @@ final readonly class UserProcessor implements ProcessorInterface
 
     private function addParticipation(User $user): void
     {
-        $run = $this->runRepository->findCurrentRun();
-        if (null === $run) {
+        $editionRuns = $this->runRepository->findCurrentEditionRuns();
+        if ([] === $editionRuns) {
             return;
         }
 
-        $participation = new Participation();
-        $participation->setUser($user);
-        $participation->setRun($run);
-        $this->entityManager->persist($participation);
+        foreach ($editionRuns as $run) {
+            $participation = new Participation();
+            $participation->setUser($user);
+            $participation->setRun($run);
+            $this->entityManager->persist($participation);
+        }
     }
 }

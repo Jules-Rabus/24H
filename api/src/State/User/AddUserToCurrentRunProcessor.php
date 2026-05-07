@@ -36,24 +36,32 @@ final readonly class AddUserToCurrentRunProcessor implements ProcessorInterface
             throw new NotFoundHttpException("Utilisateur #$userId introuvable");
         }
 
-        $run = $this->runRepository->findCurrentRun();
-        if (null === $run) {
+        $editionRuns = $this->runRepository->findCurrentEditionRuns();
+        if ([] === $editionRuns) {
             throw new ConflictHttpException('Aucune édition de course disponible.');
         }
 
-        $alreadyParticipating = false;
+        $existingRunIds = [];
         foreach ($user->getParticipations() as $participation) {
-            if ($participation->getRun()->getId() === $run->getId()) {
-                $alreadyParticipating = true;
-                break;
+            $run = $participation->getRun();
+            if ($run && null !== $run->getId()) {
+                $existingRunIds[$run->getId()] = true;
             }
         }
 
-        if (!$alreadyParticipating) {
+        $added = 0;
+        foreach ($editionRuns as $run) {
+            if (isset($existingRunIds[$run->getId()])) {
+                continue;
+            }
             $participation = new Participation();
             $participation->setUser($user);
             $participation->setRun($run);
             $this->em->persist($participation);
+            ++$added;
+        }
+
+        if ($added > 0) {
             $this->em->flush();
             $this->em->refresh($user);
         }

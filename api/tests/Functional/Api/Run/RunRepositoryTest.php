@@ -59,4 +59,36 @@ final class RunRepositoryTest extends AbstractTestCase
     {
         $this->assertNull($this->repo()->findCurrentRun());
     }
+
+    public function testFindCurrentEditionRunsReturnsAllRunsOfPivotYearOnly(): void
+    {
+        $currentYear = (int) date('Y');
+
+        // Past edition
+        RunFactory::createOne([
+            'startDate' => new \DateTime(($currentYear - 1).'-06-13 10:00:00'),
+            'endDate' => new \DateTime(($currentYear - 1).'-06-13 12:00:00'),
+        ]);
+        // Current-edition runs (same year)
+        $a = RunFactory::createOne([
+            'startDate' => new \DateTime('-1 hour'),
+            'endDate' => new \DateTime('+1 hour'),
+        ]);
+        $b = RunFactory::createOne([
+            'startDate' => new \DateTime("$currentYear-12-31 10:00:00"),
+            'endDate' => new \DateTime("$currentYear-12-31 12:00:00"),
+        ]);
+
+        $runs = $this->repo()->findCurrentEditionRuns();
+        $ids = array_map(static fn ($r) => $r->getId(), $runs);
+
+        $this->assertContains($a->getId(), $ids);
+        $this->assertContains($b->getId(), $ids);
+        $this->assertCount(2, $ids);
+    }
+
+    public function testFindCurrentEditionRunsReturnsEmptyWhenNoRun(): void
+    {
+        $this->assertSame([], $this->repo()->findCurrentEditionRuns());
+    }
 }

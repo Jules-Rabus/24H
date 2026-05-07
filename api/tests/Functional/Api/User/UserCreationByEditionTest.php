@@ -38,22 +38,38 @@ final class UserCreationByEditionTest extends AbstractTestCase
         return null === $user ? [] : array_values($user->getParticipations()->toArray());
     }
 
-    public function testCreatedUserGetsParticipationForCurrentRun(): void
+    public function testCreatedUserGetsParticipationForEveryRunOfCurrentEdition(): void
     {
-        $run = RunFactory::createOne([
+        $currentYear = (int) date('Y');
+
+        // Past edition — must NOT be attached.
+        $past = RunFactory::createOne([
+            'startDate' => new \DateTime(($currentYear - 1).'-06-13 10:00:00'),
+            'endDate' => new \DateTime(($currentYear - 1).'-06-13 12:00:00'),
+        ]);
+        // Current edition: in-progress + upcoming (same year).
+        $current1 = RunFactory::createOne([
             'startDate' => new \DateTime('-1 hour'),
             'endDate' => new \DateTime('+1 hour'),
+        ]);
+        $current2 = RunFactory::createOne([
+            'startDate' => new \DateTime("$currentYear-12-31 10:00:00"),
+            'endDate' => new \DateTime("$currentYear-12-31 12:00:00"),
         ]);
 
         $data = $this->postUser('Alice', 'Current');
         $this->assertSame(201, $data['__status']);
 
         $participations = $this->findUserParticipations((int) $data['id']);
-        $this->assertCount(1, $participations);
-        $this->assertSame($run->getId(), $participations[0]->getRun()->getId());
+        $runIds = array_map(static fn ($p) => $p->getRun()->getId(), $participations);
+
+        $this->assertContains($current1->getId(), $runIds);
+        $this->assertContains($current2->getId(), $runIds);
+        $this->assertNotContains($past->getId(), $runIds);
+        $this->assertCount(2, $runIds);
     }
 
-    public function testCreatedUserPicksUpcomingRunWhenNoCurrent(): void
+    public function testCreatedUserPicksUpcomingEditionWhenNoCurrent(): void
     {
         RunFactory::createOne([
             'startDate' => new \DateTime('-2 days'),
@@ -68,15 +84,15 @@ final class UserCreationByEditionTest extends AbstractTestCase
         $this->assertSame(201, $data['__status']);
 
         $participations = $this->findUserParticipations((int) $data['id']);
-        $this->assertCount(1, $participations);
-        $this->assertSame($upcoming->getId(), $participations[0]->getRun()->getId());
+        $runIds = array_map(static fn ($p) => $p->getRun()->getId(), $participations);
+        $this->assertContains($upcoming->getId(), $runIds);
     }
 
-    public function testCreatedUserFallsBackToMostRecentRunWhenAllPast(): void
+    public function testCreatedUserFallsBackToMostRecentEditionWhenAllPast(): void
     {
         RunFactory::createOne([
-            'startDate' => new \DateTime('-10 days'),
-            'endDate' => new \DateTime('-9 days'),
+            'startDate' => new \DateTime('-400 days'),
+            'endDate' => new \DateTime('-399 days'),
         ]);
         $mostRecent = RunFactory::createOne([
             'startDate' => new \DateTime('-3 days'),
@@ -87,8 +103,8 @@ final class UserCreationByEditionTest extends AbstractTestCase
         $this->assertSame(201, $data['__status']);
 
         $participations = $this->findUserParticipations((int) $data['id']);
-        $this->assertCount(1, $participations);
-        $this->assertSame($mostRecent->getId(), $participations[0]->getRun()->getId());
+        $runIds = array_map(static fn ($p) => $p->getRun()->getId(), $participations);
+        $this->assertContains($mostRecent->getId(), $runIds);
     }
 
     public function testCreatedUserHasNoParticipationWhenNoRun(): void
