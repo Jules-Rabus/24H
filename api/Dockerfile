@@ -1,6 +1,6 @@
 #syntax=docker/dockerfile:1
 
-FROM dunglas/frankenphp:1-php8.4 AS frankenphp_base
+FROM dunglas/frankenphp:1.12.2-php8.4 AS frankenphp_base
 
 # For local build
 COPY ./ZscalerRootCerts/ZscalerRootCertificate-2048-SHA256.crt /usr/local/share/ca-certificates/

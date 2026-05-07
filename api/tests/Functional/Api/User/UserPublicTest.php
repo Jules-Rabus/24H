@@ -116,4 +116,38 @@ final class UserPublicTest extends AbstractTestCase
         $this->assertSame([$currentYear], array_values(array_unique($editions)));
         $this->assertCount(1, $data['participations']);
     }
+
+    public function testEditionFilterDoesNotLeakIntoSubsequentRequests(): void
+    {
+        $currentYear = (int) date('Y');
+
+        $past = RunFactory::createOne([
+            'startDate' => new \DateTime(($currentYear - 1).'-06-13 10:00:00'),
+            'endDate' => new \DateTime(($currentYear - 1).'-06-13 12:00:00'),
+        ]);
+        $current = RunFactory::createOne([
+            'startDate' => new \DateTime("$currentYear-12-31 10:00:00"),
+            'endDate' => new \DateTime("$currentYear-12-31 12:00:00"),
+        ]);
+
+        $user = UserFactory::createOne();
+        ParticipationFactory::createOne(['user' => $user, 'run' => $past]);
+        ParticipationFactory::createOne(['user' => $user, 'run' => $current]);
+
+        $client = static::createClient();
+
+        // First request narrows participations to current edition.
+        $client->request('GET', self::ROUTE.'/'.$user->getId().'?edition='.$currentYear, [
+            'headers' => ['Accept' => 'application/json'],
+        ]);
+        $this->assertResponseIsSuccessful();
+
+        // Second request, no edition filter — must see all participations.
+        $second = $client->request('GET', self::ROUTE.'/'.$user->getId(), [
+            'headers' => ['Accept' => 'application/json'],
+        ]);
+        $this->assertResponseIsSuccessful();
+        $data = $second->toArray();
+        $this->assertCount(2, $data['participations'], 'Subsequent unfiltered request must NOT inherit the previous edition scope');
+    }
 }
