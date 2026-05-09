@@ -69,9 +69,7 @@ export function UserForm({
     linkToRunMutation.isPending;
 
   const existingImageUrl =
-    user?.image && !photoRemoved
-      ? `${process.env.NEXT_PUBLIC_ENTRYPOINT ?? ""}${user.image}`
-      : null;
+    user?.image && !photoRemoved ? user.image : null;
 
   const form = useForm({
     defaultValues: {

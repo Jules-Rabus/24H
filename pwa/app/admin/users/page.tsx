@@ -119,9 +119,7 @@ export default function AdminUsersPage() {
       render: (u) => {
         const fullName =
           `${u.firstName ?? ""} ${u.lastName ?? ""}`.trim() || "-";
-        const imageUrl = u.image
-          ? `${process.env.NEXT_PUBLIC_ENTRYPOINT ?? ""}${u.image}`
-          : null;
+        const imageUrl = u.image ?? null;
         return (
           <HStack gap="2" align="center">
             {imageUrl ? (

@@ -144,10 +144,7 @@ export default function UserDetailPage({
   const finishedRuns = user.finishedParticipationsCount ?? 0;
   const distance = finishedRuns * 4;
 
-  // image is a VichUploader resolved URI (e.g. "/media/images/photo.jpg")
-  const imageUrl = user.image
-    ? `${process.env.NEXT_PUBLIC_ENTRYPOINT ?? ""}${user.image}`
-    : null;
+  const imageUrl = user.image ?? null;
 
   const participationColumns: Column<AdminParticipation>[] = [
     {
