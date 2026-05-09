@@ -19,12 +19,40 @@ import { useRouter } from "next/navigation";
 import { usePublicRaceMediasQuery } from "@/state/public/mediaQueries";
 import { useLikes } from "@/hooks/useLikes";
 import { useLikeRaceMediaMutation } from "@/state/media/mutations";
-import { LuImages, LuCamera, LuHeart, LuX, LuPlay } from "react-icons/lu";
+import {
+  LuImages,
+  LuCamera,
+  LuHeart,
+  LuX,
+  LuPlay,
+  LuDownload,
+} from "react-icons/lu";
 import { PublicNav } from "@/components/public/PublicNav";
 import type { RaceMedia } from "@/state/media/schemas";
 
 function isVideo(media: RaceMedia) {
   return media.contentType?.startsWith("video/") ?? false;
+}
+
+async function downloadMedia(media: RaceMedia) {
+  if (!media.contentUrl) return;
+  try {
+    const res = await fetch(media.contentUrl, { mode: "cors" });
+    const blob = await res.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = objectUrl;
+    const guessedExt =
+      media.contentUrl.split(".").pop()?.split("?")[0] ?? "jpg";
+    a.download = `defi24h-${media.id ?? "media"}.${guessedExt}`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(objectUrl);
+  } catch {
+    // Fallback: open in new tab if CORS blocks the fetch
+    window.open(media.contentUrl, "_blank", "noopener,noreferrer");
+  }
 }
 
 function formatHour(createdAt: string | null | undefined): string {
@@ -300,6 +328,28 @@ export default function GalleryPage() {
                         <LuX />
                       </IconButton>
                     )}
+
+                    {/* Bouton télécharger (mode tuile) */}
+                    {!isExpanded && (
+                      <IconButton
+                        aria-label="Télécharger"
+                        position="absolute"
+                        top="2"
+                        right="2"
+                        size="xs"
+                        bg="blackAlpha.600"
+                        color="white"
+                        rounded="full"
+                        variant="ghost"
+                        _hover={{ bg: "blackAlpha.800" }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          downloadMedia(media);
+                        }}
+                      >
+                        <LuDownload />
+                      </IconButton>
+                    )}
                   </Box>
 
                   {/* Zone commentaire + like (mode agrandi) */}
@@ -314,17 +364,26 @@ export default function GalleryPage() {
                       </Text>
                     )}
                     {isExpanded && (
-                      <Button
-                        size="sm"
-                        variant={liked ? "solid" : "outline"}
-                        colorPalette="red"
-                        disabled={liked}
-                        onClick={() => handleLike(media.id!)}
-                        mt={media.comment ? "1" : "0"}
-                      >
-                        <LuHeart /> {liked ? "Aimé" : "J'aime"} ·{" "}
-                        {media.likesCount}
-                      </Button>
+                      <HStack gap="2" mt={media.comment ? "1" : "0"}>
+                        <Button
+                          size="sm"
+                          variant={liked ? "solid" : "outline"}
+                          colorPalette="red"
+                          disabled={liked}
+                          onClick={() => handleLike(media.id!)}
+                        >
+                          <LuHeart /> {liked ? "Aimé" : "J'aime"} ·{" "}
+                          {media.likesCount}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          colorPalette="primary"
+                          onClick={() => downloadMedia(media)}
+                        >
+                          <LuDownload /> Télécharger
+                        </Button>
+                      </HStack>
                     )}
                   </Box>
                 </Box>
