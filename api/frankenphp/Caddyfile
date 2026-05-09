@@ -48,8 +48,11 @@
 
 	{$CADDY_SERVER_EXTRA_DIRECTIVES}
 
+	# Local-only proxy to the rustfs S3 bucket. In prod S3_PUBLIC_URL points
+	# directly at the object storage (DO Spaces), so this block is unused.
 	handle /s3/* {
 		uri strip_prefix /s3
+		rewrite * /runner-images{uri}
 		reverse_proxy rustfs:9000
 	}
 

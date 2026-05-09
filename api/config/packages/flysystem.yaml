@@ -2,12 +2,14 @@ flysystem:
     storages:
         users.storage:
             adapter: 'aws'
+            visibility: public
             options:
                 client: 'aws_s3.client'
                 bucket: '%env(S3_BUCKET)%'
                 prefix: 'images/users'
         race_media.storage:
             adapter: 'aws'
+            visibility: public
             options:
                 client: 'aws_s3.client'
                 bucket: '%env(S3_BUCKET)%'
