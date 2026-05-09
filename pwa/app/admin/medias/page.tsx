@@ -38,6 +38,33 @@ import {
 } from "@/state/admin/medias/mutations";
 import { ConfirmDialog } from "@/components/admin/ui/ConfirmDialog";
 
+function MediaThumb({ src, alt }: { src: string; alt: string }) {
+  const [failed, setFailed] = useState(false);
+  if (failed) {
+    return (
+      <Box
+        width="100%"
+        height="100%"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        color="fg.muted"
+      >
+        <LuImage size={32} />
+      </Box>
+    );
+  }
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt={alt}
+      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
 export default function AdminMediasPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [deleteMedia, setDeleteMedia] = useState<AdminRaceMedia | null>(null);
@@ -244,20 +271,22 @@ export default function AdminMediasPage() {
               >
                 {/* Image container */}
                 <Box position="relative" aspectRatio={4 / 3} bg="bg.subtle">
-                  {media.contentUrl && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
+                  {media.contentUrl ? (
+                    <MediaThumb
                       src={media.contentUrl}
                       alt={`Photo ${media.id}`}
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                      }}
-                      onError={(e) => {
-                        e.currentTarget.src = "/placeholder.png";
-                      }}
                     />
+                  ) : (
+                    <Box
+                      width="100%"
+                      height="100%"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      color="fg.muted"
+                    >
+                      <LuImage size={32} />
+                    </Box>
                   )}
 
                   {/* Hover overlay with gradient scrim + delete */}
