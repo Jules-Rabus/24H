@@ -3,6 +3,7 @@
 import {
   Box,
   Button,
+  Checkbox,
   Container,
   Textarea,
   Text,
@@ -46,6 +47,8 @@ export default function UploadPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const uploadMutation = useUploadRaceMediaMutation();
+
+  const [consent, setConsent] = useState(false);
 
   const form = useForm({
     defaultValues: {
@@ -120,6 +123,7 @@ export default function UploadPage() {
               onClick={() => {
                 setSuccess(false);
                 setError("");
+                setConsent(false);
                 clearFile();
                 form.reset();
               }}
@@ -298,6 +302,23 @@ export default function UploadPage() {
               </HStack>
             )}
 
+            <Checkbox.Root
+              checked={consent}
+              onCheckedChange={({ checked }) => setConsent(!!checked)}
+              alignItems="flex-start"
+            >
+              <Checkbox.HiddenInput />
+              <Checkbox.Control />
+              <Checkbox.Label
+                fontSize="sm"
+                color="fg.muted"
+                lineHeight="short"
+              >
+                Toutes les personnes visibles sont d&apos;accord pour être
+                publiées.
+              </Checkbox.Label>
+            </Checkbox.Root>
+
             <Button
               type="submit"
               size="lg"
@@ -305,7 +326,7 @@ export default function UploadPage() {
               fontWeight="bold"
               colorPalette="primary"
               loading={uploadMutation.isPending}
-              disabled={!form.state.values.file}
+              disabled={!form.state.values.file || !consent}
             >
               <LuSend /> Partager maintenant
             </Button>
