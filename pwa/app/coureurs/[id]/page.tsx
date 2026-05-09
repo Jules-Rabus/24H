@@ -54,10 +54,20 @@ function TabContent({
   edition: number;
   chartData: ChartPoint[];
 }) {
+  const editionChartData = chartData
+    .map((point) => ({
+      name: point.name,
+      pace2026: edition === 2026 ? point.pace2026 : null,
+      pace2025: edition === 2025 ? point.pace2025 : null,
+    }))
+    .filter((point) =>
+      edition === 2026 ? point.pace2026 != null : point.pace2025 != null,
+    );
+
   return (
     <VStack align="stretch" gap="4" mt="4">
       <RunnerStatCards stats={stats} prevStats={prevStats} />
-      {chartData.length >= 2 && (
+      {editionChartData.length >= 2 && (
         <Card.Root
           shadow="sm"
           borderWidth="1px"
@@ -77,7 +87,7 @@ function TabContent({
                 Allure par tour (min/km)
               </Text>
             </HStack>
-            <PaceChart data={chartData} />
+            <PaceChart data={editionChartData} />
           </Card.Body>
         </Card.Root>
       )}

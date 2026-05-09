@@ -17,7 +17,13 @@ type ChartPoint = {
   pace2025: number | null;
 };
 
-function CustomLegend() {
+function CustomLegend({
+  show2026,
+  show2025,
+}: {
+  show2026: boolean;
+  show2025: boolean;
+}) {
   return (
     <div
       style={{
@@ -27,23 +33,35 @@ function CustomLegend() {
         marginBottom: 8,
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-        <div style={{ width: 16, height: 2, background: "#0f929a" }} />
-        <span style={{ fontSize: 11, color: "#64748b" }}>2026</span>
-      </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-        <div style={{ width: 16, height: 2, background: "#94a3b8" }} />
-        <span style={{ fontSize: 11, color: "#64748b" }}>2025</span>
-      </div>
+      {show2026 && (
+        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          <div style={{ width: 16, height: 2, background: "#0f929a" }} />
+          <span style={{ fontSize: 11, color: "#64748b" }}>2026</span>
+        </div>
+      )}
+      {show2025 && (
+        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          <div
+            style={{
+              width: 16,
+              height: 0,
+              borderTop: "2px dashed #f97316",
+            }}
+          />
+          <span style={{ fontSize: 11, color: "#64748b" }}>2025</span>
+        </div>
+      )}
     </div>
   );
 }
 
 export function PaceChart({ data }: { data: ChartPoint[] }) {
   if (data.length === 0) return null;
+  const has2026 = data.some((d) => d.pace2026 != null);
+  const has2025 = data.some((d) => d.pace2025 != null);
   return (
     <>
-      <CustomLegend />
+      <CustomLegend show2026={has2026} show2025={has2025} />
       <ResponsiveContainer width="100%" height={140}>
         <LineChart
           data={data}
@@ -86,8 +104,9 @@ export function PaceChart({ data }: { data: ChartPoint[] }) {
             type="monotone"
             dataKey="pace2025"
             name="2025"
-            stroke="#94a3b8"
-            strokeWidth={1.5}
+            stroke="#f97316"
+            strokeWidth={2}
+            strokeDasharray="4 4"
             dot={false}
             connectNulls
           />
