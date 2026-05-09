@@ -18,7 +18,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { LuEye, LuPencil, LuTrash2, LuX } from "react-icons/lu";
+import { LuEye, LuPencil, LuTrash2, LuUser, LuX } from "react-icons/lu";
 import {
   useAdminUsersQuery,
   type AdminUser,
@@ -53,7 +53,7 @@ export default function AdminUsersPage() {
     lastName: "",
     email: "",
     dossard: "",
-    edition: "",
+    edition: String(CURRENT_EDITION),
   });
   const setSearch: typeof setSearchRaw = useCallback(
     (value) => {
@@ -116,7 +116,51 @@ export default function AdminUsersPage() {
     {
       key: "name",
       header: "Nom",
-      render: (u) => `${u.firstName ?? ""} ${u.lastName ?? ""}`.trim() || "-",
+      render: (u) => {
+        const fullName =
+          `${u.firstName ?? ""} ${u.lastName ?? ""}`.trim() || "-";
+        const imageUrl = u.image
+          ? `${process.env.NEXT_PUBLIC_ENTRYPOINT ?? ""}${u.image}`
+          : null;
+        return (
+          <HStack gap="2" align="center">
+            {imageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={imageUrl}
+                alt=""
+                style={{
+                  width: "28px",
+                  height: "28px",
+                  objectFit: "cover",
+                  borderRadius: "50%",
+                  border: "1px solid var(--chakra-colors-border-subtle)",
+                  flexShrink: 0,
+                }}
+                onError={(e) => {
+                  e.currentTarget.style.display = "none";
+                }}
+              />
+            ) : (
+              <Box
+                boxSize="28px"
+                rounded="full"
+                bg="bg.subtle"
+                borderWidth="1px"
+                borderColor="border.subtle"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                flexShrink={0}
+                color="fg.muted"
+              >
+                <LuUser size={14} />
+              </Box>
+            )}
+            <Text>{fullName}</Text>
+          </HStack>
+        );
+      },
       sortField: "lastName",
     },
     {
@@ -355,7 +399,7 @@ export default function AdminUsersPage() {
                   lastName: "",
                   email: "",
                   dossard: "",
-                  edition: "",
+                  edition: String(CURRENT_EDITION),
                 });
                 setPage(1);
               }}

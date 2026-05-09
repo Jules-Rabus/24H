@@ -23,6 +23,7 @@ import { createUserSchema } from "@/state/admin/users/schemas";
 import {
   useAddUserToCurrentRunMutation,
   useCreateUserMutation,
+  useDeleteUserImageMutation,
   useUpdateUserMutation,
   useUploadUserImageMutation,
 } from "@/state/admin/users/mutations";
@@ -42,9 +43,11 @@ export function UserForm({
   const createMutation = useCreateUserMutation();
   const updateMutation = useUpdateUserMutation();
   const uploadImageMutation = useUploadUserImageMutation();
+  const deleteImageMutation = useDeleteUserImageMutation();
   const linkToRunMutation = useAddUserToCurrentRunMutation();
 
   const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoRemoved, setPhotoRemoved] = useState(false);
   const [firstName, setFirstName] = useState(user?.firstName ?? "");
   const [lastName, setLastName] = useState(user?.lastName ?? "");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -62,7 +65,13 @@ export function UserForm({
     createMutation.isPending ||
     updateMutation.isPending ||
     uploadImageMutation.isPending ||
+    deleteImageMutation.isPending ||
     linkToRunMutation.isPending;
+
+  const existingImageUrl =
+    user?.image && !photoRemoved
+      ? `${process.env.NEXT_PUBLIC_ENTRYPOINT ?? ""}${user.image}`
+      : null;
 
   const form = useForm({
     defaultValues: {
@@ -102,6 +111,19 @@ export function UserForm({
           plainPassword: value.plainPassword || null,
         });
         createdId = (created as { id?: number })?.id ?? null;
+      }
+
+      if (createdId && isEdit && photoRemoved && user?.image && !photoFile) {
+        try {
+          await deleteImageMutation.mutateAsync(createdId);
+        } catch {
+          toaster.create({
+            type: "error",
+            title: "Photo non supprimée",
+            description:
+              "Le coureur a été enregistré, mais la photo n'a pas pu être supprimée. Réessayez depuis la fiche.",
+          });
+        }
       }
 
       if (createdId && photoFile) {
@@ -353,72 +375,96 @@ export function UserForm({
             )}
           </form.Field>
 
-          {!isEdit && (
-            <Field.Root>
-              <Field.Label>Photo (optionnel)</Field.Label>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.jpg,.jpeg,.png,.webp,.heic,.heif"
-                style={{ display: "none" }}
-                onChange={(e) => setPhotoFile(e.target.files?.[0] ?? null)}
-              />
-              <HStack gap="3" align="center">
-                {photoPreview ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={photoPreview}
-                    alt="Aperçu"
-                    style={{
-                      width: "64px",
-                      height: "64px",
-                      objectFit: "cover",
-                      borderRadius: "8px",
-                      border: "1px solid var(--chakra-colors-border-subtle)",
-                    }}
-                  />
-                ) : (
-                  <Box
-                    boxSize="64px"
-                    rounded="md"
-                    bg="bg.subtle"
-                    borderWidth="1px"
-                    borderColor="border.subtle"
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                  >
-                    <LuCamera size={20} />
-                  </Box>
-                )}
-                <HStack gap="2">
+          <Field.Root>
+            <Field.Label>Photo (optionnel)</Field.Label>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.jpg,.jpeg,.png,.webp,.heic,.heif"
+              style={{ display: "none" }}
+              onChange={(e) => {
+                const file = e.target.files?.[0] ?? null;
+                setPhotoFile(file);
+                if (file) setPhotoRemoved(false);
+              }}
+            />
+            <HStack gap="3" align="center">
+              {photoPreview ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={photoPreview}
+                  alt="Aperçu"
+                  style={{
+                    width: "64px",
+                    height: "64px",
+                    objectFit: "cover",
+                    borderRadius: "8px",
+                    border: "1px solid var(--chakra-colors-border-subtle)",
+                  }}
+                />
+              ) : existingImageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={existingImageUrl}
+                  alt="Photo actuelle"
+                  style={{
+                    width: "64px",
+                    height: "64px",
+                    objectFit: "cover",
+                    borderRadius: "8px",
+                    border: "1px solid var(--chakra-colors-border-subtle)",
+                  }}
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                  }}
+                />
+              ) : (
+                <Box
+                  boxSize="64px"
+                  rounded="md"
+                  bg="bg.subtle"
+                  borderWidth="1px"
+                  borderColor="border.subtle"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                >
+                  <LuCamera size={20} />
+                </Box>
+              )}
+              <HStack gap="2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  {photoFile || existingImageUrl
+                    ? "Changer"
+                    : "Choisir une photo"}
+                </Button>
+                {(photoFile || existingImageUrl) && (
                   <Button
                     size="sm"
                     variant="outline"
+                    colorPalette="red"
                     type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    {photoFile ? "Changer" : "Choisir une photo"}
-                  </Button>
-                  {photoFile && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      colorPalette="red"
-                      type="button"
-                      onClick={() => {
+                    onClick={() => {
+                      if (photoFile) {
                         setPhotoFile(null);
                         if (fileInputRef.current)
                           fileInputRef.current.value = "";
-                      }}
-                    >
-                      <LuTrash2 />
-                    </Button>
-                  )}
-                </HStack>
+                      } else {
+                        setPhotoRemoved(true);
+                      }
+                    }}
+                  >
+                    <LuTrash2 />
+                  </Button>
+                )}
               </HStack>
-            </Field.Root>
-          )}
+            </HStack>
+          </Field.Root>
         </VStack>
       </Dialog.Body>
 
