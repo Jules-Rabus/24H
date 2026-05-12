@@ -2,9 +2,9 @@
 
 FROM dunglas/frankenphp:1.12.2-php8.4 AS frankenphp_base
 
-# For local build
-COPY ./ZscalerRootCerts/ZscalerRootCertificate-2048-SHA256.crt /usr/local/share/ca-certificates/
-RUN update-ca-certificates
+# For local build behind Zscaler proxy — uncomment when on an enterprise network
+# COPY ./ZscalerRootCerts/ZscalerRootCertificate-2048-SHA256.crt /usr/local/share/ca-certificates/
+# RUN update-ca-certificates
 
 SHELL ["/bin/bash", "-euxo", "pipefail", "-c"]
 
