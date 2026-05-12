@@ -13,6 +13,17 @@ framework:
     #esi: true
     #fragments: true
 
+    # Rate limiters — protect public anonymous endpoints from abuse.
+    rate_limiter:
+        # Anonymous public photo upload on POST /race_medias :
+        # 10 photos par utilisateur / heure. Keyed on the per-browser
+        # XSRF-TOKEN cookie (already required by CSRF subscriber), so users
+        # behind a shared NAT (event wifi) don't share a single bucket.
+        public_media_upload:
+            policy: 'sliding_window'
+            limit: 10
+            interval: '1 hour'
+
 when@test:
     framework:
         test: true

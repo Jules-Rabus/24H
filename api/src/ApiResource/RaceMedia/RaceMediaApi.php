@@ -31,6 +31,13 @@ use Symfony\Component\ObjectMapper\Attribute\Map;
             uriTemplate: '/race_medias',
             output: RaceMediaCollection::class,
         ),
+        // Anonymous public upload — anyone can share a photo, by design.
+        // Protected by:
+        //  - CSRF double-submit cookie (see CsrfTokenSubscriber)
+        //  - per-browser rate limit (10 / hour, keyed on the XSRF-TOKEN
+        //    cookie so a shared NAT doesn't merge buckets — see
+        //    RaceMediaProcessor + framework.yaml)
+        //  - MIME/size validation (see RaceMediaProcessor)
         new Post(
             uriTemplate: '/race_medias',
             inputFormats: ['multipart' => ['multipart/form-data']],

@@ -19,9 +19,9 @@ class RaceMedia
 
     #[Assert\File(
         maxSize: '25M',
-        mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'video/mp4', 'video/quicktime', 'video/webm'],
+        mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif', 'video/mp4', 'video/quicktime', 'video/webm'],
         maxSizeMessage: 'Le fichier ne doit pas dépasser 25 Mo.',
-        mimeTypesMessage: 'Format non supporté. Formats acceptés : JPEG, PNG, WebP, GIF, MP4, MOV, WebM.',
+        mimeTypesMessage: 'Format non supporté. Formats acceptés : JPEG, PNG, WebP, GIF, HEIC, HEIF, MP4, MOV, WebM.',
     )]
     #[Vich\UploadableField(mapping: 'race_media', fileNameProperty: 'filePath', mimeType: 'contentType')]
     public ?File $file = null;
