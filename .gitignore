@@ -9,3 +9,9 @@ node_modules
 /ZscalerRootCerts/
 .superpowers/
 pwa/docs/superpowers/
+
+# Local design handoff bundle (read-only, regenerable)
+.design-ref/
+
+# Local vitest helper output
+pwa/.vitest-output.log
