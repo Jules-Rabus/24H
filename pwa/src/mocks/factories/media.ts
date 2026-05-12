@@ -10,7 +10,8 @@ export function buildRaceMedia(overrides: Partial<RaceMedia> = {}): RaceMedia {
   return {
     id,
     filePath: `photo${id}.jpg`,
-    contentUrl: `/media/photo${id}.jpg`,
+    // Use picsum placeholder so dev:mock has real images to render.
+    contentUrl: `https://picsum.photos/seed/race-${id}/600/400`,
     comment: `Photo ${id}`,
     createdAt: "2026-03-15T14:32:00Z",
     likesCount: 0,
