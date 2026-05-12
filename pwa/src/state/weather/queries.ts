@@ -20,7 +20,9 @@ async function fetchWeather(
       longitude: lon,
       current:
         "temperature_2m,weather_code,apparent_temperature,windspeed_10m,relative_humidity_2m",
-      hourly: "temperature_2m,weather_code",
+      hourly:
+        "temperature_2m,weather_code,apparent_temperature,windspeed_10m,relative_humidity_2m",
+      daily: "sunrise,sunset",
       timezone: "Europe/Paris",
     },
   });

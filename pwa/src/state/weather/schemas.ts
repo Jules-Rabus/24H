@@ -12,7 +12,17 @@ export const weatherResponseSchema = z.object({
     time: z.array(z.string()),
     temperature_2m: z.array(z.number()),
     weather_code: z.array(z.number()),
+    apparent_temperature: z.array(z.number()).optional(),
+    windspeed_10m: z.array(z.number()).optional(),
+    relative_humidity_2m: z.array(z.number()).optional(),
   }),
+  daily: z
+    .object({
+      time: z.array(z.string()),
+      sunrise: z.array(z.string()),
+      sunset: z.array(z.string()),
+    })
+    .optional(),
 });
 
 export type WeatherResponse = z.infer<typeof weatherResponseSchema>;
