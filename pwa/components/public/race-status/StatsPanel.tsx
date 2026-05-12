@@ -47,12 +47,19 @@ export function StatsPanel({
     <Flex
       direction="column"
       gap="3"
-      p="4"
-      borderRightWidth="1px"
-      borderColor="whiteAlpha.100"
+      p={{ base: "3", md: "4" }}
+      borderRightWidth={{ base: 0, md: "1px" }}
+      borderColor="card.border"
       overflow="hidden"
     >
-      <Grid templateColumns="repeat(5, 1fr)" gap="3" flex="1">
+      <Grid
+        templateColumns={{
+          base: "repeat(2, 1fr)",
+          md: "repeat(5, 1fr)",
+        }}
+        gap="3"
+        flex="1"
+      >
         {isLoading ? (
           Array.from({ length: 5 }).map((_, i) => (
             <Flex
@@ -60,10 +67,10 @@ export function StatsPanel({
               direction="column"
               gap="2"
               p="3"
-              bg="whiteAlpha.50"
+              bg="card.bg"
+              borderWidth="1px"
+              borderColor="card.border"
               rounded="xl"
-              borderLeftWidth="2px"
-              borderLeftColor="whiteAlpha.100"
             >
               <Skeleton h="3" w="60%" rounded="md" />
               <Skeleton h="8" w="80%" rounded="md" />
@@ -76,10 +83,11 @@ export function StatsPanel({
               label="Run en cours"
               value={
                 <Text
-                  fontSize="md"
+                  fontSize={{ base: "sm", md: "md" }}
                   fontWeight="900"
-                  color="gray.100"
+                  color="fg"
                   lineHeight="1.2"
+                  truncate
                 >
                   {currentRun
                     ? `${new Date(currentRun.startDate!).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })} – ${new Date(currentRun.endDate!).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`
@@ -94,10 +102,14 @@ export function StatsPanel({
               label="Finishers / Total"
               value={
                 <HStack align="baseline" gap="1">
-                  <Text fontSize="3xl" fontWeight="900" color="primary.300">
+                  <Text
+                    fontSize={{ base: "2xl", md: "3xl" }}
+                    fontWeight="900"
+                    color="primary.fg"
+                  >
                     {finishedCount}
                   </Text>
-                  <Text fontSize="sm" color="gray.500">
+                  <Text fontSize="sm" color="fg.muted">
                     / {totalCount}
                   </Text>
                 </HStack>
@@ -108,10 +120,14 @@ export function StatsPanel({
               label="KM Totaux"
               value={
                 <HStack align="baseline" gap="1">
-                  <Text fontSize="3xl" fontWeight="900" color="gray.100">
+                  <Text
+                    fontSize={{ base: "2xl", md: "3xl" }}
+                    fontWeight="900"
+                    color="fg"
+                  >
                     {totalAllKm.toLocaleString("fr-FR")}
                   </Text>
-                  <Text fontSize="sm" color="gray.500">
+                  <Text fontSize="sm" color="fg.muted">
                     km
                   </Text>
                 </HStack>
@@ -121,10 +137,14 @@ export function StatsPanel({
               label="Coureurs"
               value={
                 <HStack align="baseline" gap="1">
-                  <Text fontSize="3xl" fontWeight="900" color="gray.100">
+                  <Text
+                    fontSize={{ base: "2xl", md: "3xl" }}
+                    fontWeight="900"
+                    color="fg"
+                  >
                     {activeRacers}
                   </Text>
-                  <Text fontSize="sm" color="gray.500">
+                  <Text fontSize="sm" color="fg.muted">
                     coureurs
                   </Text>
                 </HStack>
@@ -134,9 +154,9 @@ export function StatsPanel({
               label="Prochain départ"
               value={
                 <Text
-                  fontSize="2xl"
+                  fontSize={{ base: "lg", md: "2xl" }}
                   fontWeight="900"
-                  color={nextRun && !currentRun ? "primary.300" : "gray.100"}
+                  color={nextRun && !currentRun ? "primary.fg" : "fg"}
                   fontVariantNumeric="tabular-nums"
                 >
                   {nextRun
@@ -157,11 +177,11 @@ export function StatsPanel({
             fontWeight="700"
             letterSpacing="0.1em"
             textTransform="uppercase"
-            color="gray.600"
+            color="fg.muted"
           >
-            Avancement run {runIndex}
+            Avancement run {runIndex || "—"}
           </Text>
-          <Text fontSize="xs" fontWeight="700" color="primary.400">
+          <Text fontSize="xs" fontWeight="700" color="primary.fg">
             {progressPct}%
           </Text>
         </HStack>
@@ -171,7 +191,7 @@ export function StatsPanel({
           size="md"
           shape="rounded"
         >
-          <Progress.Track bg="whiteAlpha.100">
+          <Progress.Track bg="bg.subtle">
             <Progress.Range />
           </Progress.Track>
         </Progress.Root>

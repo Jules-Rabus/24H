@@ -17,10 +17,11 @@ export function StatCard({
       direction="column"
       justify="space-between"
       p="3"
-      bg="whiteAlpha.50"
+      bg="card.bg"
+      borderWidth="1px"
+      borderColor="card.border"
       rounded="xl"
-      borderLeftWidth="2px"
-      borderLeftColor="primary.500"
+      shadow="sm"
       overflow="hidden"
     >
       <Text
@@ -28,14 +29,14 @@ export function StatCard({
         fontWeight="700"
         letterSpacing="0.12em"
         textTransform="uppercase"
-        color="gray.500"
+        color="fg.muted"
       >
         {label}
       </Text>
       <Box mt="1">
         <Box>{value}</Box>
         {sub && (
-          <Text fontSize="xs" color="gray.500" mt="0.5">
+          <Text fontSize="xs" color="fg.muted" mt="0.5">
             {sub}
           </Text>
         )}
