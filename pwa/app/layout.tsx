@@ -1,9 +1,23 @@
 import Providers from "./providers";
 import React from "react";
+import type { Viewport } from "next";
 
 export const metadata = {
   title: "Race Tracker",
   description: "Suivi de course en temps réel et back-office",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default" as const,
+    title: "Défi 24h",
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  // Required for env(safe-area-inset-*) to be non-zero on iPhone X+ in Safari.
+  viewportFit: "cover",
+  themeColor: "#0f929a",
 };
 
 export default function RootLayout({
