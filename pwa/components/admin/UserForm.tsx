@@ -29,6 +29,7 @@ import {
 } from "@/state/admin/users/mutations";
 import { useDebounce } from "@/hooks/useDebounce";
 import { toaster } from "@/components/ui/toaster";
+import { heicToJpeg } from "@/utils/heicToJpeg";
 
 const norm = (s: string) => s.trim().toLowerCase();
 
@@ -68,8 +69,7 @@ export function UserForm({
     deleteImageMutation.isPending ||
     linkToRunMutation.isPending;
 
-  const existingImageUrl =
-    user?.image && !photoRemoved ? user.image : null;
+  const existingImageUrl = user?.image && !photoRemoved ? user.image : null;
 
   const form = useForm({
     defaultValues: {
@@ -380,10 +380,23 @@ export function UserForm({
               type="file"
               accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.jpg,.jpeg,.png,.webp,.heic,.heif"
               style={{ display: "none" }}
-              onChange={(e) => {
-                const file = e.target.files?.[0] ?? null;
-                setPhotoFile(file);
-                if (file) setPhotoRemoved(false);
+              onChange={async (e) => {
+                const raw = e.target.files?.[0] ?? null;
+                if (!raw) {
+                  setPhotoFile(null);
+                  return;
+                }
+                try {
+                  const file = await heicToJpeg(raw);
+                  setPhotoFile(file);
+                  setPhotoRemoved(false);
+                } catch {
+                  toaster.create({
+                    title: "Conversion HEIC impossible",
+                    description: "Réessaie avec une photo JPEG ou PNG.",
+                    type: "error",
+                  });
+                }
               }}
             />
             <HStack gap="3" align="center">

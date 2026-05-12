@@ -59,6 +59,7 @@ import { StatCard } from "@/components/admin/ui/StatCard";
 import { DataTable, type Column } from "@/components/admin/ui/DataTable";
 import { UserForm } from "@/components/admin/UserForm";
 import { formatTimeVerbose as formatTime, formatPace } from "@/utils/race";
+import { heicToJpeg } from "@/utils/heicToJpeg";
 
 // ---------------------------------------------------------------------------
 // UserDetailPage
@@ -105,8 +106,9 @@ export default function UserDetailPage({
   }, [participationsData?.member]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const raw = e.target.files?.[0];
+    if (!raw) return;
+    const file = await heicToJpeg(raw);
     await uploadImageMutation.mutateAsync({ userId, file });
     // Reset input so same file can be re-selected
     if (fileInputRef.current) fileInputRef.current.value = "";

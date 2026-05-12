@@ -37,6 +37,7 @@ import {
   useDeleteRaceMediaMutation,
 } from "@/state/admin/medias/mutations";
 import { ConfirmDialog } from "@/components/admin/ui/ConfirmDialog";
+import { heicToJpeg } from "@/utils/heicToJpeg";
 
 function MediaThumb({ src, alt }: { src: string; alt: string }) {
   const [failed, setFailed] = useState(false);
@@ -86,8 +87,9 @@ export default function AdminMediasPage() {
   }, [medias, searchQuery]);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const raw = e.target.files?.[0];
+    if (!raw) return;
+    const file = await heicToJpeg(raw);
     await uploadMutation.mutateAsync(file);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };

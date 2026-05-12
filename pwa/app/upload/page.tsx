@@ -17,6 +17,7 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useUploadRaceMediaMutation } from "@/state/media/mutations";
 import { PublicNav } from "@/components/public/PublicNav";
+import { heicToJpeg, isHeic } from "@/utils/heicToJpeg";
 import {
   LuCamera,
   LuCircleCheck,
@@ -27,11 +28,16 @@ import {
   LuVideo,
 } from "react-icons/lu";
 
+// Mirror of api/src/State/RaceMediaProcessor.php::ALLOWED_MIMES. HEIC/HEIF
+// are listed here for files that fail to convert client-side — the API
+// rejects them but at least the validator won't double-block.
 const ALLOWED_TYPES = [
   "image/jpeg",
   "image/png",
   "image/webp",
   "image/gif",
+  "image/heic",
+  "image/heif",
   "video/mp4",
   "video/quicktime",
   "video/webm",
@@ -44,6 +50,7 @@ export default function UploadPage() {
   const [error, setError] = useState("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isVideo, setIsVideo] = useState(false);
+  const [isConverting, setIsConverting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const uploadMutation = useUploadRaceMediaMutation();
@@ -156,11 +163,26 @@ export default function UploadPage() {
               accept="image/jpeg,image/png,image/webp,image/heic,image/heif,video/mp4,video/quicktime,video/webm,.jpg,.jpeg,.png,.webp,.heic,.heif,.mp4,.mov,.webm"
               capture="environment"
               style={{ display: "none" }}
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
+              onChange={async (e) => {
+                const raw = e.target.files?.[0];
+                if (!raw) return;
+                try {
+                  // iPhones (and some Samsung) shoot HEIC. Convert client-side
+                  // so the JPEG version is viewable everywhere (Chrome, Firefox,
+                  // Brave, Android Gallery, etc).
+                  if (isHeic(raw)) {
+                    setIsConverting(true);
+                    setError("");
+                  }
+                  const file = await heicToJpeg(raw);
                   form.setFieldValue("file", file);
                   handleFileSelect(file);
+                } catch {
+                  setError(
+                    "Impossible de convertir cette photo HEIC. Réessaie depuis l'app Photos en JPEG.",
+                  );
+                } finally {
+                  setIsConverting(false);
                 }
               }}
             />
@@ -249,7 +271,9 @@ export default function UploadPage() {
                     >
                       <Icon as={LuCamera} boxSize="12" color="primary.400" />
                       <Text fontWeight="bold" fontSize="sm" color="primary.fg">
-                        Ajouter une photo ou vidéo
+                        {isConverting
+                          ? "Conversion HEIC en cours…"
+                          : "Ajouter une photo ou vidéo"}
                       </Text>
                     </Box>
                   )}
@@ -309,11 +333,7 @@ export default function UploadPage() {
             >
               <Checkbox.HiddenInput />
               <Checkbox.Control />
-              <Checkbox.Label
-                fontSize="sm"
-                color="fg.muted"
-                lineHeight="short"
-              >
+              <Checkbox.Label fontSize="sm" color="fg.muted" lineHeight="short">
                 Toutes les personnes visibles sont d&apos;accord pour être
                 publiées.
               </Checkbox.Label>
