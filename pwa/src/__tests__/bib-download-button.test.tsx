@@ -47,14 +47,37 @@ describe("BibDownloadButton", () => {
     surname: null,
   };
 
-  it("renders the edition above the dossard number when provided", () => {
+  it("renders 'Défi des 24h' in the top-left and 'ASPO' in the top-right", () => {
     render(<BibDownloadButton user={user} edition={2026} />);
-    expect(screen.getByText("2026 / 42")).toBeInTheDocument();
+    expect(screen.getByText("Défi des 24h")).toBeInTheDocument();
+    expect(screen.getByText("ASPO")).toBeInTheDocument();
   });
 
-  it("does not render edition text when prop is omitted", () => {
+  it("renders the runner first name, last name and dossard number", () => {
+    render(<BibDownloadButton user={user} edition={2026} />);
+    expect(screen.getByText("Jean")).toBeInTheDocument();
+    expect(screen.getByText("Dupont")).toBeInTheDocument();
+    expect(screen.getByText("42")).toBeInTheDocument();
+  });
+
+  it("renders the edition year in the bottom-right corner when provided", () => {
+    render(<BibDownloadButton user={user} edition={2026} />);
+    expect(screen.getByText("2026")).toBeInTheDocument();
+  });
+
+  it("does not render the year when edition is omitted", () => {
     render(<BibDownloadButton user={user} />);
-    expect(screen.queryByText(/\/ 42$/)).not.toBeInTheDocument();
+    expect(screen.queryByText("2026")).not.toBeInTheDocument();
+  });
+
+  it("renders the surname below the QR when provided", () => {
+    render(
+      <BibDownloadButton
+        user={{ ...user, surname: "Speedy" }}
+        edition={2026}
+      />,
+    );
+    expect(screen.getByText("Speedy")).toBeInTheDocument();
   });
 });
 
@@ -64,10 +87,12 @@ describe("BulkBibDownloadButton", () => {
     { id: 2, firstName: "Marie", lastName: "Curie", surname: null },
   ];
 
-  it("renders the edition for every bib in the bulk PDF", () => {
+  it("renders a page per runner with their number", () => {
     render(<BulkBibDownloadButton users={users} edition={2026} />);
-    expect(screen.getByText("2026 / 1")).toBeInTheDocument();
-    expect(screen.getByText("2026 / 2")).toBeInTheDocument();
+    expect(screen.getByText("1")).toBeInTheDocument();
+    expect(screen.getByText("2")).toBeInTheDocument();
+    expect(screen.getByText("Jean")).toBeInTheDocument();
+    expect(screen.getByText("Marie")).toBeInTheDocument();
   });
 
   it("returns null when users array is empty", () => {

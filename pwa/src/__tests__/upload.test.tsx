@@ -117,9 +117,13 @@ describe("UploadPage", () => {
       'input[type="file"]',
     ) as HTMLInputElement;
     await user.upload(fileInput, file);
-    await user.click(
-      screen.getByRole("button", { name: /partager maintenant/i }),
-    );
+    // onChange is async (HEIC helper returns a Promise even for JPEGs) —
+    // wait until the share button leaves its disabled state before clicking.
+    const shareBtn = await screen.findByRole("button", {
+      name: /partager maintenant/i,
+    });
+    await waitFor(() => expect(shareBtn).not.toBeDisabled());
+    await user.click(shareBtn);
 
     await waitFor(() => {
       expect(
