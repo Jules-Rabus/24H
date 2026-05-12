@@ -6,17 +6,32 @@ import { client } from "./generated/client.gen";
 import { make401Interceptor } from "./auth-interceptor";
 import { getCsrfToken, clearCsrfToken } from "./csrf";
 
-const baseURL = process.env.NEXT_PUBLIC_ENTRYPOINT ?? "http://localhost";
+// In mock mode use same-origin so the MSW service worker (registered on the
+// Next dev origin) can intercept every API call.
+const isMock = process.env.NEXT_PUBLIC_API_MOCK === "1";
+const baseURL = isMock
+  ? ""
+  : (process.env.NEXT_PUBLIC_ENTRYPOINT ?? "http://localhost");
 
 client.setConfig({
   baseURL,
   throwOnError: true,
-  withCredentials: true,
+  withCredentials: !isMock,
 });
 
-// Inject CSRF token on /race_medias requests (GET collection + POST)
+// Inject CSRF token on /race_medias mutations (POST/PATCH/DELETE).
+// GET requests are public and don't need CSRF — including them would force the
+// /accueil mobile page (anonymous, no /csrf-token endpoint mock) to fetch a
+// token it can't get.
 client.instance.interceptors.request.use(async (config) => {
-  if (config.url?.includes("/race_medias") && typeof window !== "undefined") {
+  const method = (config.method ?? "get").toLowerCase();
+  const isMutation =
+    method === "post" || method === "patch" || method === "delete";
+  if (
+    isMutation &&
+    config.url?.includes("/race_medias") &&
+    typeof window !== "undefined"
+  ) {
     const token = await getCsrfToken();
     config.headers.set("X-XSRF-TOKEN", token);
   }
