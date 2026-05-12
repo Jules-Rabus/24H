@@ -14,7 +14,7 @@ export default function HomePage() {
   const router = useRouter();
 
   return (
-    <Box minH="100vh" bg="bg.subtle" display="flex" flexDirection="column">
+    <Box minH="100svh" bg="bg.subtle" display="flex" flexDirection="column">
       {/* Header */}
       <Box bg="#0f929a" py="10" px="4" textAlign="center">
         <VStack gap="3" mb="1">
