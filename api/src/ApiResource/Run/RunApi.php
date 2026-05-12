@@ -3,6 +3,7 @@
 namespace App\ApiResource\Run;
 
 use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
+use ApiPlatform\Doctrine\Orm\Filter\ExactFilter;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\Options;
@@ -13,6 +14,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\QueryParameter;
 use App\Dto\Run\CreateRun;
 use App\Dto\Run\RunCollection;
 use App\Dto\Run\UpdateRun;
@@ -23,20 +25,36 @@ use Symfony\Component\ObjectMapper\Attribute\Map;
 #[ApiResource(
     shortName: 'Run',
     operations: [
-        new GetCollection(output: RunCollection::class),
-        new Get(),
+        new GetCollection(
+            output: RunCollection::class,
+            security: 'is_granted("ROLE_ADMIN")',
+        ),
+        new GetCollection(
+            uriTemplate: '/runs/public',
+            output: RunCollection::class,
+            cacheHeaders: ['max_age' => 30, 'shared_max_age' => 30, 'public' => true],
+            parameters: [
+                'edition' => new QueryParameter(
+                    filter: new ExactFilter(),
+                    property: 'edition',
+                ),
+            ],
+        ),
+        new Get(security: 'is_granted("ROLE_ADMIN")'),
         new Post(
+            security: 'is_granted("ROLE_ADMIN")',
             input: CreateRun::class,
         ),
         new Patch(
+            security: 'is_granted("ROLE_ADMIN")',
             input: UpdateRun::class,
         ),
         new Delete(
+            security: 'is_granted("ROLE_ADMIN")',
             validate: true,
             validationContext: ['groups' => [Run::VALIDATION_GROUP_DELETE]],
         ),
     ],
-    security: 'is_granted("ROLE_ADMIN")',
     stateOptions: new Options(entityClass: Run::class),
 )]
 #[Map(source: Run::class)]

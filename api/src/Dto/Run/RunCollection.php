@@ -14,6 +14,8 @@ final class RunCollection
 
     public \DateTimeInterface $endDate;
 
+    public ?int $edition = null;
+
     #[Map(source: 'participantsCount')]
     public int $participantsCount = 0;
 
