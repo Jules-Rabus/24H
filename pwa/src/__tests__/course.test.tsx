@@ -28,7 +28,9 @@ vi.mock("embla-carousel-react", () => ({
 describe("CoursePage (public mobile race status)", () => {
   it("affiche le titre de la page Course", async () => {
     render(<CoursePage />);
-    expect(await screen.findByText(/^Course$/i)).toBeInTheDocument();
+    // "Course" appears in both the heading and the bottom nav — getAllByText is safe
+    const matches = await screen.findAllByText(/^Course$/i);
+    expect(matches.length).toBeGreaterThanOrEqual(1);
   });
 
   it("affiche la section derniers arrivés", async () => {

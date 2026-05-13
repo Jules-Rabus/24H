@@ -77,7 +77,8 @@ describe("BibDownloadButton", () => {
         edition={2026}
       />,
     );
-    expect(screen.getByText("Speedy")).toBeInTheDocument();
+    // BibPage wraps the surname with « ... » guillemets
+    expect(screen.getByText(/Speedy/)).toBeInTheDocument();
   });
 });
 

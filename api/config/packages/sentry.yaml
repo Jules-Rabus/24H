@@ -3,3 +3,10 @@ sentry:
     register_error_listener: true
     options:
         environment: '%kernel.environment%'
+
+# Disable Sentry in tests to prevent its Doctrine tracing middleware from
+# interfering with DAMA DoctrineTestBundle's static connection management.
+when@test:
+    sentry:
+        dsn: ~
+        tracing: false

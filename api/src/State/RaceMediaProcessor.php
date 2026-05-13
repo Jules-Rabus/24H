@@ -57,10 +57,7 @@ final readonly class RaceMediaProcessor implements ProcessorInterface
         }
         $limit = $this->publicMediaUploadLimiter->create($key)->consume(1);
         if (!$limit->isAccepted()) {
-            throw new TooManyRequestsHttpException(
-                $limit->getRetryAfter()->getTimestamp() - time(),
-                'Trop de photos partagées dans la dernière heure. Réessayez plus tard.'
-            );
+            throw new TooManyRequestsHttpException($limit->getRetryAfter()->getTimestamp() - time(), 'Trop de photos partagées dans la dernière heure. Réessayez plus tard.');
         }
 
         $file = $request->files->get('file');

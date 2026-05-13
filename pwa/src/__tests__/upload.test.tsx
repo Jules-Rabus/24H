@@ -56,10 +56,20 @@ describe("UploadPage", () => {
     ) as HTMLInputElement;
     await user.upload(fileInput, file);
 
+    // Check the consent checkbox (required before submit)
+    const consentCheckbox = document.querySelector(
+      'input[type="checkbox"]',
+    ) as HTMLInputElement;
+    await user.click(consentCheckbox);
+
+    // Wait until button is enabled (file + consent)
+    const shareBtn = screen.getByRole("button", {
+      name: /partager maintenant/i,
+    });
+    await waitFor(() => expect(shareBtn).not.toBeDisabled());
+
     // Submit the form
-    await user.click(
-      screen.getByRole("button", { name: /partager maintenant/i }),
-    );
+    await user.click(shareBtn);
 
     await waitFor(() => {
       expect(screen.getByText("Média partagé !")).toBeInTheDocument();
@@ -87,9 +97,18 @@ describe("UploadPage", () => {
       'input[type="file"]',
     ) as HTMLInputElement;
     await user.upload(fileInput, file);
-    await user.click(
-      screen.getByRole("button", { name: /partager maintenant/i }),
-    );
+
+    // Check consent
+    const consentCheckbox = document.querySelector(
+      'input[type="checkbox"]',
+    ) as HTMLInputElement;
+    await user.click(consentCheckbox);
+
+    const shareBtn = screen.getByRole("button", {
+      name: /partager maintenant/i,
+    });
+    await waitFor(() => expect(shareBtn).not.toBeDisabled());
+    await user.click(shareBtn);
 
     await waitFor(() => {
       expect(
@@ -117,6 +136,13 @@ describe("UploadPage", () => {
       'input[type="file"]',
     ) as HTMLInputElement;
     await user.upload(fileInput, file);
+
+    // Check consent
+    const consentCheckbox = document.querySelector(
+      'input[type="checkbox"]',
+    ) as HTMLInputElement;
+    await user.click(consentCheckbox);
+
     // onChange is async (HEIC helper returns a Promise even for JPEGs) —
     // wait until the share button leaves its disabled state before clicking.
     const shareBtn = await screen.findByRole("button", {

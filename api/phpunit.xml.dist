@@ -22,10 +22,25 @@
         </testsuite>
     </testsuites>
 
+    <groups>
+        <!-- Exclude the rate-limit group from the default run to prevent
+             DB connection termination caused by 33 concurrent file uploads. -->
+        <exclude>
+            <group>rate-limit</group>
+        </exclude>
+    </groups>
+
     <source>
         <include>
             <directory suffix=".php">src</directory>
         </include>
+        <exclude>
+            <!-- Symfony boilerplate — not meaningfully testable in isolation -->
+            <file>src/Kernel.php</file>
+            <!-- Fixtures and Stories are dev-only data seeders, not business logic -->
+            <file>src/DataFixtures/AppFixtures.php</file>
+            <file>src/Story/AppStory.php</file>
+        </exclude>
     </source>
 
     <coverage includeUncoveredFiles="true" />

@@ -24,6 +24,7 @@ export default defineConfig({
         "src/**/*.{ts,tsx}",
         "components/**/*.{ts,tsx}",
       ],
+      reportOnFailure: true,
       exclude: [
         // Generated / infra — not hand-written code
         "src/api/generated/**",
@@ -44,6 +45,8 @@ export default defineConfig({
         "components/ui/provider.tsx",
         "components/ui/tooltip.tsx",
         "components/ui/toaster.tsx",
+        // MSW bootstrap — client-side service worker setup, not testable in jsdom
+        "components/MswBootstrap.tsx",
         // Next.js root layout (html/body tags) — not renderable in jsdom
         "app/layout.tsx",
         // Providers entry point — imports sdk-client side-effect, creates global QueryClient
