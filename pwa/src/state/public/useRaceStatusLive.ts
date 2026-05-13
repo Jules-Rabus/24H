@@ -70,10 +70,14 @@ export function useRaceStatusLive() {
           queryClient.invalidateQueries({ queryKey: publicRaceKeys.all });
         }
 
-        // New race media — invalidate to refetch the gallery
+        // New race media — invalidate both the admin and the public cache
+        // so the gallery on /course and the admin medias page both refresh.
         if (raw.contentUrl !== undefined) {
           queryClient.invalidateQueries({
             queryKey: adminMediaKeys.list(),
+          });
+          queryClient.invalidateQueries({
+            queryKey: publicRaceKeys.medias(),
           });
         }
       } catch (err) {
