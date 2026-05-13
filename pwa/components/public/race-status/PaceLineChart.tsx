@@ -47,15 +47,20 @@ export function PaceLineChart({ data, fluid = false }: PaceLineChartProps) {
       h="100%"
     >
       <HStack justify="space-between" align="center" flexShrink={0}>
-        <Heading
-          size="sm"
-          fontWeight="900"
-          letterSpacing="tight"
-          textTransform="uppercase"
-          color="fg.muted"
-        >
-          Allure moy. / Run
-        </Heading>
+        <HStack gap="2" align="baseline" minW="0">
+          <Heading
+            size="sm"
+            fontWeight="900"
+            letterSpacing="tight"
+            textTransform="uppercase"
+            color="fg.muted"
+          >
+            Allure moy. / Run
+          </Heading>
+          <Text fontSize="2xs" color="fg.subtle" fontFamily="mono">
+            min/km
+          </Text>
+        </HStack>
         <HStack gap="3" fontSize="xs" color="fg.muted">
           {has2026 && (
             <HStack gap="1">
@@ -100,8 +105,15 @@ export function PaceLineChart({ data, fluid = false }: PaceLineChartProps) {
                 axisLine={false}
                 tickLine={false}
                 reversed
-                tickFormatter={(v: number) => (v > 0 ? fmtPace(v) : "")}
-                width={52}
+                // Ticks show `m:ss` only (no `/km`) so they fit on narrow
+                // mobile screens; the full unit lives in the tooltip.
+                tickFormatter={(v: number) => {
+                  if (v <= 0) return "";
+                  const m = Math.floor(v / 60);
+                  const s = Math.round(v % 60);
+                  return `${m}:${String(s).padStart(2, "0")}`;
+                }}
+                width={42}
               />
               <Tooltip
                 contentStyle={{

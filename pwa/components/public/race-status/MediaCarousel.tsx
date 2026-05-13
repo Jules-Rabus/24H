@@ -196,7 +196,10 @@ export function MediaCarousel({
                     style={{
                       width: "100%",
                       flex: 1,
-                      objectFit: "cover",
+                      // `contain` scales the photo down so the whole image is
+                      // visible without cropping ; the dark `bg.subtle` fills
+                      // any letterbox area around tall/wide photos.
+                      objectFit: "contain",
                       minHeight: 0,
                     }}
                   />

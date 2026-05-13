@@ -68,6 +68,12 @@ export function HomePage() {
         <Text color="cyan.100" fontSize="md">
           Bienvenue
         </Text>
+        <Text color="cyan.100" fontSize="sm" mt="1" fontWeight="600">
+          Organisé par l&apos;ASPO
+        </Text>
+        <Text color="cyan.100" fontSize="2xs" opacity={0.8}>
+          Association Sportive des Policiers de l&apos;Oise
+        </Text>
       </Box>
 
       {/* Buttons */}
@@ -201,10 +207,6 @@ export function HomePage() {
             Défi des 24h
           </Text>
         </HStack>
-        <Text fontSize="2xs" color="fg.subtle" mt="1">
-          Organisé par l&apos;ASPO — Association Sportive des Policiers de
-          l&apos;Oise
-        </Text>
       </Box>
     </Box>
   );
