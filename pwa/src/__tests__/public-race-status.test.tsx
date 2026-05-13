@@ -33,22 +33,6 @@ describe("PublicRaceStatusPage (display grand écran)", () => {
     ).toBeInTheDocument();
   });
 
-  it("affiche la section Météo actuelle", async () => {
-    render(<PublicRaceStatusPage />);
-    await waitFor(() => {
-      expect(screen.getByText(/Météo actuelle/i)).toBeInTheDocument();
-    });
-  });
-
-  it("affiche les métriques météo (Ressenti, Vent, Humidité)", async () => {
-    render(<PublicRaceStatusPage />);
-    await waitFor(() => {
-      expect(screen.getAllByText(/Ressenti/i).length).toBeGreaterThan(0);
-      expect(screen.getAllByText(/Vent/i).length).toBeGreaterThan(0);
-      expect(screen.getAllByText(/Humidité/i).length).toBeGreaterThan(0);
-    });
-  });
-
   it("affiche la section des Derniers Arrivés", () => {
     render(<PublicRaceStatusPage />);
     expect(screen.getByText(/Derniers Arrivés/i)).toBeInTheDocument();

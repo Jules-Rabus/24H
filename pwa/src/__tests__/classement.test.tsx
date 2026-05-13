@@ -94,7 +94,7 @@ describe("ClassementPage", () => {
     const { server } = await import("../mocks/server");
     const { http, HttpResponse } = await import("msw");
     server.use(
-      http.get("*/users/public", () => {
+      http.get("*/public/users", () => {
         return HttpResponse.json([]);
       }),
     );

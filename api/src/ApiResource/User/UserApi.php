@@ -55,7 +55,7 @@ use Symfony\Component\ObjectMapper\Attribute\Map;
             ],
         ),
         new GetCollection(
-            uriTemplate: 'users/public',
+            uriTemplate: '/public/users',
             output: UserCollection::class,
             cacheHeaders: ['max_age' => 60, 'shared_max_age' => 60, 'public' => true],
             parameters: [
@@ -67,7 +67,7 @@ use Symfony\Component\ObjectMapper\Attribute\Map;
             ],
         ),
         new Get(
-            uriTemplate: 'users/public/{id}',
+            uriTemplate: '/public/users/{id}',
             output: UserCollection::class,
             cacheHeaders: ['max_age' => 60, 'shared_max_age' => 60, 'public' => true],
             parameters: [

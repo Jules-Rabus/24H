@@ -108,7 +108,7 @@ describe("useRaceStatus", () => {
     const { result } = renderHook(() => useRaceStatus(2026), {
       wrapper: createWrapper(),
     });
-    // Wait a brief moment and participations should load (they use participations/public which works)
+    // Wait a brief moment and participations should load (they use /public/participations which works)
     await waitFor(() => {
       return (
         result.current.participations !== undefined || result.current.isLoading

@@ -1,5 +1,3 @@
-// Weather is hit directly against api.open-meteo.com (external service), not
-// through our API — so MSW doesn't need to mock it.
 export { authHandlers } from "./auth";
 export { runnersHandlers } from "./runners";
 export { raceHandlers } from "./race";

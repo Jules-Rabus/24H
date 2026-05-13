@@ -79,7 +79,7 @@ async function renderPage() {
 describe("CoureurPage", () => {
   beforeEach(() => {
     server.use(
-      http.get("http://localhost/users/public/:id", () => {
+      http.get("http://localhost/public/users/:id", () => {
         return HttpResponse.json(mockRunner);
       }),
     );

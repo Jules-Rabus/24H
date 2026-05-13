@@ -41,7 +41,7 @@ export function usePublicRunsQuery(edition?: number) {
   return useQuery({
     queryKey: publicRaceKeys.runs(edition),
     queryFn: async () => {
-      const { data } = await apiClient.get("/runs/public", {
+      const { data } = await apiClient.get("/public/runs", {
         params: {
           "order[startDate]": "asc",
           ...(edition ? { edition: String(edition) } : undefined),
@@ -50,7 +50,7 @@ export function usePublicRunsQuery(edition?: number) {
       });
       return z.array(publicRunSchema).parse(unwrap(data));
     },
-    staleTime: 30 * 1000,
+    staleTime: 2 * 60 * 1000,
   });
 }
 
@@ -61,7 +61,7 @@ export function usePublicParticipationsQuery(
   return useQuery({
     queryKey: [...publicRaceKeys.participations(edition), status],
     queryFn: async () => {
-      const { data } = await apiClient.get("/participations/public", {
+      const { data } = await apiClient.get("/public/participations", {
         params: {
           "order[arrivalTime]": "desc",
           itemsPerPage: 1000,
@@ -77,7 +77,7 @@ export function usePublicParticipationsQuery(
         ? all.filter((p) => p.status === "FINISHED")
         : all;
     },
-    staleTime: 15 * 1000,
+    staleTime: 2 * 60 * 1000,
   });
 }
 
@@ -96,6 +96,11 @@ export function usePublicRaceMediasQuery() {
       });
       return z.array(raceMediaSchema).parse(unwrap(data));
     },
-    staleTime: 15 * 1000,
+    staleTime: 5 * 60 * 1000,
+    // Belt + braces: Mercure pushes new medias instantly, but if the SSE
+    // stream drops (proxy timeout, hub down) we still pick up new photos
+    // within 5 minutes.
+    refetchInterval: 5 * 60 * 1000,
+    refetchIntervalInBackground: false,
   });
 }

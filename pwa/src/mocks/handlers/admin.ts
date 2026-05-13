@@ -117,12 +117,15 @@ export const adminHandlers = [
   // Runs
   http.get("*/runs", ({ request }) => {
     const url = new URL(request.url);
-    // If this looks like a public/hydra request (no itemsPerPage or has @context), skip to let raceHandlers handle it
+    // MSW v2's `*` is greedy across path segments — opt out of public routes.
+    if (url.pathname.includes("/public/")) return;
     if (!url.searchParams.has("itemsPerPage")) return;
     return HttpResponse.json(mockAdminRuns);
   }),
 
-  http.get("*/runs/:id", ({ params }) => {
+  http.get("*/runs/:id", ({ params, request }) => {
+    const url = new URL(request.url);
+    if (url.pathname.includes("/public/")) return;
     const run = mockAdminRuns.find((r) => r.id === Number(params.id));
     if (!run)
       return HttpResponse.json({ detail: "Not found" }, { status: 404 });
@@ -154,12 +157,16 @@ export const adminHandlers = [
   // Users
   http.get("*/users", ({ request }) => {
     const url = new URL(request.url);
+    // MSW v2's `*` matches multiple path segments, so /public/users would
+    // otherwise fall into this admin handler. Bypass when the path is public.
+    if (url.pathname.includes("/public/")) return;
     if (!url.searchParams.has("itemsPerPage")) return;
     return HttpResponse.json(mockAdminUsers);
   }),
 
-  http.get("*/users/:id", ({ params }) => {
-    // Skip public endpoint
+  http.get("*/users/:id", ({ params, request }) => {
+    const url = new URL(request.url);
+    if (url.pathname.includes("/public/")) return;
     if (params.id === "public") return;
     const user = mockAdminUsers.find((u) => u.id === Number(params.id));
     if (!user)
@@ -202,6 +209,7 @@ export const adminHandlers = [
   // Participations
   http.get("*/participations", ({ request }) => {
     const url = new URL(request.url);
+    if (url.pathname.includes("/public/")) return;
     if (!url.searchParams.has("itemsPerPage")) return;
     const userId = url.searchParams.get("user.id");
     const runId = url.searchParams.get("run.id");

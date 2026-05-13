@@ -10,7 +10,7 @@ use App\Tests\Functional\Api\AbstractTestCase;
 
 final class UserPublicTest extends AbstractTestCase
 {
-    private const string ROUTE = '/users/public';
+    private const string ROUTE = '/public/users';
 
     public function testGetPublicCollection(): void
     {

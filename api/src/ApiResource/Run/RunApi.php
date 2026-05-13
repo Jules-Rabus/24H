@@ -30,7 +30,7 @@ use Symfony\Component\ObjectMapper\Attribute\Map;
             security: 'is_granted("ROLE_ADMIN")',
         ),
         new GetCollection(
-            uriTemplate: '/runs/public',
+            uriTemplate: '/public/runs',
             output: RunCollection::class,
             cacheHeaders: ['max_age' => 30, 'shared_max_age' => 30, 'public' => true],
             parameters: [

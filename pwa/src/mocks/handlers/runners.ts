@@ -63,7 +63,7 @@ const mockRunners = [
 ];
 
 export const runnersHandlers = [
-  http.get("*/users/public", ({ request }) => {
+  http.get("*/public/users", ({ request }) => {
     const url = new URL(request.url);
     const edition = url.searchParams.get("edition");
     if (!edition) {
@@ -84,7 +84,7 @@ export const runnersHandlers = [
     return HttpResponse.json(runners);
   }),
 
-  http.get("*/users/public/:id", ({ params }) => {
+  http.get("*/public/users/:id", ({ params }) => {
     const runner = mockRunners.find((r) => r.id === Number(params.id));
     if (!runner) return HttpResponse.json({}, { status: 404 });
     return HttpResponse.json(runner);

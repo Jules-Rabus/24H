@@ -1,63 +1,93 @@
 import { http, HttpResponse } from "msw";
 import { buildRun } from "../factories";
 
+// 2026 — 4 first runs are finished with plausible averageTime / counters,
+// run 5 has nobody finished yet (the StatsPanel uses these per-run aggregates
+// directly without re-scanning participations).
 const mockRuns2026 = [
   buildRun({
     id: 1,
     startDate: "2026-03-15T08:00:00+00:00",
     endDate: "2026-03-15T08:30:00+00:00",
     participantsCount: 30,
+    finishedParticipantsCount: 28,
+    averageTime: 1500,
+    fastestTime: 1380,
   }),
   buildRun({
     id: 2,
     startDate: "2026-03-15T09:00:00+00:00",
     endDate: "2026-03-15T09:30:00+00:00",
     participantsCount: 30,
+    finishedParticipantsCount: 27,
+    averageTime: 1440,
+    fastestTime: 1350,
   }),
   buildRun({
     id: 3,
     startDate: "2026-03-15T10:00:00+00:00",
     endDate: "2026-03-15T10:30:00+00:00",
     participantsCount: 30,
+    finishedParticipantsCount: 26,
+    averageTime: 1410,
+    fastestTime: 1320,
   }),
   buildRun({
     id: 4,
     startDate: "2026-03-15T11:00:00+00:00",
     endDate: "2026-03-15T11:30:00+00:00",
     participantsCount: 30,
+    finishedParticipantsCount: 25,
+    averageTime: 1380,
+    fastestTime: 1290,
   }),
   buildRun({
     id: 5,
     startDate: "2026-03-15T12:00:00+00:00",
     endDate: "2026-03-15T12:30:00+00:00",
     participantsCount: 30,
+    inProgressParticipantsCount: 30,
   }),
 ];
 
+// 2025 — historical reference, slightly slower averages than 2026 so the
+// `PaceLineChart` shows a visible delta between the two series.
 const mockRuns2025 = [
   buildRun({
     id: 101,
     startDate: "2025-03-15T08:00:00+00:00",
     endDate: "2025-03-15T08:30:00+00:00",
     participantsCount: 24,
+    finishedParticipantsCount: 22,
+    averageTime: 1590,
+    fastestTime: 1500,
   }),
   buildRun({
     id: 102,
     startDate: "2025-03-15T09:00:00+00:00",
     endDate: "2025-03-15T09:30:00+00:00",
     participantsCount: 24,
+    finishedParticipantsCount: 22,
+    averageTime: 1530,
+    fastestTime: 1440,
   }),
   buildRun({
     id: 103,
     startDate: "2025-03-15T10:00:00+00:00",
     endDate: "2025-03-15T10:30:00+00:00",
     participantsCount: 24,
+    finishedParticipantsCount: 21,
+    averageTime: 1485,
+    fastestTime: 1410,
   }),
   buildRun({
     id: 104,
     startDate: "2025-03-15T11:00:00+00:00",
     endDate: "2025-03-15T11:30:00+00:00",
     participantsCount: 24,
+    finishedParticipantsCount: 20,
+    averageTime: 1470,
+    fastestTime: 1380,
   }),
 ];
 
@@ -356,7 +386,7 @@ function filterParticipationsByEdition(edition: string | null) {
 export const raceHandlers = [
   // Public routes first — MSW v2 is path-based but listing them first
   // guarantees they win any potential pattern collision.
-  http.get("*/runs/public", ({ request }) => {
+  http.get("*/public/runs", ({ request }) => {
     const url = new URL(request.url);
     const edition = url.searchParams.get("edition");
     const runs = filterRunsByEdition(edition).map((r) => {
@@ -372,14 +402,14 @@ export const raceHandlers = [
     });
     return HttpResponse.json({
       "@context": "/contexts/Run",
-      "@id": "/runs/public",
+      "@id": "/public/runs",
       "@type": "hydra:Collection",
       member: runs,
       "hydra:totalItems": runs.length,
     });
   }),
 
-  http.get("*/participations/public", ({ request }) => {
+  http.get("*/public/participations", ({ request }) => {
     const url = new URL(request.url);
     const edition = url.searchParams.get("edition");
     const status = url.searchParams.get("status");
@@ -387,7 +417,7 @@ export const raceHandlers = [
     if (status) list = list.filter((p) => p.status === status);
     return HttpResponse.json({
       "@context": "/contexts/Participation",
-      "@id": "/participations/public",
+      "@id": "/public/participations",
       "@type": "hydra:Collection",
       member: list,
       "hydra:totalItems": list.length,

@@ -7,12 +7,12 @@ use App\Factory\RunFactory;
 use App\Tests\Functional\Api\AbstractTestCase;
 
 /**
- * Covers GET /runs/public — anonymous, edition-filterable read-only endpoint
+ * Covers GET /public/runs — anonymous, edition-filterable read-only endpoint
  * used by the public race-status pages (/course, /public-race-status).
  */
 final class RunPublicGetTest extends AbstractTestCase
 {
-    private const string ROUTE = '/runs/public';
+    private const string ROUTE = '/public/runs';
 
     public function testGetCollectionIsAnonymous(): void
     {

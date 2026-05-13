@@ -51,7 +51,7 @@ describe("publicRaceKeys", () => {
 });
 
 describe("usePublicRunsQuery", () => {
-  // Note: usePublicRunsQuery calls apiClient.get("/runs/public", ...) which MSW intercepts
+  // Note: usePublicRunsQuery calls apiClient.get("/public/runs", ...) which MSW intercepts
   // via the raceHandlers. The queryKey + staleTime are validated via publicRaceKeys.
 
   it("produit une queryKey incluant l'édition", () => {

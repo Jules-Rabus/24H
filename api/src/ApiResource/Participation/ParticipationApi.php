@@ -37,7 +37,7 @@ use Symfony\Component\ObjectMapper\Attribute\Map;
             security: 'is_granted("ROLE_ADMIN") or is_granted("PARTICIPATION_VIEW", object)',
         ),
         new GetCollection(
-            uriTemplate: '/participations/public',
+            uriTemplate: '/public/participations',
             output: ParticipationCollection::class,
             cacheHeaders: ['max_age' => 15, 'shared_max_age' => 15, 'public' => true],
             parameters: [

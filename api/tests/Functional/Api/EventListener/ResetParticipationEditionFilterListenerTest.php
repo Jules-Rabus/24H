@@ -28,7 +28,7 @@ final class ResetParticipationEditionFilterListenerTest extends AbstractTestCase
         );
 
         // Make an edition-filtered request
-        static::createClient()->request('GET', '/users/public?edition=2026', [
+        static::createClient()->request('GET', '/public/users?edition=2026', [
             'headers' => ['Accept' => 'application/json'],
         ]);
         $this->assertResponseIsSuccessful();
@@ -48,7 +48,7 @@ final class ResetParticipationEditionFilterListenerTest extends AbstractTestCase
         // A regular non-edition-filtered request must NOT activate the filter
         $em = static::getContainer()->get(EntityManagerInterface::class);
 
-        static::createClient()->request('GET', '/runs/public', [
+        static::createClient()->request('GET', '/public/runs', [
             'headers' => ['Accept' => 'application/json'],
         ]);
         $this->assertResponseIsSuccessful();

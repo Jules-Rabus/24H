@@ -23,7 +23,7 @@ describe("make401Interceptor", () => {
     const handler = make401Interceptor(BASE_URL);
 
     await expect(
-      handler(makeError(401, "/users/public")),
+      handler(makeError(401, "/public/users")),
     ).rejects.toBeDefined();
 
     expect(fetch).toHaveBeenCalledWith(
@@ -58,7 +58,7 @@ describe("make401Interceptor", () => {
     const handler = make401Interceptor(BASE_URL);
 
     await expect(
-      handler(makeError(403, "/users/public")),
+      handler(makeError(403, "/public/users")),
     ).rejects.toBeDefined();
 
     expect(fetch).not.toHaveBeenCalled();
@@ -70,7 +70,7 @@ describe("make401Interceptor", () => {
     const handler = make401Interceptor(BASE_URL);
 
     await Promise.allSettled([
-      handler(makeError(401, "/users/public")),
+      handler(makeError(401, "/public/users")),
       handler(makeError(401, "/participations")),
       handler(makeError(401, "/runs")),
     ]);
@@ -85,7 +85,7 @@ describe("make401Interceptor", () => {
     const handler = make401Interceptor(BASE_URL);
 
     await expect(
-      handler(makeError(401, "/users/public")),
+      handler(makeError(401, "/public/users")),
     ).rejects.toBeDefined();
 
     expect(fetch).not.toHaveBeenCalled();

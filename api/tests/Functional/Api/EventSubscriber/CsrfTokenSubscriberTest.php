@@ -93,8 +93,8 @@ final class CsrfTokenSubscriberTest extends AbstractTestCase
 
     public function testNonProtectedRouteDoesNotRequireCsrf(): void
     {
-        // GET /runs/public is not in PROTECTED_ROUTES — no CSRF needed
-        static::createClient()->request('GET', '/runs/public', [
+        // GET /public/runs is not in PROTECTED_ROUTES — no CSRF needed
+        static::createClient()->request('GET', '/public/runs', [
             'headers' => ['Accept' => 'application/json'],
         ]);
 

@@ -8,13 +8,13 @@ use App\Factory\RunFactory;
 use App\Tests\Functional\Api\AbstractTestCase;
 
 /**
- * Covers GET /participations/public — anonymous read-only endpoint scoped by
+ * Covers GET /public/participations — anonymous read-only endpoint scoped by
  * `run.edition` via EditionParameterProvider. Used by the public race-status
  * pages to render the leaderboard / chart without admin auth.
  */
 final class ParticipationPublicGetTest extends AbstractTestCase
 {
-    private const string ROUTE = '/participations/public';
+    private const string ROUTE = '/public/participations';
 
     public function testGetCollectionIsAnonymous(): void
     {
