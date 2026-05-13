@@ -1,10 +1,21 @@
 import Providers from "./providers";
 import React from "react";
-import type { Viewport } from "next";
+import type { Metadata, Viewport } from "next";
 
-export const metadata = {
-  title: "Race Tracker",
-  description: "Suivi de course en temps réel et back-office",
+export const metadata: Metadata = {
+  title: {
+    default: "Défi des 24h — UniLaSalle Beauvais",
+    template: "%s · Défi des 24h",
+  },
+  description: "Défi des 24h à UniLaSalle Beauvais, organisé par l'ASPO.",
+  applicationName: "Défi des 24h",
+  authors: [{ name: "ASPO — Association Sportive des Policiers de l'Oise" }],
+  openGraph: {
+    type: "website",
+    siteName: "Défi des 24h",
+    locale: "fr_FR",
+  },
+  twitter: { card: "summary_large_image" },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default" as const,
