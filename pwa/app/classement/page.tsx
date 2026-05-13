@@ -88,6 +88,21 @@ function ClassementContent() {
     ) ?? 0;
   const prevTotalKm = prevTotalRuns * 4;
 
+  // Map(userId → km) for the previous edition — same shape as the one built by
+  // useRaceStatus (see src/hooks/useRaceStatus.ts). A user with an entry here
+  // is a "returning runner" and earns the previous-edition badge.
+  const prevEditionKm = useMemo(() => {
+    const m = new Map<number, number>();
+    if (prevRunners) {
+      for (const r of prevRunners) {
+        if (r.id != null) {
+          m.set(r.id, (r.finishedParticipationsCount ?? 0) * 4);
+        }
+      }
+    }
+    return m;
+  }, [prevRunners]);
+
   const favCount = ranked.filter((r) => r.id && isFavorite(r.id)).length;
 
   const qs = searchParams.toString();
@@ -221,6 +236,7 @@ function ClassementContent() {
                       key={r.id}
                       runner={r}
                       edition={edition}
+                      prevEditionKm={prevEditionKm}
                       isFav={!!r.id && isFavorite(r.id)}
                       onToggleFav={() => r.id && toggle(r.id)}
                     />
@@ -246,11 +262,13 @@ export default function ClassementPage() {
 function RunnerRow({
   runner,
   edition,
+  prevEditionKm,
   isFav,
   onToggleFav,
 }: {
   runner: RankedRunner;
   edition: number;
+  prevEditionKm: Map<number, number>;
   isFav: boolean;
   onToggleFav: () => void;
 }) {
@@ -261,6 +279,9 @@ function RunnerRow({
   const initials =
     (runner.firstName?.charAt(0) ?? "") + (runner.lastName?.charAt(0) ?? "");
   const medal = runner.rank <= 3 ? RANK_MEDALS[runner.rank - 1] : undefined;
+  const prevEdition = edition - 1;
+  const didPrevEdition =
+    runner.id != null && (prevEditionKm.get(runner.id) ?? 0) > 0;
 
   return (
     <Link
@@ -303,12 +324,32 @@ function RunnerRow({
             {name}
           </Text>
           <HStack gap="1" fontSize="xs" color="fg.muted" overflow="hidden">
-            <Text fontFamily="mono" flexShrink={0}>
-              #{runner.id}
-            </Text>
+            {runner.surname ? (
+              <Text
+                truncate
+                overflow="hidden"
+                minW="0"
+                fontStyle="italic"
+                flexShrink={1}
+              >
+                « {runner.surname} »
+              </Text>
+            ) : null}
+            {didPrevEdition && (
+              <Badge
+                colorPalette="orange"
+                size="xs"
+                variant="subtle"
+                flexShrink={0}
+                title={`A participé à l'édition ${prevEdition}`}
+              >
+                {prevEdition}
+              </Badge>
+            )}
             {runner.organization && (
               <Text truncate overflow="hidden" minW="0">
-                · {runner.organization}
+                {runner.surname || didPrevEdition ? "· " : ""}
+                {runner.organization}
               </Text>
             )}
           </HStack>

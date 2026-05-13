@@ -66,14 +66,21 @@ export const runnersHandlers = [
   http.get("*/users/public", ({ request }) => {
     const url = new URL(request.url);
     const edition = url.searchParams.get("edition");
-    const runners = edition
-      ? mockRunners.map((r) => ({
-          ...r,
-          participations: (r.participations ?? []).filter(
-            (p) => p.runEdition === Number(edition),
-          ),
-        }))
-      : mockRunners;
+    if (!edition) {
+      return HttpResponse.json(mockRunners);
+    }
+    const editionNum = Number(edition);
+    // Mimic the API: only return runners with at least one participation in
+    // the requested edition. finishedParticipationsCount is left untouched —
+    // in prod the backend already scopes it per edition.
+    const runners = mockRunners
+      .map((r) => ({
+        ...r,
+        participations: (r.participations ?? []).filter(
+          (p) => p.runEdition === editionNum,
+        ),
+      }))
+      .filter((r) => (r.participations?.length ?? 0) > 0);
     return HttpResponse.json(runners);
   }),
 
