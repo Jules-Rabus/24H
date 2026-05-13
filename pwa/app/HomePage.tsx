@@ -21,9 +21,8 @@ export function HomePage() {
         <VStack gap="2">
           <HStack gap="4" align="center" justify="center">
             <Box
-              bg="white"
               rounded="2xl"
-              p="1.5"
+              overflow="hidden"
               boxShadow="md"
               display="flex"
               alignItems="center"
@@ -32,15 +31,15 @@ export function HomePage() {
               <Image
                 src="/logo.png"
                 alt="Défi des 24h"
-                width={96}
-                height={96}
+                width={112}
+                height={112}
                 priority
+                style={{ display: "block" }}
               />
             </Box>
             <Box
-              bg="white"
               rounded="2xl"
-              p="2"
+              overflow="hidden"
               boxShadow="md"
               display="flex"
               alignItems="center"
@@ -49,9 +48,10 @@ export function HomePage() {
               <Image
                 src="/ASPO.jpeg"
                 alt="ASPO — Association Sportive des Policiers de l'Oise"
-                width={96}
-                height={96}
+                width={112}
+                height={112}
                 priority
+                style={{ display: "block" }}
               />
             </Box>
           </HStack>
