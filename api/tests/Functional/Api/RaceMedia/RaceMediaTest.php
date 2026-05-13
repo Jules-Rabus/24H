@@ -71,29 +71,14 @@ final class RaceMediaTest extends AbstractTestCase
         $this->assertMatchesResourceItemJsonSchema(RaceMediaApi::class);
     }
 
-    public function testGetRaceMediaCollectionRequiresCsrf(): void
+    public function testGetRaceMediaCollectionIsAnonymous(): void
     {
+        // Public read-only endpoint — required so the /course and /gallery
+        // pages can fetch the media list without first calling /csrf-token.
         RaceMediaFactory::createMany(3);
 
-        $this->createClientWithCredentials()->request('GET', self::ROUTE, [
+        $response = static::createClient()->request('GET', self::ROUTE, [
             'headers' => ['Accept' => 'application/json'],
-        ]);
-
-        $this->assertResponseStatusCodeSame(403);
-    }
-
-    public function testGetRaceMediaCollectionWithCsrf(): void
-    {
-        RaceMediaFactory::createMany(3);
-
-        $client = $this->createClientWithCredentials();
-        $csrfToken = $this->withCsrfToken($client);
-
-        $response = $client->request('GET', self::ROUTE, [
-            'headers' => [
-                'Accept' => 'application/json',
-                'X-XSRF-TOKEN' => $csrfToken,
-            ],
         ]);
 
         $this->assertResponseIsSuccessful();
