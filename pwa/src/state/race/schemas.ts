@@ -15,6 +15,10 @@ export const runSchema = z.object({
   startDate: z.string(),
   endDate: z.string(),
   participantsCount: z.number(),
+  finishedParticipantsCount: z.number().nullish(),
+  inProgressParticipantsCount: z.number().nullish(),
+  averageTime: z.number().nullish(),
+  fastestTime: z.number().nullish(),
 });
 
 // ---------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { screen, waitFor } from "@testing-library/react";
 import { render } from "../test-utils/render";
-import PublicRaceStatusPage from "../../app/public-race-status/page";
+import { PublicRaceStatusPage } from "../../app/public-race-status/PublicRaceStatusPage";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),

@@ -3,7 +3,7 @@ import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { render } from "../test-utils/render";
 import { resetMediaHandlerState } from "../mocks/handlers/media";
-import GalleryPage from "../../app/gallery/page";
+import { GalleryPage } from "../../app/gallery/GalleryPage";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),

@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { render } from "../test-utils/render";
-import ClassementPage from "../../app/classement/page";
+import { ClassementPage } from "../../app/classement/ClassementPage";
 
 const mockReplace = vi.fn();
 

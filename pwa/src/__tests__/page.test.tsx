@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { render } from "../test-utils/render";
-import HomePage from "../../app/page";
+import { HomePage } from "../../app/HomePage";
 
 const mockPush = vi.fn();
 vi.mock("next/navigation", () => ({

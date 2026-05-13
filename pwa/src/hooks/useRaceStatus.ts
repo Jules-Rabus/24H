@@ -25,6 +25,7 @@ export function useRaceStatus(edition: number) {
   const prevEdition = edition - 1;
 
   const { data: runs, isLoading: isRunsLoading } = usePublicRunsQuery(edition);
+  const { data: prevRuns } = usePublicRunsQuery(prevEdition);
   const { data: participations, isLoading: isParticipationsLoading } =
     usePublicParticipationsQuery(edition);
   const { data: prevParticipations } =
@@ -56,15 +57,19 @@ export function useRaceStatus(edition: number) {
   const nextM = Math.floor((nextDiffMs % 3600000) / 60000);
   const nextS = Math.floor((nextDiffMs % 60000) / 1000);
 
-  const currentRunParticipations = currentRun
-    ? (participations?.filter((p) => p.run?.id === currentRun.id) ?? [])
-    : [];
-  const finishedCount = currentRunParticipations.length;
+  // Counters served by the API on each run — no need to re-aggregate
+  // participations client-side.
+  const finishedCount = currentRun?.finishedParticipantsCount ?? 0;
   const totalCount = currentRun?.participantsCount ?? 0;
   const progressPct =
     totalCount > 0 ? Math.round((finishedCount / totalCount) * 100) : 0;
 
-  const allFinishedCount = participations?.length ?? 0;
+  // Total finishers across all runs of this edition — sum the per-run counter
+  // already provided by the API instead of scanning the full participation list.
+  const allFinishedCount = (runs ?? []).reduce(
+    (s, r) => s + (r.finishedParticipantsCount ?? 0),
+    0,
+  );
   const totalAllKm = allFinishedCount * 4;
   const activeRacers = new Set(
     participations?.map((p) => p.user?.id).filter(Boolean),
@@ -109,73 +114,33 @@ export function useRaceStatus(edition: number) {
     return m;
   }, [participations]);
 
+  // Previous-edition runs, sorted chronologically, indexed alongside the
+  // current edition. R5 (current) is compared against the 5th run (chrono) of
+  // the previous edition — not the one with the same DB id.
+  const prevRunsSorted = useMemo(() => {
+    if (!prevRuns) return [];
+    return [...prevRuns].sort(
+      (a, b) =>
+        new Date(a.startDate).getTime() - new Date(b.startDate).getTime(),
+    );
+  }, [prevRuns]);
+
   /**
-   * Pace chart : two series superposed on the same R1..Rn axis. The current
-   * edition is keyed by `run.id` ; the previous one is keyed by chronological
-   * index (sort by `run.startDate`, not by id, since ids don't necessarily
-   * reflect chronological order).
+   * Pace chart : two series superposed on the same R1..Rn axis. `averageTime`
+   * is precomputed by the API per run (total seconds), we just convert to
+   * sec/km using the 4 km lap length.
    */
   const chartData: PaceChartPoint[] = useMemo(() => {
-    const buildAveragesByRunId = (list: Participation[] | undefined) => {
-      if (!list) return new Map<number, number>();
-      const buckets = new Map<number, number[]>();
-      for (const p of list) {
-        const rid = p.run?.id;
-        if (!rid || p.totalTime == null) continue;
-        if (!buckets.has(rid)) buckets.set(rid, []);
-        buckets.get(rid)!.push(p.totalTime);
-      }
-      const avg = new Map<number, number>();
-      for (const [rid, times] of buckets) {
-        const meanSec = times.reduce((s, t) => s + t, 0) / times.length;
-        avg.set(rid, Math.round(meanSec / 4));
-      }
-      return avg;
-    };
-
-    const curAvg = buildAveragesByRunId(participations);
-
-    // Previous edition : map(runId → run index) via chronological startDate.
-    const prevByIndex = new Map<number, number>();
-    if (prevParticipations) {
-      const firstStartByRunId = new Map<number, number>();
-      for (const p of prevParticipations) {
-        const rid = p.run?.id;
-        const start = p.run?.startDate
-          ? new Date(p.run.startDate).getTime()
-          : null;
-        if (!rid || start == null) continue;
-        const prev = firstStartByRunId.get(rid);
-        if (prev === undefined || start < prev) {
-          firstStartByRunId.set(rid, start);
-        }
-      }
-      const sortedIds = [...firstStartByRunId.entries()]
-        .sort((a, b) => a[1] - b[1])
-        .map(([id]) => id);
-      const idxOf = new Map<number, number>();
-      sortedIds.forEach((id, i) => idxOf.set(id, i + 1));
-      const buckets = new Map<number, number[]>();
-      for (const p of prevParticipations) {
-        if (!p.run?.id || p.totalTime == null) continue;
-        const idx = idxOf.get(p.run.id);
-        if (!idx) continue;
-        if (!buckets.has(idx)) buckets.set(idx, []);
-        buckets.get(idx)!.push(p.totalTime);
-      }
-      for (const [idx, times] of buckets) {
-        const meanSec = times.reduce((s, t) => s + t, 0) / times.length;
-        prevByIndex.set(idx, Math.round(meanSec / 4));
-      }
-    }
+    const toSecPerKm = (totalSec: number | null | undefined): number | null =>
+      totalSec != null && totalSec > 0 ? Math.round(totalSec / 4) : null;
 
     return (runs ?? []).map((r, i) => ({
       name: `R${i + 1}`,
-      secPerKm2026: curAvg.get(r.id) ?? null,
-      secPerKm2025: prevByIndex.get(i + 1) ?? null,
+      secPerKm2026: toSecPerKm(r.averageTime),
+      secPerKm2025: toSecPerKm(prevRunsSorted[i]?.averageTime),
       isCurrent: r.id === currentRun?.id,
     }));
-  }, [runs, participations, prevParticipations, currentRun?.id]);
+  }, [runs, prevRunsSorted, currentRun?.id]);
 
   return {
     // queries state

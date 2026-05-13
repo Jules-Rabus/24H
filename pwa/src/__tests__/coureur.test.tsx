@@ -4,7 +4,7 @@ import { act, screen, waitFor } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import { render } from "../test-utils/render";
 import { server } from "../mocks/server";
-import CoureurPage from "../../app/coureurs/[id]/page";
+import { CoureurPage } from "../../app/coureurs/[id]/CoureurPage";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }),
