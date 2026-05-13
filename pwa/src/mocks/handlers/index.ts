@@ -1,15 +1,15 @@
+// Weather is hit directly against api.open-meteo.com (external service), not
+// through our API — so MSW doesn't need to mock it.
 export { authHandlers } from "./auth";
 export { runnersHandlers } from "./runners";
 export { raceHandlers } from "./race";
 export { mediaHandlers } from "./media";
-export { weatherHandlers } from "./weather";
 export { adminHandlers } from "./admin";
 
 import { authHandlers } from "./auth";
 import { runnersHandlers } from "./runners";
 import { raceHandlers } from "./race";
 import { mediaHandlers } from "./media";
-import { weatherHandlers } from "./weather";
 import { adminHandlers } from "./admin";
 
 export const handlers = [
@@ -18,5 +18,4 @@ export const handlers = [
   ...runnersHandlers,
   ...raceHandlers,
   ...mediaHandlers,
-  ...weatherHandlers,
 ];

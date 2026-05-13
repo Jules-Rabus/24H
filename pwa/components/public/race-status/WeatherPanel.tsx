@@ -11,7 +11,9 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import {
+  LuCloudRain,
   LuDroplets,
+  LuSun,
   LuSunrise,
   LuSunset,
   LuThermometer,
@@ -19,6 +21,7 @@ import {
 } from "react-icons/lu";
 import type { WeatherResponse } from "@/state/weather/queries";
 import { getWeatherIcon } from "./utils";
+import { RainNext60 } from "./RainNext60";
 
 type WeatherPanelProps = {
   isLoading: boolean;
@@ -42,6 +45,7 @@ export function WeatherPanel({
   const sunset = weatherData?.daily?.sunset?.[0];
   const WeatherIcon = getWeatherIcon(current?.weather_code ?? 0);
 
+  // Drop past hours AND slots padded with null past the model horizon.
   const hourlyForecast =
     weatherData?.hourly.time
       .map((t, i) => ({
@@ -51,8 +55,10 @@ export function WeatherPanel({
         apparent: weatherData.hourly.apparent_temperature?.[i],
         wind: weatherData.hourly.windspeed_10m?.[i],
         humidity: weatherData.hourly.relative_humidity_2m?.[i],
+        rain: weatherData.hourly.rain?.[i],
+        uv: weatherData.hourly.uv_index?.[i],
       }))
-      .filter((h) => new Date(h.time).getTime() > now)
+      .filter((h) => new Date(h.time).getTime() > now && h.temp != null)
       .slice(0, 5) ?? [];
 
   return (
@@ -141,6 +147,20 @@ export function WeatherPanel({
                 }
               />
               <CurrentMetric
+                icon={LuCloudRain}
+                label="Pluie"
+                value={
+                  current?.rain != null ? `${current.rain.toFixed(1)} mm` : "—"
+                }
+              />
+              <CurrentMetric
+                icon={LuSun}
+                label="UV"
+                value={
+                  current?.uv_index != null ? current.uv_index.toFixed(1) : "—"
+                }
+              />
+              <CurrentMetric
                 icon={LuSunrise}
                 label="Lever"
                 iconColor="orange.500"
@@ -171,6 +191,8 @@ export function WeatherPanel({
         )}
       </Grid>
 
+      <RainNext60 weatherData={weatherData} now={now} />
+
       {/* Hourly forecast strip — each slot carries all metrics (temp, apparent, wind, humidity) */}
       {isLoading ? (
         <Grid templateColumns="repeat(5, 1fr)" gap="2" flex="1">
@@ -181,7 +203,10 @@ export function WeatherPanel({
       ) : hourlyForecast.length > 0 ? (
         <Grid templateColumns="repeat(5, minmax(0, 1fr))" gap="2" flex="1">
           {hourlyForecast.map((h, i) => {
-            const HIcon = getWeatherIcon(h.code);
+            // `temp` is guaranteed non-null by the filter above; re-narrow
+            // for TypeScript with an explicit local const.
+            const temp = h.temp as number;
+            const HIcon = getWeatherIcon(h.code ?? 0);
             const isNow = i === 0;
             return (
               <Flex
@@ -224,7 +249,7 @@ export function WeatherPanel({
                   lineHeight="1"
                   fontVariantNumeric="tabular-nums"
                 >
-                  {Math.round(h.temp)}°
+                  {Math.round(temp)}°
                 </Text>
                 <VStack align="stretch" gap="0.5">
                   {h.apparent != null && (
@@ -246,6 +271,20 @@ export function WeatherPanel({
                       icon={LuDroplets}
                       label="Humidité"
                       value={`${Math.round(h.humidity)}%`}
+                    />
+                  )}
+                  {h.rain != null && (
+                    <HourMetric
+                      icon={LuCloudRain}
+                      label="Pluie"
+                      value={`${h.rain.toFixed(1)} mm`}
+                    />
+                  )}
+                  {h.uv != null && (
+                    <HourMetric
+                      icon={LuSun}
+                      label="UV"
+                      value={h.uv.toFixed(1)}
                     />
                   )}
                 </VStack>

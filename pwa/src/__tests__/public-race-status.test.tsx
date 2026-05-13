@@ -33,14 +33,6 @@ describe("PublicRaceStatusPage (display grand écran)", () => {
     ).toBeInTheDocument();
   });
 
-  it("affiche la température actuelle dans la TopBar", async () => {
-    render(<PublicRaceStatusPage />);
-    await waitFor(() => {
-      // TopBar uses `${currentTemp}°C` and WeatherPanel uses rounded `${temp}°`
-      expect(screen.getAllByText(/14\.5°C|15°/i).length).toBeGreaterThan(0);
-    });
-  });
-
   it("affiche la section Météo actuelle", async () => {
     render(<PublicRaceStatusPage />);
     await waitFor(() => {

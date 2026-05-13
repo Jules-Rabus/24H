@@ -15,7 +15,9 @@ import {
 import {
   LuChevronLeft,
   LuChevronRight,
+  LuCloudRain,
   LuDroplets,
+  LuSun,
   LuSunrise,
   LuSunset,
   LuThermometer,
@@ -24,6 +26,7 @@ import {
 import useEmblaCarousel from "embla-carousel-react";
 import type { WeatherResponse } from "@/state/weather/queries";
 import { getWeatherIcon } from "./utils";
+import { RainNext60 } from "./RainNext60";
 
 type WeatherCarouselMobileProps = {
   isLoading: boolean;
@@ -49,7 +52,8 @@ export function WeatherCarouselMobile({
   const WeatherIcon = getWeatherIcon(current?.weather_code ?? 0);
 
   // Forecast starts at the next full hour after `now` — past hours are dropped
-  // so the carousel mirrors the desktop `WeatherPanel` behaviour.
+  // so the carousel mirrors the desktop `WeatherPanel` behaviour. Slots past
+  // the model horizon come back as null and are filtered out too.
   const hourly =
     weatherData?.hourly.time
       .map((t, i) => ({
@@ -59,8 +63,10 @@ export function WeatherCarouselMobile({
         apparent: weatherData.hourly.apparent_temperature?.[i],
         wind: weatherData.hourly.windspeed_10m?.[i],
         humidity: weatherData.hourly.relative_humidity_2m?.[i],
+        rain: weatherData.hourly.rain?.[i],
+        uv: weatherData.hourly.uv_index?.[i],
       }))
-      .filter((h) => new Date(h.time).getTime() > now) ?? [];
+      .filter((h) => new Date(h.time).getTime() > now && h.temp != null) ?? [];
 
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: false,
@@ -164,6 +170,20 @@ export function WeatherCarouselMobile({
               value={`${Math.round(current.windspeed_10m)} km/h`}
             />
           )}
+          {current?.rain != null && (
+            <CurrentMetric
+              icon={LuCloudRain}
+              label="Pluie"
+              value={`${current.rain.toFixed(1)} mm`}
+            />
+          )}
+          {current?.uv_index != null && (
+            <CurrentMetric
+              icon={LuSun}
+              label="UV"
+              value={current.uv_index.toFixed(1)}
+            />
+          )}
           {current?.relative_humidity_2m != null && (
             <CurrentMetric
               icon={LuDroplets}
@@ -226,6 +246,10 @@ export function WeatherCarouselMobile({
             </Box>
           )}
         </Grid>
+
+        <Box mt="3">
+          <RainNext60 weatherData={weatherData} now={now} />
+        </Box>
       </Box>
 
       {/* Carousel des prévisions horaires — intégré dans la même card */}
@@ -280,7 +304,10 @@ export function WeatherCarouselMobile({
           >
             <Flex gap="2">
               {hourly.map((h, i) => {
-                const HIcon = getWeatherIcon(h.code);
+                // `temp` is guaranteed non-null by the filter above; the
+                // intermediate `temp` const re-narrows it for TypeScript.
+                const temp = h.temp as number;
+                const HIcon = getWeatherIcon(h.code ?? 0);
                 const t = new Date(h.time);
                 const isNext = i === 0;
                 return (
@@ -324,7 +351,7 @@ export function WeatherCarouselMobile({
                       lineHeight="1"
                       fontVariantNumeric="tabular-nums"
                     >
-                      {Math.round(h.temp)}°
+                      {Math.round(temp)}°
                     </Text>
                     <VStack align="stretch" gap="0.5">
                       {h.apparent != null && (
@@ -344,6 +371,15 @@ export function WeatherCarouselMobile({
                           icon={LuDroplets}
                           value={`${Math.round(h.humidity)}%`}
                         />
+                      )}
+                      {h.rain != null && (
+                        <HourMetric
+                          icon={LuCloudRain}
+                          value={`${h.rain.toFixed(1)} mm`}
+                        />
+                      )}
+                      {h.uv != null && (
+                        <HourMetric icon={LuSun} value={h.uv.toFixed(1)} />
                       )}
                     </VStack>
                   </Flex>

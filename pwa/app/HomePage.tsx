@@ -17,13 +17,13 @@ export function HomePage() {
   return (
     <Box minH="100svh" bg="bg.subtle" display="flex" flexDirection="column">
       {/* Header */}
-      <Box bg="#0f929a" py="10" px="4" textAlign="center">
-        <VStack gap="3" mb="1">
+      <Box bg="#0f929a" py="5" px="4" textAlign="center">
+        <VStack gap="2">
           <HStack gap="4" align="center" justify="center">
             <Box
               bg="white"
               rounded="2xl"
-              p="2"
+              p="1.5"
               boxShadow="md"
               display="flex"
               alignItems="center"
@@ -57,7 +57,7 @@ export function HomePage() {
           </HStack>
           <Text
             fontWeight="extrabold"
-            fontSize="3xl"
+            fontSize="2xl"
             color="white"
             letterSpacing="widest"
             textTransform="uppercase"
@@ -75,8 +75,8 @@ export function HomePage() {
         flex="1"
         justify="center"
         px="6"
-        gap="4"
-        py="10"
+        gap="3"
+        py="6"
         maxW="sm"
         mx="auto"
         w="full"
