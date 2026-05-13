@@ -38,7 +38,7 @@ export function MediaCarousel({
 
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: true,
-    slidesToScroll: isMobile ? 1 : 3,
+    slidesToScroll: isMobile ? 1 : 4,
     align: "start",
   });
 
@@ -141,8 +141,8 @@ export function MediaCarousel({
 
       {isLoading ? (
         <Flex gap="2">
-          {Array.from({ length: isMobile ? 2 : 3 }).map((_, i) => (
-            <Skeleton key={i} flex="1" rounded="xl" minH="32" />
+          {Array.from({ length: isMobile ? 2 : 4 }).map((_, i) => (
+            <Skeleton key={i} flex="1" rounded="xl" minH="20" />
           ))}
         </Flex>
       ) : mediaList.length === 0 ? (
@@ -178,8 +178,8 @@ export function MediaCarousel({
                   flexShrink={0}
                   style={
                     isMobile
-                      ? { flex: "0 0 calc(80% - 8px)" }
-                      : { flex: "0 0 calc(33.333% - 6px)" }
+                      ? { flex: "0 0 calc(60% - 8px)" }
+                      : { flex: "0 0 calc(25% - 6px)" }
                   }
                   rounded="xl"
                   overflow="hidden"
@@ -187,7 +187,7 @@ export function MediaCarousel({
                   position="relative"
                   display="flex"
                   flexDirection="column"
-                  minH={isMobile ? "44" : "40"}
+                  minH={isMobile ? "28" : "24"}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
