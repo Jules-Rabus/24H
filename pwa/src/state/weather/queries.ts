@@ -28,8 +28,9 @@ async function fetchWeather(
       minutely_15: "rain",
       daily: "sunrise,sunset,uv_index_max",
       timezone: "Europe/Paris",
-      // Only the next 24 h is shown — keeps the payload small.
-      forecast_days: 1,
+      // Rolling 24 h window for hourly data — `forecast_days: 1` would clip
+      // to local midnight, so an evening visit would only get a few hours.
+      forecast_hours: 24,
       // Force the Météo France AROME/ARPEGE seamless mix.
       models: "meteofrance_seamless",
     },
