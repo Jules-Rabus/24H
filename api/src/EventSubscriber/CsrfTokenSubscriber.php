@@ -24,7 +24,6 @@ final readonly class CsrfTokenSubscriber implements EventSubscriberInterface
     /** @var list<array{method: string, pattern: string}> */
     private const PROTECTED_ROUTES = [
         ['method' => 'POST', 'pattern' => '#^/race_medias$#'],
-        ['method' => 'GET', 'pattern' => '#^/race_medias$#'],
     ];
 
     public static function getSubscribedEvents(): array

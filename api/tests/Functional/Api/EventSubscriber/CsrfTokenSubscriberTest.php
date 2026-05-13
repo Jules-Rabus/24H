@@ -2,7 +2,6 @@
 
 namespace App\Tests\Functional\Api\EventSubscriber;
 
-use ApiPlatform\Symfony\Bundle\Test\Client;
 use App\Tests\Functional\Api\AbstractTestCase;
 use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -26,14 +25,6 @@ final class CsrfTokenSubscriberTest extends AbstractTestCase
             }
         }
         parent::tearDown();
-    }
-
-    private function withCsrfToken(Client $client, ?string $token = null): string
-    {
-        $token ??= bin2hex(random_bytes(32));
-        $client->getCookieJar()->set(new Cookie('XSRF-TOKEN', $token, null, '/', 'localhost'));
-
-        return $token;
     }
 
     private function makeUploadedFile(): UploadedFile
@@ -89,26 +80,12 @@ final class CsrfTokenSubscriberTest extends AbstractTestCase
         $this->assertResponseStatusCodeSame(403);
     }
 
-    public function testGetCollectionWithoutCsrfFails(): void
+    public function testGetCollectionWithoutCsrfSucceeds(): void
     {
-        // GET /race_medias also requires CSRF (as per PROTECTED_ROUTES)
+        // GET /race_medias is public read-only — no CSRF required so the
+        // anonymous race-status pages can load the media gallery.
         static::createClient()->request('GET', '/race_medias', [
             'headers' => ['Accept' => 'application/json'],
-        ]);
-
-        $this->assertResponseStatusCodeSame(403);
-    }
-
-    public function testGetCollectionWithMatchingCsrfSucceeds(): void
-    {
-        $client = $this->createClientWithCredentials();
-        $token = $this->withCsrfToken($client);
-
-        $client->request('GET', '/race_medias', [
-            'headers' => [
-                'Accept' => 'application/json',
-                'X-XSRF-TOKEN' => $token,
-            ],
         ]);
 
         $this->assertResponseIsSuccessful();
