@@ -46,7 +46,11 @@ const fakeWeather: WeatherResponse = {
 describe("WeatherCarouselMobile", () => {
   it("affiche la météo actuelle dans une grosse card", () => {
     render(
-      <WeatherCarouselMobile isLoading={false} weatherData={fakeWeather} />,
+      <WeatherCarouselMobile
+        isLoading={false}
+        weatherData={fakeWeather}
+        now={Date.parse("2026-03-15T08:00:00Z")}
+      />,
     );
     expect(screen.getByText(/Météo actuelle/i)).toBeInTheDocument();
     // 15° apparaît dans la grosse card + dans une des slides horaires — on
@@ -56,7 +60,11 @@ describe("WeatherCarouselMobile", () => {
 
   it("affiche les métriques actuelles (Ressenti, Vent, Humidité)", () => {
     render(
-      <WeatherCarouselMobile isLoading={false} weatherData={fakeWeather} />,
+      <WeatherCarouselMobile
+        isLoading={false}
+        weatherData={fakeWeather}
+        now={Date.parse("2026-03-15T08:00:00Z")}
+      />,
     );
     // Ces labels apparaissent dans la grosse card actuelle + dans chaque
     // slide horaire — on accepte ≥1 occurrence.
@@ -67,14 +75,22 @@ describe("WeatherCarouselMobile", () => {
 
   it("affiche la case Soleil (lever + coucher)", () => {
     render(
-      <WeatherCarouselMobile isLoading={false} weatherData={fakeWeather} />,
+      <WeatherCarouselMobile
+        isLoading={false}
+        weatherData={fakeWeather}
+        now={Date.parse("2026-03-15T08:00:00Z")}
+      />,
     );
     expect(screen.getByText(/Soleil/i)).toBeInTheDocument();
   });
 
   it("affiche la section prévisions horaires avec boutons de navigation", () => {
     render(
-      <WeatherCarouselMobile isLoading={false} weatherData={fakeWeather} />,
+      <WeatherCarouselMobile
+        isLoading={false}
+        weatherData={fakeWeather}
+        now={Date.parse("2026-03-15T08:00:00Z")}
+      />,
     );
     expect(screen.getByText(/Prévisions horaires/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Heure précédente/i)).toBeInTheDocument();
@@ -83,7 +99,11 @@ describe("WeatherCarouselMobile", () => {
 
   it("affiche un skeleton pendant le chargement", () => {
     const { container } = render(
-      <WeatherCarouselMobile isLoading={true} weatherData={undefined} />,
+      <WeatherCarouselMobile
+        isLoading={true}
+        weatherData={undefined}
+        now={0}
+      />,
     );
     expect(container.querySelector(".chakra-skeleton")).toBeTruthy();
   });

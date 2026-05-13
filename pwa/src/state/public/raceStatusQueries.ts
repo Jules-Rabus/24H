@@ -66,13 +66,16 @@ export function usePublicParticipationsQuery(
           "order[arrivalTime]": "desc",
           itemsPerPage: 1000,
           ...(edition ? { edition: String(edition) } : undefined),
-          ...(status === "FINISHED" ? { status: "FINISHED" } : undefined),
         },
         withCredentials: false,
       });
-      // Server-side filter is authoritative when status === "FINISHED" — we
-      // intentionally don't re-filter client-side to surface any divergence.
-      return z.array(participationSchema).parse(unwrap(data));
+      const all = z.array(participationSchema).parse(unwrap(data));
+      // `status` is a computed property on the API DTO (derived from
+      // arrivalTime), so there's no Doctrine column to filter on server-side.
+      // Filter client-side instead.
+      return status === "FINISHED"
+        ? all.filter((p) => p.status === "FINISHED")
+        : all;
     },
     staleTime: 15 * 1000,
   });

@@ -247,12 +247,7 @@ function ArrivalCard({
           variant="subtle"
           flexShrink={0}
         >
-          {userImage && (
-            <Avatar.Image
-              src={`${process.env.NEXT_PUBLIC_ENTRYPOINT ?? ""}${userImage}`}
-              alt={displayName}
-            />
-          )}
+          {userImage && <Avatar.Image src={userImage} alt={displayName} />}
           <Avatar.Fallback>
             {initials(firstName, lastName) || "?"}
           </Avatar.Fallback>
@@ -338,12 +333,7 @@ function ArrivalCard({
           colorPalette={isFirst ? "primary" : "gray"}
           variant="subtle"
         >
-          {userImage && (
-            <Avatar.Image
-              src={`${process.env.NEXT_PUBLIC_ENTRYPOINT ?? ""}${userImage}`}
-              alt={displayName}
-            />
-          )}
+          {userImage && <Avatar.Image src={userImage} alt={displayName} />}
           <Avatar.Fallback fontSize="sm">
             {initials(firstName, lastName) || "?"}
           </Avatar.Fallback>

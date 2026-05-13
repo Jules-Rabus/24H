@@ -44,6 +44,7 @@ export function PaceLineChart({ data, fluid = false }: PaceLineChartProps) {
       p="4"
       gap="2"
       overflow="hidden"
+      h="100%"
     >
       <HStack justify="space-between" align="center" flexShrink={0}>
         <Heading

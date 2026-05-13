@@ -28,6 +28,7 @@ import { getWeatherIcon } from "./utils";
 type WeatherCarouselMobileProps = {
   isLoading: boolean;
   weatherData: WeatherResponse | undefined;
+  now: number;
 };
 
 /**
@@ -40,21 +41,26 @@ type WeatherCarouselMobileProps = {
 export function WeatherCarouselMobile({
   isLoading,
   weatherData,
+  now,
 }: WeatherCarouselMobileProps) {
   const current = weatherData?.current;
   const sunrise = weatherData?.daily?.sunrise?.[0];
   const sunset = weatherData?.daily?.sunset?.[0];
   const WeatherIcon = getWeatherIcon(current?.weather_code ?? 0);
 
+  // Forecast starts at the next full hour after `now` — past hours are dropped
+  // so the carousel mirrors the desktop `WeatherPanel` behaviour.
   const hourly =
-    weatherData?.hourly.time.map((t, i) => ({
-      time: t,
-      temp: weatherData.hourly.temperature_2m[i],
-      code: weatherData.hourly.weather_code[i],
-      apparent: weatherData.hourly.apparent_temperature?.[i],
-      wind: weatherData.hourly.windspeed_10m?.[i],
-      humidity: weatherData.hourly.relative_humidity_2m?.[i],
-    })) ?? [];
+    weatherData?.hourly.time
+      .map((t, i) => ({
+        time: t,
+        temp: weatherData.hourly.temperature_2m[i],
+        code: weatherData.hourly.weather_code[i],
+        apparent: weatherData.hourly.apparent_temperature?.[i],
+        wind: weatherData.hourly.windspeed_10m?.[i],
+        humidity: weatherData.hourly.relative_humidity_2m?.[i],
+      }))
+      .filter((h) => new Date(h.time).getTime() > now) ?? [];
 
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: false,
@@ -276,7 +282,7 @@ export function WeatherCarouselMobile({
               {hourly.map((h, i) => {
                 const HIcon = getWeatherIcon(h.code);
                 const t = new Date(h.time);
-                const isNow = i === 0;
+                const isNext = i === 0;
                 return (
                   <Flex
                     key={h.time}
@@ -285,32 +291,30 @@ export function WeatherCarouselMobile({
                     direction="column"
                     gap="2"
                     p="2.5"
-                    bg={isNow ? "primary.50" : "bg.subtle"}
-                    _dark={isNow ? { bg: "primary.900" } : undefined}
+                    bg={isNext ? "primary.50" : "bg.subtle"}
+                    _dark={isNext ? { bg: "primary.900" } : undefined}
                     borderWidth="1px"
-                    borderColor={isNow ? "primary.300" : "border.subtle"}
+                    borderColor={isNext ? "primary.300" : "border.subtle"}
                     rounded="lg"
                   >
                     <Flex align="center" justify="space-between">
                       <Text
                         fontSize="2xs"
                         fontWeight="700"
-                        color={isNow ? "primary.fg" : "fg.muted"}
+                        color={isNext ? "primary.fg" : "fg.muted"}
                         letterSpacing="wider"
                         textTransform="uppercase"
                         fontFamily="mono"
                       >
-                        {isNow
-                          ? "Maintenant"
-                          : t.toLocaleTimeString("fr-FR", {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
+                        {t.toLocaleTimeString("fr-FR", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
                       </Text>
                       <Icon
                         as={HIcon}
                         boxSize="4"
-                        color={isNow ? "primary.fg" : "fg.muted"}
+                        color={isNext ? "primary.fg" : "fg.muted"}
                       />
                     </Flex>
                     <Text

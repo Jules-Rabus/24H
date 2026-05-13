@@ -24,6 +24,9 @@ async function fetchWeather(
         "temperature_2m,weather_code,apparent_temperature,windspeed_10m,relative_humidity_2m",
       daily: "sunrise,sunset",
       timezone: "Europe/Paris",
+      // Use the Météo France AROME/ARPEGE seamless mix instead of the
+      // default best-of-all-providers blend.
+      models: "meteofrance_seamless",
     },
   });
   return weatherResponseSchema.parse(data);
