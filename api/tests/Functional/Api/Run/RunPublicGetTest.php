@@ -2,6 +2,7 @@
 
 namespace App\Tests\Functional\Api\Run;
 
+use App\ApiResource\Run\RunApi;
 use App\Factory\RunFactory;
 use App\Tests\Functional\Api\AbstractTestCase;
 
@@ -36,6 +37,7 @@ final class RunPublicGetTest extends AbstractTestCase
         $this->assertResponseIsSuccessful();
         $this->assertResponseHeaderSame('content-type', 'application/json; charset=utf-8');
         $this->assertCount(3, $response->toArray());
+        $this->assertMatchesResourceCollectionJsonSchema(RunApi::class);
     }
 
     public function testGetCollectionExposesEditionField(): void
@@ -75,6 +77,7 @@ final class RunPublicGetTest extends AbstractTestCase
         ]);
         $this->assertResponseIsSuccessful();
         $this->assertCount(2, $response->toArray());
+        $this->assertMatchesResourceCollectionJsonSchema(RunApi::class);
 
         $response = static::createClient()->request('GET', self::ROUTE.'?edition=2025', [
             'headers' => ['Accept' => 'application/json'],

@@ -2,6 +2,7 @@
 
 namespace App\Tests\Functional\Api\User;
 
+use App\ApiResource\User\UserApi;
 use App\Factory\ParticipationFactory;
 use App\Factory\RunFactory;
 use App\Factory\UserFactory;
@@ -22,6 +23,7 @@ final class UserPublicTest extends AbstractTestCase
         $this->assertResponseIsSuccessful();
         // 5 created + 1 admin from setUp
         $this->assertCount(6, $response->toArray());
+        $this->assertMatchesResourceCollectionJsonSchema(UserApi::class);
     }
 
     public function testGetPublicUser(): void
@@ -36,6 +38,7 @@ final class UserPublicTest extends AbstractTestCase
         $data = $response->toArray();
         $this->assertSame($user->getId(), $data['id']);
         $this->assertSame($user->getFirstName(), $data['firstName']);
+        $this->assertMatchesResourceItemJsonSchema(UserApi::class);
     }
 
     public function testEditionFilterNarrowsEmbeddedParticipations(): void

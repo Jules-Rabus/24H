@@ -2,6 +2,7 @@
 
 namespace App\Tests\Functional\Api\User;
 
+use App\ApiResource\User\UserApi;
 use App\Factory\UserFactory;
 use App\Tests\Functional\Api\AbstractTestCase;
 
@@ -27,6 +28,7 @@ final class UserFilterTest extends AbstractTestCase
         $data = $response->toArray();
         $this->assertCount(1, $data);
         $this->assertSame($target->getId(), $data[0]['id']);
+        $this->assertMatchesResourceCollectionJsonSchema(UserApi::class);
     }
 
     public function testFilterByFirstNameIstart(): void
@@ -42,6 +44,7 @@ final class UserFilterTest extends AbstractTestCase
         $names = array_column($response->toArray(), 'firstName');
         sort($names);
         $this->assertSame(['Alan', 'Alice'], $names);
+        $this->assertMatchesResourceCollectionJsonSchema(UserApi::class);
     }
 
     public function testFilterByLastNameIstart(): void
@@ -55,6 +58,7 @@ final class UserFilterTest extends AbstractTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertCount(2, $response->toArray());
+        $this->assertMatchesResourceCollectionJsonSchema(UserApi::class);
     }
 
     public function testFilterBySurnameIstart(): void
@@ -68,6 +72,7 @@ final class UserFilterTest extends AbstractTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertCount(2, $response->toArray());
+        $this->assertMatchesResourceCollectionJsonSchema(UserApi::class);
     }
 
     public function testFilterByEmailIstart(): void
@@ -83,6 +88,7 @@ final class UserFilterTest extends AbstractTestCase
         $emails = array_column($response->toArray(), 'email');
         sort($emails);
         $this->assertSame(['alex.runner@example.com', 'alice.runner@example.com'], $emails);
+        $this->assertMatchesResourceCollectionJsonSchema(UserApi::class);
     }
 
     public function testFilterByOrganizationIstart(): void
@@ -96,5 +102,6 @@ final class UserFilterTest extends AbstractTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertCount(2, $response->toArray());
+        $this->assertMatchesResourceCollectionJsonSchema(UserApi::class);
     }
 }

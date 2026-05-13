@@ -2,6 +2,7 @@
 
 namespace App\Tests\Functional\Api\Participation;
 
+use App\ApiResource\Participation\ParticipationApi;
 use App\Factory\ParticipationFactory;
 use App\Factory\RunFactory;
 use App\Tests\Functional\Api\AbstractTestCase;
@@ -29,6 +30,7 @@ final class ParticipationPublicGetTest extends AbstractTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertCount(3, $response->toArray());
+        $this->assertMatchesResourceCollectionJsonSchema(ParticipationApi::class);
     }
 
     public function testEditionFilterScopesParticipations(): void
@@ -49,6 +51,7 @@ final class ParticipationPublicGetTest extends AbstractTestCase
         ]);
         $this->assertResponseIsSuccessful();
         $this->assertCount(2, $response->toArray());
+        $this->assertMatchesResourceCollectionJsonSchema(ParticipationApi::class);
 
         $response = static::createClient()->request('GET', self::ROUTE.'?edition=2025', [
             'headers' => ['Accept' => 'application/json'],

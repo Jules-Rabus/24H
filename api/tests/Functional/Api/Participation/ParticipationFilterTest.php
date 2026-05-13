@@ -2,6 +2,7 @@
 
 namespace App\Tests\Functional\Api\Participation;
 
+use App\ApiResource\Participation\ParticipationApi;
 use App\Factory\ParticipationFactory;
 use App\Factory\RunFactory;
 use App\Factory\UserFactory;
@@ -29,6 +30,7 @@ final class ParticipationFilterTest extends AbstractTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertCount(2, $response->toArray());
+        $this->assertMatchesResourceCollectionJsonSchema(ParticipationApi::class);
     }
 
     public function testFilterByRunId(): void
@@ -49,6 +51,7 @@ final class ParticipationFilterTest extends AbstractTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertCount(4, $response->toArray());
+        $this->assertMatchesResourceCollectionJsonSchema(ParticipationApi::class);
     }
 
     public function testFilterByUserFirstNameIstart(): void
@@ -70,6 +73,7 @@ final class ParticipationFilterTest extends AbstractTestCase
         $firstNames = array_map(static fn ($p) => $p['user']['firstName'] ?? null, $data);
         sort($firstNames);
         $this->assertSame(['Alan', 'Alice'], $firstNames);
+        $this->assertMatchesResourceCollectionJsonSchema(ParticipationApi::class);
     }
 
     public function testFilterByUserLastNameIstart(): void
@@ -86,5 +90,6 @@ final class ParticipationFilterTest extends AbstractTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertCount(2, $response->toArray());
+        $this->assertMatchesResourceCollectionJsonSchema(ParticipationApi::class);
     }
 }
