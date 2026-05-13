@@ -159,7 +159,7 @@ export function HomePage() {
         <Box
           as="a"
           {...{
-            href: "https://www.helloasso.com/associations/association-sportive-des-policiers-de-l-oise",
+            href: "https://www.helloasso.com/associations/association-sportive-des-policiers-de-l-oise/formulaires/4",
             target: "_blank",
             rel: "noopener noreferrer",
           }}
@@ -191,7 +191,7 @@ export function HomePage() {
                 Soutenir
               </Text>
               <Text fontSize="sm" color="fg.muted">
-                Faire un don à l&apos;ASPO sur HelloAsso
+                Faire un don pour Chloé, Ethan et Gael
               </Text>
             </VStack>
             <LuChevronRight size={20} color="currentColor" />
